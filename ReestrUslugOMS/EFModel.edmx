@@ -1,0 +1,463 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Хранилище REESTR_FOMSModel" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Formula">
+          <Key>
+            <PropertyRef Name="FormulaId" />
+          </Key>
+          <Property Name="FormulaId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NodeId" Type="int" Nullable="false" />
+          <Property Name="ResultType" Type="tinyint" Nullable="false" />
+          <Property Name="DataType" Type="tinyint" Nullable="false" />
+          <Property Name="DataValue" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Operation" Type="tinyint" Nullable="false" />
+          <Property Name="FactorValue" Type="float" />
+        </EntityType>
+        <EntityType Name="Node">
+          <Key>
+            <PropertyRef Name="NodeId" />
+          </Key>
+          <Property Name="NodeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Order" Type="varchar" MaxLength="10" />
+          <Property Name="ParentId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Color" Type="varchar" MaxLength="10" />
+          <Property Name="ReadOnly" Type="bit" Nullable="false" />
+          <Property Name="DataSource" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Plan">
+          <Key>
+            <PropertyRef Name="PlanId" />
+          </Key>
+          <Property Name="PlanId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Type" Type="tinyint" Nullable="false" />
+          <Property Name="RowNodeId" Type="int" Nullable="false" />
+          <Property Name="ColNodeId" Type="int" Nullable="false" />
+          <Property Name="Value" Type="float" Nullable="false" />
+          <Property Name="Month" Type="int" Nullable="false" />
+          <Property Name="Year" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Login" Type="varchar" MaxLength="70" Nullable="false" />
+          <Property Name="Sid" Type="varchar" MaxLength="300" />
+          <Property Name="ProgramSettings" Type="bit" Nullable="false" />
+          <Property Name="ReportSettings" Type="bit" Nullable="false" />
+          <Property Name="UserSettings" Type="bit" Nullable="false" />
+          <Property Name="PlanDoc" Type="bit" Nullable="false" />
+          <Property Name="PlanDep" Type="bit" Nullable="false" />
+          <Property Name="NodeId" Type="int" />
+        </EntityType>
+        <Association Name="FK_Formula_Node">
+          <End Role="Node" Type="Self.Node" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Formula" Type="Self.Formula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Formula">
+              <PropertyRef Name="NodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Node_Node">
+          <End Role="Node" Type="Self.Node" Multiplicity="1" />
+          <End Role="Node1" Type="Self.Node" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Node1">
+              <PropertyRef Name="ParentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Plan_Node">
+          <End Role="Node" Type="Self.Node" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Plan" Type="Self.Plan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Plan">
+              <PropertyRef Name="ColNodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Plan_Node1">
+          <End Role="Node" Type="Self.Node" Multiplicity="1" />
+          <End Role="Plan" Type="Self.Plan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Plan">
+              <PropertyRef Name="RowNodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_Node">
+          <End Role="Node" Type="Self.Node" Multiplicity="0..1" />
+          <End Role="User" Type="Self.User" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="User">
+              <PropertyRef Name="NodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="sp_ReportFact" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="month1" Type="int" Mode="In" />
+          <Parameter Name="god1" Type="int" Mode="In" />
+          <Parameter Name="month2" Type="int" Mode="In" />
+          <Parameter Name="god2" Type="int" Mode="In" />
+          <Parameter Name="mcod" Type="varchar" Mode="In" />
+          <Parameter Name="errId" Type="int" Mode="In" />
+          <Parameter Name="inoId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_ReportPlan" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="type" Type="int" Mode="In" />
+          <Parameter Name="month1" Type="int" Mode="In" />
+          <Parameter Name="god1" Type="int" Mode="In" />
+          <Parameter Name="month2" Type="int" Mode="In" />
+          <Parameter Name="god2" Type="int" Mode="In" />
+        </Function>
+        <EntityContainer Name="Хранилище REESTR_FOMSModelContainer">
+          <EntitySet Name="Formula" EntityType="Self.Formula" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Node" EntityType="Self.Node" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Plan" EntityType="Self.Plan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Formula_Node" Association="Self.FK_Formula_Node">
+            <End Role="Node" EntitySet="Node" />
+            <End Role="Formula" EntitySet="Formula" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Node_Node" Association="Self.FK_Node_Node">
+            <End Role="Node" EntitySet="Node" />
+            <End Role="Node1" EntitySet="Node" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Plan_Node" Association="Self.FK_Plan_Node">
+            <End Role="Node" EntitySet="Node" />
+            <End Role="Plan" EntitySet="Plan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Plan_Node1" Association="Self.FK_Plan_Node1">
+            <End Role="Node" EntitySet="Node" />
+            <End Role="Plan" EntitySet="Plan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Node" Association="Self.FK_User_Node">
+            <End Role="Node" EntitySet="Node" />
+            <End Role="User" EntitySet="User" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="REESTR_FOMSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="EFModel" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="dbtFormula" EntityType="REESTR_FOMSModel.dbtFormula" />
+          <EntitySet Name="dbtNode" EntityType="REESTR_FOMSModel.dbtNode" />
+          <EntitySet Name="dbtUser" EntityType="REESTR_FOMSModel.dbtUser" />
+          <AssociationSet Name="FK_Formula_Node" Association="REESTR_FOMSModel.FK_Formula_Node">
+            <End Role="Node" EntitySet="dbtNode" />
+            <End Role="Formula" EntitySet="dbtFormula" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Node_Node" Association="REESTR_FOMSModel.FK_Node_Node">
+            <End Role="Node" EntitySet="dbtNode" />
+            <End Role="Node1" EntitySet="dbtNode" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Node" Association="REESTR_FOMSModel.FK_User_Node">
+            <End Role="Node" EntitySet="dbtNode" />
+            <End Role="User" EntitySet="dbtUser" />
+          </AssociationSet>
+          <EntitySet Name="dbtPlan" EntityType="REESTR_FOMSModel.dbtPlan" />
+          <AssociationSet Name="FK_Plan_Node" Association="REESTR_FOMSModel.FK_Plan_Node">
+            <End Role="dbtNode" EntitySet="dbtNode" />
+            <End Role="Plan" EntitySet="dbtPlan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Plan_Node1" Association="REESTR_FOMSModel.FK_Plan_Node1">
+            <End Role="dbtNode" EntitySet="dbtNode" />
+            <End Role="Plan" EntitySet="dbtPlan" />
+          </AssociationSet>
+          <FunctionImport Name="sp_ReportFact" ReturnType="Collection(REESTR_FOMSModel.sp_ReportFactResult)">
+            <Parameter Name="month1" Mode="In" Type="Int32" />
+            <Parameter Name="god1" Mode="In" Type="Int32" />
+            <Parameter Name="month2" Mode="In" Type="Int32" />
+            <Parameter Name="god2" Mode="In" Type="Int32" />
+            <Parameter Name="mcod" Mode="In" Type="String" />
+            <Parameter Name="errId" Mode="In" Type="Int32" />
+            <Parameter Name="inoId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_ReportPlan" ReturnType="Collection(REESTR_FOMSModel.sp_ReportPlanResult)">
+            <Parameter Name="type" Mode="In" Type="Int32" />
+            <Parameter Name="month1" Mode="In" Type="Int32" />
+            <Parameter Name="god1" Mode="In" Type="Int32" />
+            <Parameter Name="month2" Mode="In" Type="Int32" />
+            <Parameter Name="god2" Mode="In" Type="Int32" />
+          </FunctionImport>
+        </EntityContainer>
+        <EnumType Name="enResultType" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enResultType" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration">
+          </EnumType>
+        <EnumType Name="enDataType" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enDataType" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration">
+          </EnumType>
+        <EnumType Name="enOperation" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enOperation" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration">
+          </EnumType>
+        <EnumType Name="enDataSource" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enDataSource" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EntityType Name="dbtFormula">
+          <Key>
+            <PropertyRef Name="FormulaId" />
+          </Key>
+          <Property Name="FormulaId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NodeId" Type="Int32" Nullable="false" />
+          <Property Name="ResultType" Type="REESTR_FOMSModel.enResultType" Nullable="false" />
+          <Property Name="DataType" Type="REESTR_FOMSModel.enDataType" Nullable="false" />
+          <Property Name="DataValue" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Operation" Type="REESTR_FOMSModel.enOperation" Nullable="false" />
+          <Property Name="FactorValue" Type="Double" />
+          <NavigationProperty Name="Node" Relationship="REESTR_FOMSModel.FK_Formula_Node" FromRole="Formula" ToRole="Node" />
+        </EntityType>
+        <EntityType Name="dbtNode">
+          <Key>
+            <PropertyRef Name="NodeId" />
+          </Key>
+          <Property Name="NodeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Order" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ParentId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Color" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ReadOnly" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Formula" Relationship="REESTR_FOMSModel.FK_Formula_Node" FromRole="Node" ToRole="Formula" />
+          <NavigationProperty Name="Next" Relationship="REESTR_FOMSModel.FK_Node_Node" FromRole="Node" ToRole="Node1" />
+          <NavigationProperty Name="Prev" Relationship="REESTR_FOMSModel.FK_Node_Node" FromRole="Node1" ToRole="Node" />
+          <NavigationProperty Name="User" Relationship="REESTR_FOMSModel.FK_User_Node" FromRole="Node" ToRole="User" />
+          <NavigationProperty Name="Plan" Relationship="REESTR_FOMSModel.FK_Plan_Node" FromRole="dbtNode" ToRole="Plan" />
+          <NavigationProperty Name="Plan1" Relationship="REESTR_FOMSModel.FK_Plan_Node1" FromRole="dbtNode" ToRole="Plan" />
+          <Property Name="DataSource" Type="REESTR_FOMSModel.enDataSource" Nullable="false" />
+        </EntityType>
+        <EntityType Name="dbtUser">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Login" Type="String" Nullable="false" MaxLength="70" FixedLength="false" Unicode="false" />
+          <Property Name="Sid" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="ProgramSettings" Type="Boolean" Nullable="false" />
+          <Property Name="ReportSettings" Type="Boolean" Nullable="false" />
+          <Property Name="UserSettings" Type="Boolean" Nullable="false" />
+          <Property Name="PlanDoc" Type="Boolean" Nullable="false" />
+          <Property Name="PlanDep" Type="Boolean" Nullable="false" />
+          <Property Name="NodeId" Type="Int32" />
+          <NavigationProperty Name="Node" Relationship="REESTR_FOMSModel.FK_User_Node" FromRole="User" ToRole="Node" />
+        </EntityType>
+        <Association Name="FK_Formula_Node">
+          <End Type="REESTR_FOMSModel.dbtNode" Role="Node" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="REESTR_FOMSModel.dbtFormula" Role="Formula" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Formula">
+              <PropertyRef Name="NodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Node_Node">
+          <End Type="REESTR_FOMSModel.dbtNode" Role="Node" Multiplicity="1" />
+          <End Type="REESTR_FOMSModel.dbtNode" Role="Node1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Node1">
+              <PropertyRef Name="ParentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_Node">
+          <End Type="REESTR_FOMSModel.dbtNode" Role="Node" Multiplicity="0..1" />
+          <End Type="REESTR_FOMSModel.dbtUser" Role="User" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Node">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="User">
+              <PropertyRef Name="NodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="dbtPlan">
+          <Key>
+            <PropertyRef Name="PlanId" />
+          </Key>
+          <Property Name="PlanId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Type" Type="REESTR_FOMSModel.enReportMode" Nullable="false" />
+          <Property Name="RowNodeId" Type="Int32" Nullable="false" />
+          <Property Name="ColNodeId" Type="Int32" Nullable="false" />
+          <Property Name="Value" Type="Double" Nullable="false" />
+          <Property Name="Month" Type="Int32" Nullable="false" />
+          <Property Name="Year" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ColNode" Relationship="REESTR_FOMSModel.FK_Plan_Node" FromRole="Plan" ToRole="dbtNode" />
+          <NavigationProperty Name="RowNode" Relationship="REESTR_FOMSModel.FK_Plan_Node1" FromRole="Plan" ToRole="dbtNode" />
+        </EntityType>
+        <Association Name="FK_Plan_Node">
+          <End Type="REESTR_FOMSModel.dbtNode" Role="dbtNode" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="REESTR_FOMSModel.dbtPlan" Role="Plan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="dbtNode">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Plan">
+              <PropertyRef Name="ColNodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Plan_Node1">
+          <End Type="REESTR_FOMSModel.dbtNode" Role="dbtNode" Multiplicity="1" />
+          <End Type="REESTR_FOMSModel.dbtPlan" Role="Plan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="dbtNode">
+              <PropertyRef Name="NodeId" />
+            </Principal>
+            <Dependent Role="Plan">
+              <PropertyRef Name="RowNodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="sp_ReportFactResult">
+          <Property Type="String" Name="CodUsl" Nullable="true" MaxLength="41" />
+          <Property Type="String" Name="CodOtd" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="CodDoc" Nullable="true" MaxLength="6" />
+          <Property Type="Int32" Name="Usl" Nullable="true" />
+          <Property Type="Double" Name="ColUsl" Nullable="true" />
+          <Property Type="Double" Name="UET" Nullable="true" />
+          <Property Type="Int32" Name="UslDo3" Nullable="true" />
+          <Property Type="Int32" Name="UslPosle3" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="sp_ReportPlanResult">
+          <Property Type="Int32" Name="RowNodeId" Nullable="false" />
+          <Property Type="Int32" Name="ColNodeId" Nullable="false" />
+          <Property Type="Double" Name="Value" Nullable="true" />
+        </ComplexType>
+        <EnumType Name="enReportMode" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enReportMode" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище REESTR_FOMSModelContainer" CdmEntityContainer="EFModel">
+          <EntitySetMapping Name="dbtFormula">
+            <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtFormula">
+              <MappingFragment StoreEntitySet="Formula">
+                <ScalarProperty Name="FactorValue" ColumnName="FactorValue" />
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="DataValue" ColumnName="DataValue" />
+                <ScalarProperty Name="DataType" ColumnName="DataType" />
+                <ScalarProperty Name="ResultType" ColumnName="ResultType" />
+                <ScalarProperty Name="NodeId" ColumnName="NodeId" />
+                <ScalarProperty Name="FormulaId" ColumnName="FormulaId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="dbtNode">
+            <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtNode">
+              <MappingFragment StoreEntitySet="Node">
+                <ScalarProperty Name="DataSource" ColumnName="DataSource" />
+                <ScalarProperty Name="ReadOnly" ColumnName="ReadOnly" />
+                <ScalarProperty Name="Color" ColumnName="Color" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ParentId" ColumnName="ParentId" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+                <ScalarProperty Name="NodeId" ColumnName="NodeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="dbtUser">
+            <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtUser">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="NodeId" ColumnName="NodeId" />
+                <ScalarProperty Name="PlanDep" ColumnName="PlanDep" />
+                <ScalarProperty Name="PlanDoc" ColumnName="PlanDoc" />
+                <ScalarProperty Name="UserSettings" ColumnName="UserSettings" />
+                <ScalarProperty Name="ReportSettings" ColumnName="ReportSettings" />
+                <ScalarProperty Name="ProgramSettings" ColumnName="ProgramSettings" />
+                <ScalarProperty Name="Sid" ColumnName="Sid" />
+                <ScalarProperty Name="Login" ColumnName="Login" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="dbtPlan">
+            <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtPlan">
+              <MappingFragment StoreEntitySet="Plan">
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="ColNodeId" ColumnName="ColNodeId" />
+                <ScalarProperty Name="RowNodeId" ColumnName="RowNodeId" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="PlanId" ColumnName="PlanId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_ReportFact" FunctionName="Хранилище REESTR_FOMSModel.sp_ReportFact">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="REESTR_FOMSModel.sp_ReportFactResult">
+                <ScalarProperty Name="CodUsl" ColumnName="CodUsl" />
+                <ScalarProperty Name="CodOtd" ColumnName="CodOtd" />
+                <ScalarProperty Name="CodDoc" ColumnName="CodDoc" />
+                <ScalarProperty Name="Usl" ColumnName="Usl" />
+                <ScalarProperty Name="ColUsl" ColumnName="ColUsl" />
+                <ScalarProperty Name="UET" ColumnName="UET" />
+                <ScalarProperty Name="UslDo3" ColumnName="UslDo3" />
+                <ScalarProperty Name="UslPosle3" ColumnName="UslPosle3" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_ReportPlan" FunctionName="Хранилище REESTR_FOMSModel.sp_ReportPlan">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="REESTR_FOMSModel.sp_ReportPlanResult">
+                <ScalarProperty Name="RowNodeId" ColumnName="RowNodeId" />
+                <ScalarProperty Name="ColNodeId" ColumnName="ColNodeId" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

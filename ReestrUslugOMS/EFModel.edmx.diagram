@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="4908378297eb438c9783972ae19b193f" Name="Diagram1">
+        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtFormula" Width="1.5" PointX="6.875" PointY="4.875" />
+        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtNode" Width="1.5" PointX="4.125" PointY="2.875" />
+        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtUser" Width="1.5" PointX="6.875" PointY="1.125" />
+        <AssociationConnector Association="REESTR_FOMSModel.FK_Formula_Node" />
+        <AssociationConnector Association="REESTR_FOMSModel.FK_Node_Node" />
+        <AssociationConnector Association="REESTR_FOMSModel.FK_User_Node" />
+        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtPlan" Width="1.5" PointX="1.5" PointY="2.875" />
+        <AssociationConnector Association="REESTR_FOMSModel.FK_Plan_Node" />
+        <AssociationConnector Association="REESTR_FOMSModel.FK_Plan_Node1" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
