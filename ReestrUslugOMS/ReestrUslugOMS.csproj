@@ -74,6 +74,7 @@
     <Compile Include="Classes and structures\Config.cs" />
     <Compile Include="Classes and structures\dbtFormula.cs" />
     <Compile Include="Classes and structures\dbtNode.cs" />
+    <Compile Include="Classes and structures\ExtNode.cs" />
     <Compile Include="Classes and structures\SecurityPrincipals.cs" />
     <Compile Include="Classes and structures\Enums.cs" />
     <Compile Include="Classes and structures\MSSQLDB.cs" />

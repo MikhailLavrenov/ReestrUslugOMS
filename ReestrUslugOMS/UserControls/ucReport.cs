@@ -102,6 +102,7 @@ namespace ReestrUslugOMS.UserControls
             }
             
             report.SetParams(date1, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
+            report.SetResultValues();
             report.ToReoGrid(reoGridControl1.CurrentWorksheet);
 
             if (reoGridControl1.Visible == false)                
@@ -210,6 +211,7 @@ namespace ReestrUslugOMS.UserControls
         {
             reoGridControl1.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
             report.SavePlan(reoGridControl1.CurrentWorksheet);
+
             report.SetResultValues();
 
             report.ToReoGrid(reoGridControl1.CurrentWorksheet);
