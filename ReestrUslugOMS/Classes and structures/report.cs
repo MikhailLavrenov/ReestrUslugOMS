@@ -63,13 +63,13 @@ namespace ReestrUslugOMS
             //формируем и заполняем массив столбцов
             dbtRoot = nodes.Where(x => x.Name == "Столбцы" && x.Prev == null).First();
 
-            extRoot = new ExtNode(dbtRoot, null);
+            extRoot = new ExtNode(dbtRoot, null,-1);
             Cols = extRoot.ToArray(1);
 
 
             //формируем и заполняем массив строк 
             dbtRoot = nodes.Where(x => x.Name == "Строки" && x.Prev == null).First();
-            extRoot = new ExtNode(dbtRoot, null);
+            extRoot = new ExtNode(dbtRoot, null,-1);
 
             if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
             {
@@ -248,26 +248,6 @@ namespace ReestrUslugOMS
             return res;
         }
 
-        private static void SubCoord(ExtNode[] nodes, int pos, out int begin, out int end)
-        {
-            begin = pos;
-            end = pos;
-            int level = nodes[pos].Level;
-
-            for (int i = pos; i >= 0; i--)
-            {
-                if (nodes[i].Level >= level)
-                    begin = i;
-                else break;
-            }
-            for (int i = pos; i < nodes.Length; i++)
-            {
-                if (nodes[i].Level >= level)
-                    end = i;
-                else break;
-            }
-        }
-
         private double SubSum(int nodePos, int resPos, enSumType sumType)
         {
             ExtNode[] nodes;
@@ -283,28 +263,27 @@ namespace ReestrUslugOMS
                 secondMultiplier = Rows[resPos].Formula.Count == 0 ? null : Rows[resPos].Formula[0]?.Operation;
             }
 
+            var node = nodes[nodePos];
             double result = 0;
             double num;
-            int level = nodes[nodePos].Level;
+            var subNodes = new List<ExtNode>();
 
-            SubCoord(nodes, nodePos, out int beg, out int end);
-
-            for (int j = 0; j < nodes[nodePos].Formula.Count; j++)
-                for (int i = beg; i <= end; i++)
-                    if (nodes[i].Level == level + 1)
-                    {
-                        if (((nodes[nodePos].Formula[j].DataType == enDataType.НазваниеЭлемента) && (nodes[i].Name == nodes[nodePos].Formula[j].DataValue)) || ((nodes[nodePos].Formula[j].DataType == enDataType.НазваниеЭлемента) && (nodes[i].NodeId.ToString() == nodes[nodePos].Formula[j].DataValue)))
+            foreach (var item in node.Prev.Next)
+                subNodes.AddRange( item.Next.Where(x => x.DataSource != 0).ToList() );
+            
+            foreach (var formula in node.Formula)
+                    foreach (var subNode in subNodes)
+                        if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НазваниеЭлемента && subNode.NodeId.ToString() == formula.DataValue))
                         {
                             if (sumType == enSumType.Строки)
-                                num = ResultValues[i, resPos];
+                                num = ResultValues[subNode.Index, resPos];
                             else if (sumType == enSumType.Столбцы)
-                                num = ResultValues[resPos, i];
+                                num = ResultValues[resPos, subNode.Index];
                             else
                                 num = 0;
 
-                            result += nodes[nodePos].Formula[j].Calculate(num, secondMultiplier);
+                            result += formula.Calculate(num, secondMultiplier);
                         }
-                    }
 
             result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
@@ -499,14 +478,14 @@ namespace ReestrUslugOMS
             Config.Instance.Runtime.dbContext.SaveChanges();
         }
 
-        public void ExpandCollapse(ReoGridControl control)
+        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
         {
             var sheet = control.CurrentWorksheet;
-            var point = new Point { X = sheet.FocusPos.Col, Y = sheet.FocusPos.Row };
+            var clickPoint = new Point { X = sheet.FocusPos.Col, Y = sheet.FocusPos.Row };
             int index;
             ExtNode node;
 
-            if (Rows[0].Root.Exist(point, out node))
+            if (Rows[0].Root.Exist(clickPoint, out node) && node.CanCollapse)
             {
                 index = Array.IndexOf(Rows, node);
 
@@ -525,7 +504,7 @@ namespace ReestrUslugOMS
                 }
             }
 
-            else if (Cols[0].Root.Exist(point, out node))
+            else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanCollapse)
             {
                 index = Array.IndexOf(Cols, node);
                 if (Cols[index].CanCollapse == true)
@@ -542,9 +521,17 @@ namespace ReestrUslugOMS
                     }
                 }
             }
+            else
+                return;
+
+            var pos = scrollBarsPosition;
+            scrollBarsPosition.X = 0;
+            scrollBarsPosition.Y = 0;
+            
+            control.ScrollCurrentWorksheet(pos.X, pos.Y);
         }
 
-        public void ExpandCollapse(ReoGridControl control, int rowLevel = -1, int colLevel = -1)
+        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1 )
         {
             var sheet = control.CurrentWorksheet;
 
@@ -595,6 +582,12 @@ namespace ReestrUslugOMS
                         sheet.ShowColumns(Cols[j].Col, 1);
                 }
             }
+
+            var pos = scrollBarsPosition;
+            scrollBarsPosition.X = 0;
+            scrollBarsPosition.Y = 0;
+
+            control.ScrollCurrentWorksheet(pos.X, pos.Y);
         }
 
         //тестовый метод для подбора цвета клеток для ввода плана

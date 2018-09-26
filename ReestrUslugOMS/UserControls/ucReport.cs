@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Data.Entity;
 using ReestrUslugOMS.Classes_and_structures;
 using unvell.ReoGrid;
+using System.Reflection;
 
 namespace ReestrUslugOMS.UserControls
 {
@@ -18,9 +19,8 @@ namespace ReestrUslugOMS.UserControls
 
         private DateTime date1;
         private DateTime date2;
-
-        Report report;       
-
+        public PointF gridScrollBarsPosition;    //из-за бага ReoGridControl после hide/show строк/столбцов сбрасывается позиция scrollBars        
+        private Report report;       
         public ucReport(enReportMode reportMode= enReportMode.Отчет)
         {
             InitializeComponent();
@@ -151,8 +151,8 @@ namespace ReestrUslugOMS.UserControls
         }
 
         private void reoGridControl1_DoubleClick(object sender, EventArgs e)
-        {
-            report.ExpandCollapse(reoGridControl1);            
+        {          
+            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition);
         }
 
         private void metroButton7_Click(object sender, EventArgs e)
@@ -161,13 +161,12 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroTrackBar1_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, metroTrackBar1.Value,-1);
-
+            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition,metroTrackBar1.Value,-1);
         }
 
         private void metroTrackBar2_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1,-1, metroTrackBar2.Value);
+            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition ,- 1, metroTrackBar2.Value);
         }
 
         private void metroLabel8_Click(object sender, EventArgs e)
@@ -176,8 +175,7 @@ namespace ReestrUslugOMS.UserControls
             {
                 metroTrackBar1.Value--;
                 metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
-            }
-                
+            }                
         }
 
         private void metroLabel9_Click(object sender, EventArgs e)
@@ -211,11 +209,20 @@ namespace ReestrUslugOMS.UserControls
         {
             reoGridControl1.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
             report.SavePlan(reoGridControl1.CurrentWorksheet);
-
             report.SetResultValues();
-
             report.ToReoGrid(reoGridControl1.CurrentWorksheet);
-
         }
+
+        private void reoGridControl1_WorksheetScrolled(object sender, unvell.ReoGrid.Events.WorksheetScrolledEventArgs e)
+        {
+            gridScrollBarsPosition.X += e.OffsetX;
+            gridScrollBarsPosition.Y += e.OffsetY;
+        }
+
+        private void metroButton6_Click(object sender, EventArgs e)
+        {
+            reoGridControl1.CurrentWorksheet.HideColumns(5, 5);
+        }
+
     }
 }

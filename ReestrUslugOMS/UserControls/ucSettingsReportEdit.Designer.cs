@@ -407,7 +407,7 @@
             this.Column3.Name = "Column3";
             this.Column3.ReadOnly = true;
             this.Column3.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column3.Width = 120;
+            this.Column3.Width = 140;
             // 
             // Column4
             // 
@@ -441,7 +441,6 @@
             this.Column7.HeaderText = "Коэффициент";
             this.Column7.Name = "Column7";
             this.Column7.ReadOnly = true;
-            this.Column7.Width = 120;
             // 
             // ucSettingsReportEdit
             // 

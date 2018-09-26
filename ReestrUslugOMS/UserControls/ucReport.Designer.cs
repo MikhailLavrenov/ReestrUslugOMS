@@ -211,7 +211,7 @@
             this.reoGridControl1.ColumnHeaderContextMenuStrip = null;
             this.reoGridControl1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.reoGridControl1.LeadHeaderContextMenuStrip = null;
-            this.reoGridControl1.Location = new System.Drawing.Point(0, 120);
+            this.reoGridControl1.Location = new System.Drawing.Point(0, 109);
             this.reoGridControl1.Name = "reoGridControl1";
             this.reoGridControl1.RowHeaderContextMenuStrip = null;
             this.reoGridControl1.Script = null;
@@ -220,10 +220,11 @@
             this.reoGridControl1.SheetTabVisible = false;
             this.reoGridControl1.SheetTabWidth = 60;
             this.reoGridControl1.ShowScrollEndSpacing = true;
-            this.reoGridControl1.Size = new System.Drawing.Size(960, 480);
+            this.reoGridControl1.Size = new System.Drawing.Size(960, 491);
             this.reoGridControl1.TabIndex = 4;
             this.reoGridControl1.Text = "reoGridControl1";
             this.reoGridControl1.Visible = false;
+            this.reoGridControl1.WorksheetScrolled += new System.EventHandler<unvell.ReoGrid.Events.WorksheetScrolledEventArgs>(this.reoGridControl1_WorksheetScrolled);
             this.reoGridControl1.DoubleClick += new System.EventHandler(this.reoGridControl1_DoubleClick);
             // 
             // metroPanel2
@@ -347,7 +348,7 @@
             this.metroButton6.TabIndex = 0;
             this.metroButton6.Text = "В excel";
             this.metroButton6.UseSelectable = true;
-            this.metroButton6.Click += new System.EventHandler(this.metroButton1_Click);
+            this.metroButton6.Click += new System.EventHandler(this.metroButton6_Click);
             // 
             // metroButton7
             // 

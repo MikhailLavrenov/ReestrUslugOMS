@@ -22,6 +22,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                 return result;
             }
         }
+        public int Index { get; set; }
         public int Level { get; private set; }
         public new Color? Color { get; private set; }
         public new List<dbtFormula> Formula { get; private set; }
@@ -72,7 +73,7 @@ namespace ReestrUslugOMS.Classes_and_structures
         {
         }
 
-        public ExtNode(dbtNode node, ExtNode prev)
+        public ExtNode(dbtNode node, ExtNode prev, int prevIndex)
         {
             NodeId = node.NodeId;
             ParentId = node.ParentId;
@@ -81,6 +82,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             Color= ColorTranslator.FromHtml(node.Color);
             ReadOnly = node.ReadOnly;
             DataSource = node.DataSource;
+            Index = prevIndex+1;
             Visible = true;
             PlanSet = false;
             Formula = node.Formula == null ? new List<dbtFormula>() : node.Formula.ToList();
@@ -92,7 +94,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             Next = new List<ExtNode>();
             foreach (var item in node.Next.OrderBy(x=>x.Order).ToList())
-                Next.Add(new ExtNode(item,this));
+                Next.Add(new ExtNode(item,this,Index));
 
             SetCanCollapse();
         }
