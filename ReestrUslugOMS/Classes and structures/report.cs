@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using MetroFramework.Controls;
 using unvell.ReoGrid;
 using ReestrUslugOMS.Classes_and_structures;
-
+using unvell.ReoGrid.DataFormat;
 
 namespace ReestrUslugOMS
 {
@@ -27,6 +27,7 @@ namespace ReestrUslugOMS
 
         //настройки отчета
         public int Round { get; set; }
+        public int PercentRound { get; set; }
         public enReportMode ReportType { get; private set; }
         public DateTime BeginPeriod { get; private set; }
         public DateTime EndPeriod { get; private set; }
@@ -38,7 +39,8 @@ namespace ReestrUslugOMS
         {
             MaxColLevel = 0;
             MaxRowLevel = 0;
-            Round = 1;
+            Round = 0;
+            PercentRound = 1;
             DataSourcesDict = new Dictionary<enDataSource, object>();
             ReportType = reportType;
 
@@ -63,13 +65,15 @@ namespace ReestrUslugOMS
             //формируем и заполняем массив столбцов
             dbtRoot = nodes.Where(x => x.Name == "Столбцы" && x.Prev == null).First();
 
-            extRoot = new ExtNode(dbtRoot, null,-1);
+            int ind = -1;
+            extRoot = new ExtNode(dbtRoot, null,ref ind);
             Cols = extRoot.ToArray(1);
 
 
             //формируем и заполняем массив строк 
             dbtRoot = nodes.Where(x => x.Name == "Строки" && x.Prev == null).First();
-            extRoot = new ExtNode(dbtRoot, null,-1);
+            ind = 1;
+            extRoot = new ExtNode(dbtRoot, null,ref ind);
 
             if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
             {
@@ -157,7 +161,7 @@ namespace ReestrUslugOMS
         {
             SetDataSources();
 
-            ResultValues = new double[this.Rows.Length, this.Cols.Length];
+            ResultValues = new double[Rows.Length, Cols.Length];
 
             //подставляем известные данные
             for (int i = 0; i < Rows.Length; i++)
@@ -174,17 +178,25 @@ namespace ReestrUslugOMS
             for (int lev = MaxRowLevel - 1; lev > 0; lev--)
                 for (int i = 0; i < Rows.Length; i++)
                     for (int j = 0; j < Cols.Length; j++)
-                        if (ResultValues[i, j] == 0 && Cols[j].DataSource != 0)
-                            if ((lev == Rows[i].Level) && (Rows[i].DataSource == enDataSource.Отчет) && (Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены))
-                                ResultValues[i, j] = SubSum(i, j, enSumType.Строки);
+                        if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Cols[j].DataSource != 0)
+                            if (Rows[i].DataSource == enDataSource.Отчет && Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+                                ResultValues[i, j] = SubSum(i, j, enDirection.Строки);
 
             //суммируем столбцы
             for (int lev = MaxColLevel - 1; lev > 0; lev--)
                 for (int i = 0; i < Cols.Length; i++)
                     for (int j = 0; j < Rows.Length; j++)
-                        if (ResultValues[j, i] == 0 && Rows[j].DataSource != 0)
-                            if ((lev == Cols[i].Level) && (Cols[i].DataSource == enDataSource.Отчет) && (Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены))
-                                ResultValues[j, i] = SubSum(i, j, enSumType.Столбцы);
+                        if (lev == Cols[i].Level && ResultValues[j, i] == 0 && Rows[j].DataSource != 0)
+                            if (Cols[i].DataSource == enDataSource.Отчет && Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+                                ResultValues[j, i] = SubSum(i, j, enDirection.Столбцы);
+
+            //считаем проценты в строках
+            for (int lev = MaxRowLevel; lev > 0; lev--)
+                for (int i = 0; i < Rows.Length; i++)
+                    for (int j = 0; j < Cols.Length; j++)
+                        if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Rows[i].DataSource == enDataSource.Отчет)
+                            if (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелитель)
+                                ResultValues[i, j] = PercentRows(i, j);
         }
 
         private double GetPlan(int rowNumber, int colNumber)
@@ -248,11 +260,11 @@ namespace ReestrUslugOMS
             return res;
         }
 
-        private double SubSum(int nodePos, int resPos, enSumType sumType)
+        private double SubSum(int nodePos, int resPos, enDirection direction)
         {
             ExtNode[] nodes;
             enOperation? secondMultiplier;
-            if (sumType == enSumType.Строки)
+            if (direction == enDirection.Строки)
             {
                 nodes = Rows;
                 secondMultiplier = Cols[resPos].Formula.Count == 0 ? null : Cols[resPos].Formula[0]?.Operation;
@@ -275,9 +287,9 @@ namespace ReestrUslugOMS
                     foreach (var subNode in subNodes)
                         if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НазваниеЭлемента && subNode.NodeId.ToString() == formula.DataValue))
                         {
-                            if (sumType == enSumType.Строки)
+                            if (direction == enDirection.Строки)
                                 num = ResultValues[subNode.Index, resPos];
-                            else if (sumType == enSumType.Столбцы)
+                            else if (direction == enDirection.Столбцы)
                                 num = ResultValues[resPos, subNode.Index];
                             else
                                 num = 0;
@@ -290,6 +302,29 @@ namespace ReestrUslugOMS
             return result;
         }
 
+        private double PercentRows (int rowNumber, int colNumber)
+        {
+            double result=0;
+
+            ExtNode row= Rows[rowNumber];
+
+            var formulaDelimoe = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелимое).First();
+            var formulaDelitel = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелитель).First();
+
+            var nodeDelimoe = row.Prev.Next.Where(x => x.Name == formulaDelimoe.DataValue).First();
+            var nodeDelitel = row.Prev.Next.Where(x => x.Name == formulaDelitel.DataValue).First();
+
+            var delimoe = ResultValues[nodeDelimoe.Index, colNumber];
+            var delitel = ResultValues[nodeDelitel.Index, colNumber];
+
+            if (delimoe!=0 && delitel!=0)
+                result = 100*delimoe/delitel;
+
+            result = Math.Round(result, PercentRound, MidpointRounding.AwayFromZero);
+
+            return result;
+        }
+
         public void ToReoGrid(Worksheet sheet)
         {
             sheet.Reset();
@@ -297,6 +332,9 @@ namespace ReestrUslugOMS
             //задаем количество строк и столбцов
             sheet.Rows = MaxColLevel + Rows.Length;
             sheet.Columns = MaxRowLevel + Cols.Length;
+            
+            //задаем формат клеток - текст, чтобы не искажался вывод значений
+            sheet.SetRangeDataFormat(0, 0, sheet.Rows, sheet.Columns, CellDataFormatFlag.Text);
 
             //заполняем заголовки строк
             for (int i = 0; i < Rows.Length; i++)
@@ -314,11 +352,18 @@ namespace ReestrUslugOMS
                 sheet[Cols[i].Row, Cols[i].Col] = Cols[i].AltName;
             }
 
+            
+
             //заполняем значения
             for (int i = 0; i < Rows.Length; i++)
                 for (int j = 0; j < Cols.Length; j++)
                     if (ResultValues[i, j] != 0)
-                        sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString();
+                    {
+                        if (Rows[i].DataSource == enDataSource.Отчет && (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое))
+                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString() + "%";
+                        else
+                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString();
+                    }
 
 
             #region форматирование

@@ -42,8 +42,9 @@ namespace ReestrUslugOMS
         [Description("Услуг до 3 лет")]             УслугДо3Лет = 4,
         [Description("Услуг после 3 лет")]          УслугПосле3Лет = 5,
         [Description("Вложенные Элементы")]         ВложенныеЭлемены = 6,
-        [Description("Делимое")]                    Делимое = 7,
-        [Description("Делитель")]                   Делитель = 8,
+        [Description("Проценты Делимое")]           ПроцентыДелимое = 7,
+        [Description("Проценты Делитель")]          ПроцентыДелитель = 8,
+
     }
     public enum enInsuranceMode : byte
     {
@@ -68,7 +69,7 @@ namespace ReestrUslugOMS
         ПланОтделения = 2,
         Отчет = 3
     }
-    public enum enSumType : byte
+    public enum enDirection : byte
     {
         none=0,
         Строки=1,

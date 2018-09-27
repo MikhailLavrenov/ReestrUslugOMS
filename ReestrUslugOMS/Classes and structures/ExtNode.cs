@@ -73,7 +73,7 @@ namespace ReestrUslugOMS.Classes_and_structures
         {
         }
 
-        public ExtNode(dbtNode node, ExtNode prev, int prevIndex)
+        public ExtNode(dbtNode node, ExtNode prev, ref int index)
         {
             NodeId = node.NodeId;
             ParentId = node.ParentId;
@@ -82,7 +82,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             Color= ColorTranslator.FromHtml(node.Color);
             ReadOnly = node.ReadOnly;
             DataSource = node.DataSource;
-            Index = prevIndex+1;
+            Index = index++;
             Visible = true;
             PlanSet = false;
             Formula = node.Formula == null ? new List<dbtFormula>() : node.Formula.ToList();
@@ -94,7 +94,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             Next = new List<ExtNode>();
             foreach (var item in node.Next.OrderBy(x=>x.Order).ToList())
-                Next.Add(new ExtNode(item,this,Index));
+                Next.Add(new ExtNode(item,this, ref index));
 
             SetCanCollapse();
         }
@@ -153,18 +153,20 @@ namespace ReestrUslugOMS.Classes_and_structures
 
         public void InitializeProperties()
         {
-            Root._InitializeProperties();
+            int ind = -1;
+            Root._InitializeProperties(ref ind);
         }
         //рекурсия вперед
-        private void _InitializeProperties()
+        private void _InitializeProperties(ref int index)
         {
             SetFullName();
             SetFullOrder();
             SetLevel();
             SetCanCollapse();
+            Index = index++;
 
             foreach (var item in Next)
-                item._InitializeProperties();            
+                item._InitializeProperties(ref index);            
         }
         
         public ExtNode AddRoot (string name)
