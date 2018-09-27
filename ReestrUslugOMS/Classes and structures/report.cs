@@ -325,15 +325,32 @@ namespace ReestrUslugOMS
             return result;
         }
 
-        public void ToReoGrid(Worksheet sheet)
+        public void ValuesToReoGrid(Worksheet sheet)
+        {
+            //заполняем значения
+            for (int i = 0; i < Rows.Length; i++)
+                for (int j = 0; j < Cols.Length; j++)
+                    if (ResultValues[i, j] != 0)
+                    {
+                        if (Rows[i].DataSource == enDataSource.Отчет && (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое))
+                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString() + "%";
+                        else
+                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString();
+                    }
+                    else
+                        sheet[Rows[i].Row, Cols[j].Col] = null;
+
+        }
+
+        public void HeadersToReoGrid(Worksheet sheet)
         {
             sheet.Reset();
 
             //задаем количество строк и столбцов
             sheet.Rows = MaxColLevel + Rows.Length;
             sheet.Columns = MaxRowLevel + Cols.Length;
-            
-            //задаем формат клеток - текст, чтобы не искажался вывод значений
+
+            //задаем формат клеток = текст, чтобы не искажался вывод значений
             sheet.SetRangeDataFormat(0, 0, sheet.Rows, sheet.Columns, CellDataFormatFlag.Text);
 
             //заполняем заголовки строк
@@ -352,19 +369,7 @@ namespace ReestrUslugOMS
                 sheet[Cols[i].Row, Cols[i].Col] = Cols[i].AltName;
             }
 
-            
-
-            //заполняем значения
-            for (int i = 0; i < Rows.Length; i++)
-                for (int j = 0; j < Cols.Length; j++)
-                    if (ResultValues[i, j] != 0)
-                    {
-                        if (Rows[i].DataSource == enDataSource.Отчет && (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое))
-                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString() + "%";
-                        else
-                            sheet[Rows[i].Row, Cols[j].Col] = ResultValues[i, j].ToString();
-                    }
-
+            //ValuesToReoGrid(sheet);
 
             #region форматирование
 
@@ -497,7 +502,8 @@ namespace ReestrUslugOMS
                     if (Rows[i].PlanSet != true || Cols[j].PlanSet != true)
                         continue;
 
-                    newVal = sheet[Rows[i].Row, Cols[j].Col] == null ? 0 : (double)sheet[Rows[i].Row, Cols[j].Col];
+                    var cell = (string)sheet[Rows[i].Row, Cols[j].Col];
+                    newVal = string.IsNullOrEmpty(cell) ? 0 : double.Parse(cell);
                     oldVal = ResultValues[i, j];
 
                     if (oldVal == newVal)

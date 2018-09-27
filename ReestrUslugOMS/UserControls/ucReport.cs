@@ -21,6 +21,7 @@ namespace ReestrUslugOMS.UserControls
         private DateTime date2;
         public PointF gridScrollBarsPosition;    //из-за бага ReoGridControl после hide/show строк/столбцов сбрасывается позиция scrollBars        
         private Report report;       
+
         public ucReport(enReportMode reportMode= enReportMode.Отчет)
         {
             InitializeComponent();
@@ -28,7 +29,6 @@ namespace ReestrUslugOMS.UserControls
             this.Dock = DockStyle.Fill;
 
             ReportMode = reportMode;
-
             report = new Report(ReportMode);
 
             if (reportMode != enReportMode.Отчет)
@@ -89,6 +89,11 @@ namespace ReestrUslugOMS.UserControls
             else
                 metroTrackBar1.Value = metroTrackBar1.Maximum;
             metroTrackBar2.Value = (int)Math.Ceiling((double)metroTrackBar2.Maximum / 2);
+            
+            report.HeadersToReoGrid(reoGridControl1.CurrentWorksheet);
+
+            metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
+            metroTrackBar2_MouseCaptureChanged(new object(), new EventArgs());
         }
 
         private void metroButton1_Click(object sender, EventArgs e)
@@ -103,13 +108,10 @@ namespace ReestrUslugOMS.UserControls
             
             report.SetParams(date1, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
             report.SetResultValues();
-            report.ToReoGrid(reoGridControl1.CurrentWorksheet);
+            report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
 
-            if (reoGridControl1.Visible == false)                
+            if (reoGridControl1.Visible == false)
                 reoGridControl1.Visible = true;
-
-            metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
-            metroTrackBar2_MouseCaptureChanged(new object(), new EventArgs());
         }
 
         private void metroButton3_Click(object sender, EventArgs e)
@@ -210,7 +212,7 @@ namespace ReestrUslugOMS.UserControls
             reoGridControl1.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
             report.SavePlan(reoGridControl1.CurrentWorksheet);
             report.SetResultValues();
-            report.ToReoGrid(reoGridControl1.CurrentWorksheet);
+            report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
         }
 
         private void reoGridControl1_WorksheetScrolled(object sender, unvell.ReoGrid.Events.WorksheetScrolledEventArgs e)
@@ -223,6 +225,5 @@ namespace ReestrUslugOMS.UserControls
         {
             reoGridControl1.CurrentWorksheet.HideColumns(5, 5);
         }
-
     }
 }
