@@ -16,5 +16,6 @@ namespace ReestrUslugOMS
         public int RowNodeId { get; set; }
         public int ColNodeId { get; set; }
         public Nullable<double> Value { get; set; }
+        public Nullable<System.DateTime> Period { get; set; }
     }
 }

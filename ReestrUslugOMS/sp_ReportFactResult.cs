@@ -21,5 +21,6 @@ namespace ReestrUslugOMS
         public Nullable<double> UET { get; set; }
         public Nullable<int> UslDo3 { get; set; }
         public Nullable<int> UslPosle3 { get; set; }
+        public Nullable<System.DateTime> Period { get; set; }
     }
 }

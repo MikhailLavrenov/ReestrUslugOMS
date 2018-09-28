@@ -157,11 +157,28 @@ namespace ReestrUslugOMS
             }
         }
 
-        public void SetResultValues()
+        private void SetResultValues()
         {
             SetDataSources();
 
+            DateTime date = BeginPeriod.AddDays(14);
+
+            var list = new List<double[,]>();
+
+            while (date.Between(BeginPeriod,EndPeriod,false))
+            {
+                list.Add(SetResultValues(date));
+                date.AddMonths(1);
+            };
+
             ResultValues = new double[Rows.Length, Cols.Length];
+
+            //доделать!!!!!!!!!
+        }
+
+        private double[,] SetResultValues(DateTime date)
+        {
+            var result = new double[Rows.Length, Cols.Length];
 
             //подставляем известные данные
             for (int i = 0; i < Rows.Length; i++)
@@ -169,43 +186,37 @@ namespace ReestrUslugOMS
                     if (Rows[i].DataSource != 0 && Cols[j].DataSource != 0)
                     {
                         if (Rows[i].DataSource == enDataSource.РеестрыСчетов && Cols[j].DataSource == enDataSource.РеестрыСчетов)
-                            ResultValues[i, j] = GetFact(i, j);
+                            result[i, j] = GetFact(i, j, date);
                         else if (Rows[i].DataSource == enDataSource.ПланВрача || Rows[i].DataSource == enDataSource.ПланОтделения)
-                            ResultValues[i, j] = GetPlan(i, j);
+                            result[i, j] = GetPlan(i, j, date);
                     }
 
             //суммируем строки
             for (int lev = MaxRowLevel - 1; lev > 0; lev--)
                 for (int i = 0; i < Rows.Length; i++)
                     for (int j = 0; j < Cols.Length; j++)
-                        if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Cols[j].DataSource != 0)
+                        if (lev == Rows[i].Level && result[i, j] == 0 && Cols[j].DataSource != 0)
                             if (Rows[i].DataSource == enDataSource.Отчет && Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
-                                ResultValues[i, j] = SubSum(i, j, enDirection.Строки);
+                                result[i, j] = SubSum(i, j, enDirection.Строки, date);
 
             //суммируем столбцы
             for (int lev = MaxColLevel - 1; lev > 0; lev--)
                 for (int i = 0; i < Cols.Length; i++)
                     for (int j = 0; j < Rows.Length; j++)
-                        if (lev == Cols[i].Level && ResultValues[j, i] == 0 && Rows[j].DataSource != 0)
+                        if (lev == Cols[i].Level && result[j, i] == 0 && Rows[j].DataSource != 0)
                             if (Cols[i].DataSource == enDataSource.Отчет && Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
-                                ResultValues[j, i] = SubSum(i, j, enDirection.Столбцы);
+                                result[j, i] = SubSum(i, j, enDirection.Столбцы, date);
 
-            //считаем проценты в строках
-            for (int lev = MaxRowLevel; lev > 0; lev--)
-                for (int i = 0; i < Rows.Length; i++)
-                    for (int j = 0; j < Cols.Length; j++)
-                        if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Rows[i].DataSource == enDataSource.Отчет)
-                            if (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелитель)
-                                ResultValues[i, j] = PercentRows(i, j);
+            return result;
         }
 
-        private double GetPlan(int rowNumber, int colNumber)
+        private double GetPlan(int rowNumber, int colNumber, DateTime date)
         {
             double result = 0;
 
             if (ReportType == enReportMode.Отчет)
             {
-                var data = (List<sp_ReportPlanResult>)DataSourcesDict[Rows[rowNumber].DataSource];
+                var data = ((List<sp_ReportPlanResult>)DataSourcesDict[Rows[rowNumber].DataSource]).Where(x=>x.Period?.Month==date.Month && x.Period?.Year==date.Year).ToList();
 
                 foreach (var dataItem in data)
                     if (Rows[rowNumber].NodeId == dataItem.RowNodeId)
@@ -217,7 +228,7 @@ namespace ReestrUslugOMS
             }
             else if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
             {
-                var data = (List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource];
+                var data = ((List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource]).Where(x => x.Month == date.Month && x.Year == date.Year).ToList(); ;
 
                 foreach (var dataItem in data)
                     if (Rows[rowNumber].NodeId == dataItem.RowNodeId)
@@ -233,11 +244,11 @@ namespace ReestrUslugOMS
             return result;
         }
 
-        private double GetFact(int rowNumber, int colNumber)
+        private double GetFact(int rowNumber, int colNumber, DateTime date)
         {
             double res = 0;
             double num;
-            var data = (List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов];
+            var data = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.Period?.Month == date.Month && x.Period?.Year == date.Year).ToList(); ;
 
             foreach (var fRow in Rows[rowNumber].Formula)
                 foreach (var fCol in Cols[colNumber].Formula)
@@ -260,7 +271,7 @@ namespace ReestrUslugOMS
             return res;
         }
 
-        private double SubSum(int nodePos, int resPos, enDirection direction)
+        private double SubSum(int nodePos, int resPos, enDirection direction, DateTime date)
         {
             ExtNode[] nodes;
             enOperation? secondMultiplier;
@@ -282,8 +293,8 @@ namespace ReestrUslugOMS
 
             foreach (var item in node.Prev.Next)
                 subNodes.AddRange( item.Next.Where(x => x.DataSource != 0).ToList() );
-            
-            foreach (var formula in node.Formula)
+
+            foreach (var formula in node.Formula.Where(x => date.Between(x.DateBegin, x.DateEnd, false)).ToList())
                     foreach (var subNode in subNodes)
                         if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НазваниеЭлемента && subNode.NodeId.ToString() == formula.DataValue))
                         {
@@ -664,6 +675,49 @@ namespace ReestrUslugOMS
 
         }
 
+
+
+        //public void SetResultValues()
+        //{
+        //    SetDataSources();
+
+        //    ResultValues = new double[Rows.Length, Cols.Length];
+
+        //    //подставляем известные данные
+        //    for (int i = 0; i < Rows.Length; i++)
+        //        for (int j = 0; j < Cols.Length; j++)
+        //            if (Rows[i].DataSource != 0 && Cols[j].DataSource != 0)
+        //            {
+        //                if (Rows[i].DataSource == enDataSource.РеестрыСчетов && Cols[j].DataSource == enDataSource.РеестрыСчетов)
+        //                    ResultValues[i, j] = GetFact(i, j);
+        //                else if (Rows[i].DataSource == enDataSource.ПланВрача || Rows[i].DataSource == enDataSource.ПланОтделения)
+        //                    ResultValues[i, j] = GetPlan(i, j);
+        //            }
+
+        //    //суммируем строки
+        //    for (int lev = MaxRowLevel - 1; lev > 0; lev--)
+        //        for (int i = 0; i < Rows.Length; i++)
+        //            for (int j = 0; j < Cols.Length; j++)
+        //                if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Cols[j].DataSource != 0)
+        //                    if (Rows[i].DataSource == enDataSource.Отчет && Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+        //                        ResultValues[i, j] = SubSum(i, j, enDirection.Строки);
+
+        //    //суммируем столбцы
+        //    for (int lev = MaxColLevel - 1; lev > 0; lev--)
+        //        for (int i = 0; i < Cols.Length; i++)
+        //            for (int j = 0; j < Rows.Length; j++)
+        //                if (lev == Cols[i].Level && ResultValues[j, i] == 0 && Rows[j].DataSource != 0)
+        //                    if (Cols[i].DataSource == enDataSource.Отчет && Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+        //                        ResultValues[j, i] = SubSum(i, j, enDirection.Столбцы);
+
+        //    //считаем проценты в строках
+        //    for (int lev = MaxRowLevel; lev > 0; lev--)
+        //        for (int i = 0; i < Rows.Length; i++)
+        //            for (int j = 0; j < Cols.Length; j++)
+        //                if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Rows[i].DataSource == enDataSource.Отчет)
+        //                    if (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелитель)
+        //                        ResultValues[i, j] = PercentRows(i, j);
+        //}
 
     }
 

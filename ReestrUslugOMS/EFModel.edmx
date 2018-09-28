@@ -342,6 +342,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EnumType Name="enReportMode" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enReportMode" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
         <ComplexType Name="sp_ReportFactResult">
           <Property Type="String" Name="CodUsl" Nullable="true" MaxLength="41" />
           <Property Type="String" Name="CodOtd" Nullable="true" MaxLength="4" />
@@ -351,13 +352,14 @@
           <Property Type="Double" Name="UET" Nullable="true" />
           <Property Type="Int32" Name="UslDo3" Nullable="true" />
           <Property Type="Int32" Name="UslPosle3" Nullable="true" />
+          <Property Type="DateTime" Name="Period" Nullable="true" />
         </ComplexType>
         <ComplexType Name="sp_ReportPlanResult">
           <Property Type="Int32" Name="RowNodeId" Nullable="false" />
           <Property Type="Int32" Name="ColNodeId" Nullable="false" />
           <Property Type="Double" Name="Value" Nullable="true" />
+          <Property Type="DateTime" Name="Period" Nullable="true" />
         </ComplexType>
-        <EnumType Name="enReportMode" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enReportMode" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -421,7 +423,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="sp_ReportFact" FunctionName="Хранилище REESTR_FOMSModel.sp_ReportFact">
-            <ResultMapping>
+          <ResultMapping>
               <ComplexTypeMapping TypeName="REESTR_FOMSModel.sp_ReportFactResult">
                 <ScalarProperty Name="CodUsl" ColumnName="CodUsl" />
                 <ScalarProperty Name="CodOtd" ColumnName="CodOtd" />
@@ -431,15 +433,17 @@
                 <ScalarProperty Name="UET" ColumnName="UET" />
                 <ScalarProperty Name="UslDo3" ColumnName="UslDo3" />
                 <ScalarProperty Name="UslPosle3" ColumnName="UslPosle3" />
+                <ScalarProperty Name="Period" ColumnName="Period" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="sp_ReportPlan" FunctionName="Хранилище REESTR_FOMSModel.sp_ReportPlan">
-            <ResultMapping>
+          <ResultMapping>
               <ComplexTypeMapping TypeName="REESTR_FOMSModel.sp_ReportPlanResult">
                 <ScalarProperty Name="RowNodeId" ColumnName="RowNodeId" />
                 <ScalarProperty Name="ColNodeId" ColumnName="ColNodeId" />
                 <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="Period" ColumnName="Period" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
