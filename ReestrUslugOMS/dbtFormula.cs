@@ -21,6 +21,8 @@ namespace ReestrUslugOMS
         public string DataValue { get; set; }
         public ReestrUslugOMS.enOperation Operation { get; set; }
         public Nullable<double> FactorValue { get; set; }
+        public Nullable<System.DateTime> DateBegin { get; set; }
+        public Nullable<System.DateTime> DateEnd { get; set; }
     
         public virtual dbtNode Node { get; set; }
     }

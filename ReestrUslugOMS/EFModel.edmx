@@ -16,6 +16,8 @@
           <Property Name="DataValue" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="Operation" Type="tinyint" Nullable="false" />
           <Property Name="FactorValue" Type="float" />
+          <Property Name="DateBegin" Type="date" />
+          <Property Name="DateEnd" Type="date" />
         </EntityType>
         <EntityType Name="Node">
           <Key>
@@ -226,6 +228,8 @@
           <Property Name="Operation" Type="REESTR_FOMSModel.enOperation" Nullable="false" />
           <Property Name="FactorValue" Type="Double" />
           <NavigationProperty Name="Node" Relationship="REESTR_FOMSModel.FK_Formula_Node" FromRole="Formula" ToRole="Node" />
+          <Property Name="DateBegin" Type="DateTime" Precision="0" />
+          <Property Name="DateEnd" Type="DateTime" Precision="0" />
         </EntityType>
         <EntityType Name="dbtNode">
           <Key>
@@ -363,6 +367,8 @@
           <EntitySetMapping Name="dbtFormula">
             <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtFormula">
               <MappingFragment StoreEntitySet="Formula">
+                <ScalarProperty Name="DateEnd" ColumnName="DateEnd" />
+                <ScalarProperty Name="DateBegin" ColumnName="DateBegin" />
                 <ScalarProperty Name="FactorValue" ColumnName="FactorValue" />
                 <ScalarProperty Name="Operation" ColumnName="Operation" />
                 <ScalarProperty Name="DataValue" ColumnName="DataValue" />

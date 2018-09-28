@@ -12,12 +12,14 @@ namespace ReestrUslugOMS
         {
             var newInstance = new dbtFormula();
 
-            newInstance.NodeId = this.NodeId;
-            newInstance.ResultType = this.ResultType;
-            newInstance.DataType = this.DataType;
-            newInstance.DataValue = String.Copy(this.DataValue);
-            newInstance.Operation = this.Operation;
-            newInstance.FactorValue = this.FactorValue;
+            newInstance.NodeId = NodeId;
+            newInstance.ResultType = ResultType;
+            newInstance.DataType = DataType;
+            newInstance.DataValue = String.Copy(DataValue);
+            newInstance.Operation = Operation;
+            newInstance.FactorValue = FactorValue;
+            newInstance.DateBegin = DateBegin;
+            newInstance.DateEnd = DateEnd;
 
             return newInstance;
         }

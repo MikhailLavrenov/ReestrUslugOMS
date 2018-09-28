@@ -28,11 +28,26 @@ namespace ReestrUslugOMS.UserControls
             metroComboBox3.DataSource = Tools.EnumToDataSource<enDataType>();
             metroComboBox4.DataSource = Tools.EnumToDataSource<enOperation>();
 
-            metroComboBox2.SelectedValue=dbtFormulaRow.ResultType;
-            metroComboBox3.SelectedValue=dbtFormulaRow.DataType;
-            metroTextBox1.Text=dbtFormulaRow.DataValue;
-            metroComboBox4.SelectedValue=dbtFormulaRow.Operation;
-            metroTextBox2.Text=dbtFormulaRow.FactorValue.ToString();
+            metroComboBox2.SelectedValue = dbtFormulaRow.ResultType;
+            metroComboBox3.SelectedValue = dbtFormulaRow.DataType;
+            metroTextBox1.Text = dbtFormulaRow.DataValue;
+            metroComboBox4.SelectedValue = dbtFormulaRow.Operation;
+            metroTextBox2.Text = dbtFormulaRow.FactorValue.ToString();
+            metroDateTime1.Value = dbtFormulaRow.DateBegin == null ? DateTime.Today : (DateTime)dbtFormulaRow.DateBegin;
+            metroDateTime2.Value = dbtFormulaRow.DateEnd == null ? DateTime.Today : (DateTime)dbtFormulaRow.DateEnd;
+
+            if (dbtFormulaRow.DateBegin == null)
+            {
+                metroDateTime1.Checked = false;
+                metroDateTime1_ValueChanged(null , null);
+            }
+
+            if (dbtFormulaRow.DateEnd == null)
+            {
+                metroDateTime2.Checked = false;
+                metroDateTime2_ValueChanged(null, null);
+            }
+
         }
 
         private void metroButton2_Click(object sender, EventArgs e)
@@ -46,13 +61,31 @@ namespace ReestrUslugOMS.UserControls
             dbtFormulaRow.DataType = (enDataType)metroComboBox3.SelectedValue;
             dbtFormulaRow.DataValue = metroTextBox1.Text;
             dbtFormulaRow.Operation = (enOperation)metroComboBox4.SelectedValue;
-            dbtFormulaRow.FactorValue = metroTextBox2.Text==""?(double?)null:double.Parse(metroTextBox2.Text);
+            dbtFormulaRow.FactorValue = metroTextBox2.Text == "" ? (double?)null : double.Parse(metroTextBox2.Text);
+            dbtFormulaRow.DateBegin = metroDateTime1.Checked ? metroDateTime1.Value : (DateTime?)null;
+            dbtFormulaRow.DateEnd = metroDateTime2.Checked ? metroDateTime2.Value : (DateTime?)null;
 
             Config.Instance.Runtime.dbContext.dbtFormula.AddOrUpdate(dbtFormulaRow);
             Config.Instance.Runtime.dbContext.SaveChanges();
             onSave();
 
             MainForm.Instance.RemoveUserControl(this);
+        }
+
+        private void metroDateTime1_ValueChanged(object sender, EventArgs e)
+        {
+            if (metroDateTime1.Checked)
+                metroDateTime1.CustomFormat = "MMMM yyyy";
+            else
+                metroDateTime1.CustomFormat = " ";
+        }
+
+        private void metroDateTime2_ValueChanged(object sender, EventArgs e)
+        {
+            if (metroDateTime2.Checked)
+                metroDateTime2.CustomFormat = "MMMM yyyy";
+            else
+                metroDateTime2.CustomFormat = " ";
         }
 
 

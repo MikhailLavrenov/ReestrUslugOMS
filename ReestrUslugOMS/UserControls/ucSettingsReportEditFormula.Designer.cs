@@ -42,6 +42,10 @@
             this.metroTextBox2 = new MetroFramework.Controls.MetroTextBox();
             this.metroLabel7 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
+            this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
+            this.metroLabel9 = new MetroFramework.Controls.MetroLabel();
+            this.metroDateTime1 = new MetroFramework.Controls.MetroDateTime();
+            this.metroDateTime2 = new MetroFramework.Controls.MetroDateTime();
             this.SuspendLayout();
             // 
             // metroButton1
@@ -233,15 +237,69 @@
             this.metroLabel8.TabIndex = 1;
             this.metroLabel8.Text = "ID";
             // 
+            // metroLabel1
+            // 
+            this.metroLabel1.AutoSize = true;
+            this.metroLabel1.FontSize = MetroFramework.MetroLabelSize.Small;
+            this.metroLabel1.Location = new System.Drawing.Point(0, 227);
+            this.metroLabel1.Name = "metroLabel1";
+            this.metroLabel1.Size = new System.Drawing.Size(68, 15);
+            this.metroLabel1.TabIndex = 1;
+            this.metroLabel1.Text = "Действует С";
+            // 
+            // metroLabel9
+            // 
+            this.metroLabel9.AutoSize = true;
+            this.metroLabel9.FontSize = MetroFramework.MetroLabelSize.Small;
+            this.metroLabel9.Location = new System.Drawing.Point(0, 258);
+            this.metroLabel9.Name = "metroLabel9";
+            this.metroLabel9.Size = new System.Drawing.Size(76, 15);
+            this.metroLabel9.TabIndex = 1;
+            this.metroLabel9.Text = "Действует По";
+            // 
+            // metroDateTime1
+            // 
+            this.metroDateTime1.Checked = false;
+            this.metroDateTime1.CustomFormat = " ";
+            this.metroDateTime1.FontSize = MetroFramework.MetroDateTimeSize.Small;
+            this.metroDateTime1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.metroDateTime1.Location = new System.Drawing.Point(158, 217);
+            this.metroDateTime1.MinimumSize = new System.Drawing.Size(0, 25);
+            this.metroDateTime1.Name = "metroDateTime1";
+            this.metroDateTime1.ShowCheckBox = true;
+            this.metroDateTime1.Size = new System.Drawing.Size(300, 25);
+            this.metroDateTime1.TabIndex = 4;
+            this.metroDateTime1.Value = new System.DateTime(2018, 9, 28, 10, 37, 34, 0);
+            this.metroDateTime1.ValueChanged += new System.EventHandler(this.metroDateTime1_ValueChanged);
+            // 
+            // metroDateTime2
+            // 
+            this.metroDateTime2.Checked = false;
+            this.metroDateTime2.CustomFormat = " ";
+            this.metroDateTime2.FontSize = MetroFramework.MetroDateTimeSize.Small;
+            this.metroDateTime2.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.metroDateTime2.Location = new System.Drawing.Point(158, 248);
+            this.metroDateTime2.MinimumSize = new System.Drawing.Size(0, 25);
+            this.metroDateTime2.Name = "metroDateTime2";
+            this.metroDateTime2.ShowCheckBox = true;
+            this.metroDateTime2.Size = new System.Drawing.Size(300, 25);
+            this.metroDateTime2.TabIndex = 4;
+            this.metroDateTime2.Value = new System.DateTime(2018, 9, 28, 10, 37, 25, 0);
+            this.metroDateTime2.ValueChanged += new System.EventHandler(this.metroDateTime2_ValueChanged);
+            // 
             // ucSettingsReportEditFormula
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.metroDateTime2);
+            this.Controls.Add(this.metroDateTime1);
             this.Controls.Add(this.metroTextBox2);
             this.Controls.Add(this.metroTextBox1);
+            this.Controls.Add(this.metroLabel9);
             this.Controls.Add(this.metroLabel6);
             this.Controls.Add(this.metroComboBox4);
             this.Controls.Add(this.metroLabel5);
+            this.Controls.Add(this.metroLabel1);
             this.Controls.Add(this.metroLabel4);
             this.Controls.Add(this.metroComboBox3);
             this.Controls.Add(this.metroLabel3);
@@ -274,5 +332,9 @@
         private MetroFramework.Controls.MetroTextBox metroTextBox2;
         private MetroFramework.Controls.MetroLabel metroLabel7;
         private MetroFramework.Controls.MetroLabel metroLabel8;
+        private MetroFramework.Controls.MetroLabel metroLabel1;
+        private MetroFramework.Controls.MetroLabel metroLabel9;
+        private MetroFramework.Controls.MetroDateTime metroDateTime1;
+        private MetroFramework.Controls.MetroDateTime metroDateTime2;
     }
 }

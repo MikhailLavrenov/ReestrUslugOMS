@@ -125,7 +125,7 @@ namespace ReestrUslugOMS.UserControls
             metroButton4_Click(new object(), new EventArgs());
         }
 
-        void SaveReportChanges()
+        private void SaveReportChanges()
         {
             dbtNodeRow.ParentId = (int)metroComboBox1.SelectedValue;
             dbtNodeRow.Name = metroTextBox1.Text;
@@ -145,18 +145,20 @@ namespace ReestrUslugOMS.UserControls
             var userControl = new ucSettingsReportEditFormula(dbtRow, RefreshGrid);
             MainForm.Instance.AddUserControl(userControl);
         }
-        void RefreshGrid()
+        private void RefreshGrid()
         {
             var list = Config.Instance.Runtime.dbContext.dbtFormula.Local
                 .Where(x => x.NodeId == dbtNodeRow.NodeId)
                 .Select(x => new
                 {
-                    x.FormulaId,                    
-                    ResultType = (Attribute.GetCustomAttribute(x.ResultType.GetType().GetField(x.ResultType.ToString()), typeof(DescriptionAttribute)) as DescriptionAttribute).Description,
-                    DataType = (Attribute.GetCustomAttribute(x.DataType.GetType().GetField(x.DataType.ToString()), typeof(DescriptionAttribute)) as DescriptionAttribute).Description,
-                    Operation = (Attribute.GetCustomAttribute(x.Operation.GetType().GetField(x.Operation.ToString()), typeof(DescriptionAttribute)) as DescriptionAttribute).Description,
+                    x.FormulaId,
+                    ResultType = Tools.GetEnumDescription(x.ResultType),
+                    DataType = Tools.GetEnumDescription(x.DataType), 
+                    Operation = Tools.GetEnumDescription(x.Operation), 
                     x.DataValue,
-                    x.FactorValue
+                    x.FactorValue,
+                    DateBegin = x.DateBegin == null ? null : ((DateTime)x.DateBegin).ToString("MMMM yyyy"),
+                    DateEnd = x.DateEnd == null ? null : ((DateTime)x.DateEnd).ToString("MMMM yyyy")
                 }).ToList();
 
             if (metroGrid1.CurrentCell != null)
