@@ -10,6 +10,7 @@ using System.Data.Entity;
 using ReestrUslugOMS.Classes_and_structures;
 using unvell.ReoGrid;
 using System.Reflection;
+using System.IO;
 
 namespace ReestrUslugOMS.UserControls
 {
@@ -20,9 +21,9 @@ namespace ReestrUslugOMS.UserControls
         private DateTime date1;
         private DateTime date2;
         public PointF gridScrollBarsPosition;    //из-за бага ReoGridControl после hide/show строк/столбцов сбрасывается позиция scrollBars        
-        private Report report;       
+        private Report report;
 
-        public ucReport(enReportMode reportMode= enReportMode.Отчет)
+        public ucReport(enReportMode reportMode = enReportMode.Отчет)
         {
             InitializeComponent();
 
@@ -31,13 +32,17 @@ namespace ReestrUslugOMS.UserControls
             ReportMode = reportMode;
             report = new Report(ReportMode);
 
-            if (reportMode != enReportMode.Отчет)
+            if (ReportMode == enReportMode.ПланВрача || ReportMode == enReportMode.ПланОтделения)
                 metroPanel2.Visible = false;
+            else if (ReportMode == enReportMode.Отчет)
+                metroButton7.Visible = false;
+
+
 
             date1 = DateTime.Today.FirstDayDate();
             date1 = date1.AddDays(1 - date1.Day);
-            date2 = date1;           
-          
+            date2 = date1;
+
             metroTextBox1.Text = date1.ToString("MM.yyyy");
             metroTextBox2.Text = date2.ToString("MM.yyyy");
 
@@ -45,12 +50,12 @@ namespace ReestrUslugOMS.UserControls
             metroComboBox2.DataSource = Tools.EnumToDataSource<enErrorMode>();
 
             metroComboBox3.SelectedIndex = 0;
-            metroComboBox1.SelectedValue =enInsuranceMode.БезИногодних;
-            metroComboBox2.SelectedValue =enErrorMode.БезОшибок;
-           
+            metroComboBox1.SelectedValue = enInsuranceMode.БезИногодних;
+            metroComboBox2.SelectedValue = enErrorMode.БезОшибок;
+
             //задаем стиль таблицы
             ControlAppearanceStyle rgcs = new ControlAppearanceStyle(Color.DarkGray, Color.LightGray, false);
-            
+
             rgcs[ControlAppearanceColors.ColHeadNormalStart] = Color.LightGray;
             rgcs[ControlAppearanceColors.ColHeadNormalEnd] = Color.LightGray;
             rgcs[ControlAppearanceColors.RowHeadNormal] = Color.LightGray;
@@ -65,11 +70,11 @@ namespace ReestrUslugOMS.UserControls
 
             rgcs[ControlAppearanceColors.GridLine] = Color.DarkGray;
 
-            rgcs[ControlAppearanceColors.SelectionBorder] = Color.DarkGray;
-
+            rgcs[ControlAppearanceColors.SelectionBorder] = Color.FromArgb(102, 102, 102);
 
             reoGridControl1.ControlStyle = rgcs;
-            reoGridControl1.CellsSelectionCursor = Cursors.Default;            
+            reoGridControl1.CellsSelectionCursor = Cursors.Default;
+            reoGridControl1.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowHeaders, false);
 
             //настройка шкалы детализации
             if (report.MaxRowLevel > 2)
@@ -89,7 +94,7 @@ namespace ReestrUslugOMS.UserControls
             else
                 metroTrackBar1.Value = metroTrackBar1.Maximum;
             metroTrackBar2.Value = (int)Math.Ceiling((double)metroTrackBar2.Maximum / 2);
-            
+
             report.HeadersToReoGrid(reoGridControl1.CurrentWorksheet);
 
             metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
@@ -98,22 +103,25 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroButton1_Click(object sender, EventArgs e)
         {
-            var date1Copy=date1;
+            var date1Copy = date1;
 
             if (metroComboBox3.SelectedIndex == 0)
                 date2 = date1Copy;
             else if (metroComboBox3.SelectedIndex == 1)
             {
                 date2 = date1Copy;
-                date1Copy=date1Copy.AddMonths(1 - date1Copy.Month);
+                date1Copy = date1Copy.AddMonths(1 - date1Copy.Month);
             }
 
             report.SetParams(date1Copy, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
             report.SetResultValues();
             report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
 
-            if (reoGridControl1.Visible == false)
-                reoGridControl1.Visible = true;
+            metroButton6.Visible = true;
+            metroPanel9.Visible = true;
+
+            if (report.ReportType== enReportMode.ПланВрача || report.ReportType == enReportMode.ПланОтделения)
+                metroButton7.Visible = true;
         }
 
         private void metroButton3_Click(object sender, EventArgs e)
@@ -155,7 +163,7 @@ namespace ReestrUslugOMS.UserControls
         }
 
         private void reoGridControl1_DoubleClick(object sender, EventArgs e)
-        {          
+        {
             report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition);
         }
 
@@ -165,12 +173,12 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroTrackBar1_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition,metroTrackBar1.Value,-1);
+            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition, metroTrackBar1.Value, -1);
         }
 
         private void metroTrackBar2_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition ,- 1, metroTrackBar2.Value);
+            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition, -1, metroTrackBar2.Value);
         }
 
         private void metroLabel8_Click(object sender, EventArgs e)
@@ -179,7 +187,7 @@ namespace ReestrUslugOMS.UserControls
             {
                 metroTrackBar1.Value--;
                 metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
-            }                
+            }
         }
 
         private void metroLabel9_Click(object sender, EventArgs e)
@@ -225,7 +233,14 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroButton6_Click(object sender, EventArgs e)
         {
-            reoGridControl1.CurrentWorksheet.HideColumns(5, 5);
+            var dialog = new SaveFileDialog();
+            dialog.InitialDirectory = Path.GetDirectoryName(Config.Instance.PathReportXlsx);
+            dialog.FileName=Path.GetFileName(Config.Instance.PathReportXlsx);
+            dialog.DefaultExt = ".xlsx";
+            dialog.Filter= "Документ Excel (*.xlsx)|*.xlsx";
+
+            if (DialogResult.OK== dialog.ShowDialog())
+                reoGridControl1.Save(dialog.FileName, unvell.ReoGrid.IO.FileFormat.Excel2007);
         }
     }
 }

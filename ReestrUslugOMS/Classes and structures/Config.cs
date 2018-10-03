@@ -6,9 +6,13 @@ using System.Text;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace ReestrUslugOMS.Classes_and_structures
 {
+    /// <summary>
+    /// Текущие настройки программы
+    /// </summary>
     public class Config
     {
         public RunTime Runtime { get; private set; }
@@ -20,18 +24,15 @@ namespace ReestrUslugOMS.Classes_and_structures
         public string dbPass { get; private set; }
         public bool SqlServerOnLocalMachine { get; private set; }
 
-
         //Учетные записи                
         public string ADUsersOU { get; private set; }
         public string ADGroupsOU { get; private set; }
-
-
 
         //Релакс
         public string lpuCode { get; private set; }
 
         //Отчет
-        public string xlsxFile { get; private set; }
+        public string PathReportXlsx { get; private set; }
 
         //Singleton
         public static Config Instance { get; private set; }
@@ -48,14 +49,12 @@ namespace ReestrUslugOMS.Classes_and_structures
         private Config()
         {
             //работа
-            sqlServer = @"DBAPP-SRV1\EXPRESS2017";
-            xlsxFile = @"C:\Users\ЛавреновМВ\Documents\Разрабатонные программы\ReestrUslugOMS\GitIgnoreFolder\report.xlsx";
+            sqlServer = @"DBAPP-SRV1\EXPRESS2017";            
             dbUser = "";
             dbPass = "";
 
             ////дом
             //sqlServer = @"WS2016\SQLEXPRESS";
-            //xlsxFile = @"D:\Самописные программы\ReestrUslugOMS\GitIgnoreFolder\report.xlsx";
             //dbUser = "sa";
             //dbPass = "1";
 
@@ -65,16 +64,16 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             lpuCode = "2101008";
 
+            PathReportXlsx = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\report.xlsx";
+
             SqlServerOnLocalMachine = false;
             if (sqlServer.IndexOf(Environment.MachineName, StringComparison.CurrentCultureIgnoreCase) > 0)
                 SqlServerOnLocalMachine = true;
-
-
-
-
         }
 
-
+        /// <summary>
+        /// Настройки и параметры текущего сеанса (процесса)
+        /// </summary>
         public class RunTime
         {
             public string EFConnectionString { get; private set; }
@@ -128,9 +127,6 @@ namespace ReestrUslugOMS.Classes_and_structures
                     else
                         ADDomainName = server.Substring(server.IndexOf('.') + 1).ToLower();
                 }
-
-
-
 
 
             }

@@ -400,6 +400,10 @@ namespace ReestrUslugOMS
             RangeBorderStyle borderStyle = new RangeBorderStyle(Color.Gray, BorderLineStyle.Dotted);
             sheet.SetRangeBorders(0, 0, sheet.Rows, sheet.Columns, BorderPositions.All, borderStyle);
 
+            //задаем внешнюю границу
+            borderStyle = new RangeBorderStyle(Color.Gray, BorderLineStyle.None);
+            sheet.SetRangeBorders(0, 0, sheet.Rows, sheet.Columns, BorderPositions.Left| BorderPositions.Top, borderStyle);
+
             //задаем размер шрифта
             sheet.Ranges[0, 0, sheet.RowCount, sheet.ColumnCount].Style.FontSize = 8;
 

@@ -6,8 +6,15 @@ using ReestrUslugOMS;
 
 namespace ReestrUslugOMS
 {
+    /// <summary>
+    /// Формула - интерпретируемые данные по которым происходит расчет значений в отчете
+    /// </summary>
     public partial class dbtFormula
     {
+        /// <summary>
+        /// Копирование текущего экземпляра класса без создания ссылок на связанные классы
+        /// </summary>
+        /// <returns>Новый экземпляр класса</returns>
         public dbtFormula PartialCopy()
         {
             var newInstance = new dbtFormula();
@@ -15,7 +22,7 @@ namespace ReestrUslugOMS
             newInstance.NodeId = NodeId;
             newInstance.ResultType = ResultType;
             newInstance.DataType = DataType;
-            newInstance.DataValue = String.Copy(DataValue);
+            newInstance.DataValue = string.Copy(DataValue);
             newInstance.Operation = Operation;
             newInstance.FactorValue = FactorValue;
             newInstance.DateBegin = DateBegin;
@@ -24,6 +31,12 @@ namespace ReestrUslugOMS
             return newInstance;
         }
 
+        /// <summary>
+        /// Производит заданную операцию с Входным числом и учетом Вида операции 2ой ноды, на пересечении которых рассчитывается значение
+        /// </summary>
+        /// <param name="value">Входное число</param>
+        /// <param name="secondOperation">Вид операции 2ой ноды</param>
+        /// <returns></returns>
         public double Calculate(double value, enOperation? secondOperation)
         {
             if (FactorValue != null)

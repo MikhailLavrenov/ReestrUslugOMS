@@ -63,6 +63,7 @@
             this.metroPanel6 = new MetroFramework.Controls.MetroPanel();
             this.metroLabel7 = new MetroFramework.Controls.MetroLabel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.metroPanel9 = new MetroFramework.Controls.MetroPanel();
             this.metroPanel1.SuspendLayout();
             this.metroPanel2.SuspendLayout();
             this.metroPanel3.SuspendLayout();
@@ -72,6 +73,7 @@
             this.metroPanel7.SuspendLayout();
             this.metroPanel6.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            this.metroPanel9.SuspendLayout();
             this.SuspendLayout();
             // 
             // metroButton1
@@ -204,14 +206,12 @@
             // 
             // reoGridControl1
             // 
-            this.reoGridControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.reoGridControl1.BackColor = System.Drawing.Color.White;
             this.reoGridControl1.ColumnHeaderContextMenuStrip = null;
+            this.reoGridControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.reoGridControl1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.reoGridControl1.LeadHeaderContextMenuStrip = null;
-            this.reoGridControl1.Location = new System.Drawing.Point(0, 109);
+            this.reoGridControl1.Location = new System.Drawing.Point(0, 0);
             this.reoGridControl1.Name = "reoGridControl1";
             this.reoGridControl1.RowHeaderContextMenuStrip = null;
             this.reoGridControl1.Script = null;
@@ -220,10 +220,9 @@
             this.reoGridControl1.SheetTabVisible = false;
             this.reoGridControl1.SheetTabWidth = 60;
             this.reoGridControl1.ShowScrollEndSpacing = true;
-            this.reoGridControl1.Size = new System.Drawing.Size(960, 491);
+            this.reoGridControl1.Size = new System.Drawing.Size(958, 473);
             this.reoGridControl1.TabIndex = 4;
             this.reoGridControl1.Text = "reoGridControl1";
-            this.reoGridControl1.Visible = false;
             this.reoGridControl1.WorksheetScrolled += new System.EventHandler<unvell.ReoGrid.Events.WorksheetScrolledEventArgs>(this.reoGridControl1_WorksheetScrolled);
             this.reoGridControl1.DoubleClick += new System.EventHandler(this.reoGridControl1_DoubleClick);
             // 
@@ -346,8 +345,9 @@
             this.metroButton6.Name = "metroButton6";
             this.metroButton6.Size = new System.Drawing.Size(75, 23);
             this.metroButton6.TabIndex = 0;
-            this.metroButton6.Text = "В excel";
+            this.metroButton6.Text = "В Excel";
             this.metroButton6.UseSelectable = true;
+            this.metroButton6.Visible = false;
             this.metroButton6.Click += new System.EventHandler(this.metroButton6_Click);
             // 
             // metroButton7
@@ -358,6 +358,7 @@
             this.metroButton7.TabIndex = 0;
             this.metroButton7.Text = "Сохранить";
             this.metroButton7.UseSelectable = true;
+            this.metroButton7.Visible = false;
             this.metroButton7.Click += new System.EventHandler(this.metroButton7_Click_1);
             // 
             // metroPanel4
@@ -576,12 +577,32 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size(960, 103);
             this.flowLayoutPanel1.TabIndex = 12;
             // 
+            // metroPanel9
+            // 
+            this.metroPanel9.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.metroPanel9.BackColor = System.Drawing.Color.Transparent;
+            this.metroPanel9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.metroPanel9.Controls.Add(this.reoGridControl1);
+            this.metroPanel9.HorizontalScrollbarBarColor = true;
+            this.metroPanel9.HorizontalScrollbarHighlightOnWheel = false;
+            this.metroPanel9.HorizontalScrollbarSize = 10;
+            this.metroPanel9.Location = new System.Drawing.Point(0, 125);
+            this.metroPanel9.Name = "metroPanel9";
+            this.metroPanel9.Size = new System.Drawing.Size(960, 475);
+            this.metroPanel9.TabIndex = 13;
+            this.metroPanel9.VerticalScrollbarBarColor = true;
+            this.metroPanel9.VerticalScrollbarHighlightOnWheel = false;
+            this.metroPanel9.VerticalScrollbarSize = 10;
+            this.metroPanel9.Visible = false;
+            // 
             // ucReport
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.flowLayoutPanel1);
-            this.Controls.Add(this.reoGridControl1);
+            this.Controls.Add(this.metroPanel9);
             this.Name = "ucReport";
             this.Size = new System.Drawing.Size(960, 600);
             this.metroPanel1.ResumeLayout(false);
@@ -598,6 +619,7 @@
             this.metroPanel6.ResumeLayout(false);
             this.metroPanel6.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
+            this.metroPanel9.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -639,5 +661,6 @@
         private MetroFramework.Controls.MetroPanel metroPanel7;
         private MetroFramework.Controls.MetroPanel metroPanel8;
         private MetroFramework.Controls.MetroButton metroButton7;
+        private MetroFramework.Controls.MetroPanel metroPanel9;
     }
 }
