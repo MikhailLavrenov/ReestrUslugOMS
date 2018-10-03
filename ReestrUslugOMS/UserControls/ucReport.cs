@@ -34,7 +34,7 @@ namespace ReestrUslugOMS.UserControls
             if (reportMode != enReportMode.Отчет)
                 metroPanel2.Visible = false;
 
-            date1 = DateTime.Today;
+            date1 = DateTime.Today.FirstDayDate();
             date1 = date1.AddDays(1 - date1.Day);
             date2 = date1;           
           
@@ -98,15 +98,17 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroButton1_Click(object sender, EventArgs e)
         {
+            var date1Copy=date1;
+
             if (metroComboBox3.SelectedIndex == 0)
-                date2 = date1;
-            else if (metroComboBox3.SelectedIndex == 2)
+                date2 = date1Copy;
+            else if (metroComboBox3.SelectedIndex == 1)
             {
-                date2 = date1;
-                date2.AddMonths(1 - date1.Month);
+                date2 = date1Copy;
+                date1Copy=date1Copy.AddMonths(1 - date1Copy.Month);
             }
-            
-            report.SetParams(date1, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
+
+            report.SetParams(date1Copy, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
             report.SetResultValues();
             report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
 

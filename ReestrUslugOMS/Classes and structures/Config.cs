@@ -100,17 +100,18 @@ namespace ReestrUslugOMS.Classes_and_structures
                 //MS SQL Server
                 MsSqlConnectionString = String.Format("Data Source={0}; Initial Catalog={1}; {2}", Instance.sqlServer, Instance.sqlDataBase, security);
                 db = new MSSQLDB(MsSqlConnectionString);
-
                 //EntityFramework
                 EFConnectionString = "metadata=res://*/{0}.csdl|res://*/{0}.ssdl|res://*/{0}.msl;provider=System.Data.SqlClient;provider connection string=\"data source = {1}; initial catalog = {2}; {3}; MultipleActiveResultSets = True; App = EntityFramework\" ";
                 EFConnectionString = string.Format(EFConnectionString, "EFModel", Instance.sqlServer, Instance.sqlDataBase, security);
                 dbContext = new EFModel(EFConnectionString);
                 dbContext.Configuration.ProxyCreationEnabled = false;
+                
 
                 //подставляем текущего пользователя и домен
                 using (var curentUser = UserPrincipal.Current)
                 {
                     string sid = curentUser.Sid.ToString();
+                    Task.WaitAll();
                     CurrentUser = dbContext.dbtUser.Where(x => x.Sid == sid).FirstOrDefault();
 
                     if (CurrentUser == null)

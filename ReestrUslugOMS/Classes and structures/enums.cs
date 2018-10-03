@@ -44,6 +44,7 @@ namespace ReestrUslugOMS
         [Description("Вложенные Элементы")]         ВложенныеЭлемены = 6,
         [Description("Проценты Делимое")]           ПроцентыДелимое = 7,
         [Description("Проценты Делитель")]          ПроцентыДелитель = 8,
+        [Description("Диспансеризация Раз в 2 Года")]   ДиспансеризацияРазВ2Года = 9
 
     }
     public enum enInsuranceMode : byte

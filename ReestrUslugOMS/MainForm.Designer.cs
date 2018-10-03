@@ -86,6 +86,7 @@
             this.Controls.Add(this.metroLabel1);
             this.MinimumSize = new System.Drawing.Size(1024, 740);
             this.Name = "MainForm";
+            this.ShadowType = MetroFramework.Forms.MetroFormShadowType.AeroShadow;
             this.Style = MetroFramework.MetroColorStyle.Default;
             this.Text = "       Учет услуг";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);

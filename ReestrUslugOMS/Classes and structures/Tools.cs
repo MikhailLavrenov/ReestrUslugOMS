@@ -27,24 +27,41 @@ namespace ReestrUslugOMS
             return dAttr.Description;
         }
 
-        public static bool Between (this DateTime value, DateTime? begin, DateTime? end, bool inclusive)
+        public static DateTime FirstDayDate(this DateTime value)
+        {
+            return value.AddDays(1-value.Day);
+        }
+
+        public static DateTime LastDayDate(this DateTime value)
+        {
+            return value.AddMonths(1).AddDays(-value.Day);
+        }
+
+        public static int Months(this DateTime value)
+        {
+            return value.Year * 12 + value.Month;
+        }
+
+        public static bool BetweenInMonths (this DateTime value, DateTime? begin, DateTime? end)
         {
             bool result;
-            DateTime d1, d2;
+            DateTime date1, date2;
 
             if (begin == null)
-                d1 = DateTime.MinValue;
+                date1 = DateTime.MinValue;
             else
-                d1 = (DateTime)begin;
+                date1 = (DateTime)begin;
 
             if (end == null)
-                d2 = DateTime.MaxValue;
+                date2 = DateTime.MaxValue;
             else
-                d2 = (DateTime)end;
+                date2 = (DateTime)end;
 
-            if (inclusive==false && value > d1 && value < d2)
-                result = true;
-            if (inclusive == true && value >= d1 && value <= d2)
+            int mvalue;
+
+            mvalue = value.Months();
+
+            if (mvalue >= date1.Months() && mvalue <= date2.Months() )
                 result = true;
             else
                 result = false;

@@ -35,6 +35,8 @@ namespace ReestrUslugOMS
                 result = (double)UslDo3;
             else if (enu == enResultType.УслугПосле3Лет)
                 result = (double)UslPosle3;
+            else if (enu == enResultType.ДиспансеризацияРазВ2Года)
+                result = (double)DispIn2Y;
 
             return result;
         }
