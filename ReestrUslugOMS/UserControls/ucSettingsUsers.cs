@@ -23,9 +23,9 @@ namespace ReestrUslugOMS.UserControls
         {
             InitializeComponent();
 
-            SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.ADDomainName);
+            SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.DomainName);
             //SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.ADGroupsOU);
-            SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.ADUsersOU);
+            SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.DomainUsersOU);
             //SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Machine);
             SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Machine);
 
@@ -67,7 +67,7 @@ namespace ReestrUslugOMS.UserControls
         }
         public void RefreshGrid()
         {
-            Config.Instance.Runtime.dbContext.dbtNode.Local.Where(x => x.Prev == null).ToList().ForEach(x => x.SetAllFullNamesAndOrders());
+            Config.Instance.Runtime.dbContext.dbtNode.Local.Where(x => x.Prev == null).ToList().ForEach(x => x.InitializeProperties());
 
             var list = Config.Instance.Runtime.dbContext.dbtUser.Local.Select(x => new
             {

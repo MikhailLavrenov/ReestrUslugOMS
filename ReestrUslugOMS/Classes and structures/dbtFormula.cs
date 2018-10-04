@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ReestrUslugOMS;
-
-namespace ReestrUslugOMS
+﻿namespace ReestrUslugOMS
 {
     /// <summary>
     /// Формула - интерпретируемые данные по которым происходит расчет значений в отчете
@@ -12,7 +6,7 @@ namespace ReestrUslugOMS
     public partial class dbtFormula
     {
         /// <summary>
-        /// Копирование текущего экземпляра класса без создания ссылок на связанные классы
+        /// Копирует текущий экземпляр класса без создания ссылок на связанные классы
         /// </summary>
         /// <returns>Новый экземпляр класса</returns>
         public dbtFormula PartialCopy()
@@ -50,8 +44,6 @@ namespace ReestrUslugOMS
             }
             return value;
         }
-
-
 
     }
 }

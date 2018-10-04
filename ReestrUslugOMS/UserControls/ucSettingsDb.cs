@@ -18,9 +18,9 @@ namespace ReestrUslugOMS.UserControls
         {
             InitializeComponent();
 
-            SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.ADDomainName);
-            SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.ADGroupsOU);
-            SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.ADUsersOU);
+            SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.DomainName);
+            SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.DomainGroupsOU);
+            SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.DomainUsersOU);
             SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Machine);
             SecurityPrincipals.SetUsers(System.DirectoryServices.AccountManagement.ContextType.Machine);
 
@@ -52,13 +52,12 @@ namespace ReestrUslugOMS.UserControls
             if (DialogResult.Cancel == MessageBox.Show("Вы действительно хотите удалить запись?", "Подтверждение", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
                 return;
             
-            string dataBase = Config.Instance.Runtime.db.connection.Database;
             string login = metroGrid1.CurrentCell.Value.ToString();
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("USE[master]");
             sb.AppendLine(string.Format("DROP LOGIN[{0}]",login ));
-            sb.AppendLine(string.Format("USE[{0}]",dataBase));
+            sb.AppendLine(string.Format("USE[{0}]", Config.Instance.SqlDataBase));
             sb.AppendLine(string.Format("DROP USER[{0}]", login));
 
             Config.Instance.Runtime.db.Execute(sb.ToString());

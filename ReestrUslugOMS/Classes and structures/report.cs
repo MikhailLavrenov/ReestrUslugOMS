@@ -1,41 +1,82 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using MetroFramework.Controls;
 using unvell.ReoGrid;
 using ReestrUslugOMS.Classes_and_structures;
 using unvell.ReoGrid.DataFormat;
 
 namespace ReestrUslugOMS
 {
+    /// <summary>
+    /// Класс для ввода планов и построения отчета по объемам медицинской помощи
+    /// </summary>
     public class Report
     {
+        /// <summary>
+        /// Массив отображаемых строк отчета
+        /// </summary>
         public ExtNode[] Rows { get; private set; }
+        /// <summary>
+        /// Массив отображаемых столбцов отчета
+        /// </summary>
         public ExtNode[] Cols { get; private set; }
+        /// <summary>
+        /// Массив значений ячеек отчета
+        /// </summary>
         public double[,] ResultValues { get; private set; }
-        public Dictionary<enDataSource, Object> DataSourcesDict { get; set; }
+        /// <summary>
+        /// Словарь содержащий наборы значений различных типов
+        /// </summary>
+        public Dictionary<enDataSource, object> DataSourcesDict { get; set; }
 
+        /// <summary>
+        /// Максимальный уровень строк
+        /// </summary>
         public int MaxRowLevel { get; private set; }
+        /// <summary>
+        /// Максимальный уровень столбцов
+        /// </summary>
         public int MaxColLevel { get; private set; }
 
-        //настройки отчета
+        /// <summary>
+        /// Колчество знаков после запятой для округления значений ячеек
+        /// </summary>
         public int Round { get; set; }
+        /// <summary>
+        /// Колчество знаков после запятой для округления процентных значений ячеек
+        /// </summary>
         public int PercentRound { get; set; }
+        /// <summary>
+        /// Вид отчета
+        /// </summary>
         public enReportMode ReportType { get; private set; }
+        /// <summary>
+        /// Начало периода за который рассчитыватются значения. Учитываются только месяц и год.
+        /// </summary>
         public DateTime BeginPeriod { get; private set; }
+        /// <summary>
+        /// Конец периода за который рассчитыватются значения. Учитываются только месяц и год.
+        /// </summary>
         public DateTime EndPeriod { get; private set; }
+        /// <summary>
+        /// Режим расчета значений отчета относительно отклоненных от оплаты услуг
+        /// </summary>
         public enErrorMode Errors { get; private set; }
+        /// <summary>
+        /// Режим построения отчета относительно региона выдачи полиса ОМС (иногородние пациенты)
+        /// </summary>
         public enInsuranceMode InsuranceTerritory { get; private set; }
 
 
-        public Report(enReportMode reportType) //конструктор
+        /// <summary>
+        /// Конструктор, принимает значение перечисления вида отчета enReportMode
+        /// </summary>
+        /// <param name="reportType">Вид отчета</param>
+        public Report(enReportMode reportType)
         {
             MaxColLevel = 0;
             MaxRowLevel = 0;
@@ -51,7 +92,9 @@ namespace ReestrUslugOMS
             MaxColLevel = this.Cols.Max(x => x.Level);
         }
 
-        //заполняет массив строк и столбцов
+        /// <summary>
+        /// Формирует массив строк и столбцов отчета
+        /// </summary>
         private void SetRowsCols()
         {
             dbtNode dbtRoot;
@@ -102,7 +145,9 @@ namespace ReestrUslugOMS
             Rows = extRoot.ToArray(1);
         }
 
-        //помечает ноды на пересечении которых пользователь может вводить планы
+        /// <summary>
+        /// помечает ноды на пересечении которых пользователь может вводить планы
+        /// </summary>
         private void SetPlanSet()
         {
             if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
@@ -118,6 +163,13 @@ namespace ReestrUslugOMS
             }
         }
 
+        /// <summary>
+        /// Устанавливает настройки отчета для рассчета значений ячеек
+        /// </summary>
+        /// <param name="dateStart">Дата начала периода, включительно (учитываются  месяц и год, день не важен)</param>
+        /// <param name="dateEnd">Дата окончания периода, включительно (учитываются  месяц и год, день не важен)</param>
+        /// <param name="errors">Режим расчета значений отчета относительно отклоненных от оплаты услуг</param>
+        /// <param name="insuranceTerritory">Режим построения отчета относительно региона выдачи полиса ОМС (иногородние пациенты)</param>
         public void SetParams(DateTime dateStart, DateTime dateEnd, enErrorMode errors = (enErrorMode)1, enInsuranceMode insuranceTerritory = (enInsuranceMode)1)
         {
             BeginPeriod = dateStart;
@@ -128,13 +180,16 @@ namespace ReestrUslugOMS
             
         }
 
+        /// <summary>
+        /// Создает словарь с источниками данных для расчетов
+        /// </summary>
         private void SetDataSources()
         {
             DataSourcesDict.Clear();
 
-            if (this.ReportType == enReportMode.Отчет)
+            if (ReportType == enReportMode.Отчет)
             {
-                var val1 = Config.Instance.Runtime.dbContext.sp_ReportFact(BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year, Config.Instance.lpuCode, (int)Errors, (int)InsuranceTerritory).ToList();
+                var val1 = Config.Instance.Runtime.dbContext.sp_ReportFact(BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year, Config.Instance.LpuCode, (int)Errors, (int)InsuranceTerritory).ToList();
                 DataSourcesDict.Add(enDataSource.РеестрыСчетов, val1);
 
                 var val2 = Config.Instance.Runtime.dbContext.sp_ReportPlan((byte)enReportMode.ПланВрача, BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year).ToList();
@@ -144,19 +199,22 @@ namespace ReestrUslugOMS
                 DataSourcesDict.Add(enDataSource.ПланОтделения, val3);
             }
 
-            else if (this.ReportType == enReportMode.ПланВрача)
+            else if (ReportType == enReportMode.ПланВрача)
             {
                 var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланВрача && x.Year == BeginPeriod.Year && x.Month == BeginPeriod.Month).ToList();
                 DataSourcesDict.Add(enDataSource.ПланВрача, val);
             }
 
-            else if (this.ReportType == enReportMode.ПланОтделения)
+            else if (ReportType == enReportMode.ПланОтделения)
             {
                 var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланОтделения && x.Year == BeginPeriod.Year && x.Month == BeginPeriod.Month).ToList();
                 DataSourcesDict.Add(enDataSource.ПланОтделения, val);
             }
         }
 
+        /// <summary>
+        /// Рассчитывает значения ячеек отчета за весь период, в т.ч. вычисляет строки с процентами
+        /// </summary>
         public void SetResultValues()
         {
             SetDataSources();
@@ -188,6 +246,11 @@ namespace ReestrUslugOMS
                                 ResultValues[i, j] = PercentRows(i, j);
         }
 
+        /// <summary>
+        /// Рассчитывает значения ячеек отчета за заданный период, не вычисляет строки с процентами
+        /// </summary>
+        /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитываются значения</param>
+        /// <returns>Массив рассчитанных значений</returns>
         private double[,] SetResultValues(DateTime date)
         {
             var result = new double[Rows.Length, Cols.Length];
@@ -222,6 +285,13 @@ namespace ReestrUslugOMS
             return result;
         }
 
+        /// <summary>
+        /// Рассчитывает значение на пересечении строки и столбца отчета по выполненым услугам
+        /// </summary>
+        /// <param name="rowNumber">Порядковый номер строки в массиве строк</param>
+        /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
+        /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
+        /// <returns>Рассчитанное значение</returns>
         private double GetPlan(int rowNumber, int colNumber, DateTime date)
         {
             double result = 0;
@@ -256,6 +326,13 @@ namespace ReestrUslugOMS
             return result;
         }
 
+        /// <summary>
+        /// Рассчитывает значение на пересечении строки и столбца отчета по введенным планам
+        /// </summary>
+        /// <param name="rowNumber">Порядковый номер строки в массиве строк</param>
+        /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
+        /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
+        /// <returns>Рассчитанное значение</returns>
         private double GetFact(int rowNumber, int colNumber, DateTime date)
         {
             double res = 0;
@@ -283,6 +360,15 @@ namespace ReestrUslugOMS
             return res;
         }
 
+        /// <summary>
+        /// Рассчитывает значение на пересечении строки и столбца отчета, путем суммирования элементов вложенных нод
+        /// </summary>
+        /// <param name="nodePos">Номер ноды в массиве, во вложенных элементах которой рассчитывается значение</param>
+        /// <param name="resPos">Номер ноды в массиве, на пересечении с которой рассчитывается значение</param>
+        /// <param name="direction">Значение перечисления, определяющее направление расчета (Строки или Столбцы)</param>
+        /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
+        /// <param name="resultValues">Массив рассчитанных значений за период</param>
+        /// <returns>Рассчитанное значение</returns>
         private double SubSum(int nodePos, int resPos, enDirection direction, DateTime date, double[,] resultValues)
         {
             ExtNode[] nodes;
@@ -325,6 +411,12 @@ namespace ReestrUslugOMS
             return result;
         }
 
+        /// <summary>
+        /// Рассчитывает значение в процентах на пересечении строки и столбца отчета
+        /// </summary>
+        /// <param name="rowNumber">Порядковый номер строки в массиве строк</param>
+        /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
+        /// <returns>Рассчитанное значение</returns>
         private double PercentRows (int rowNumber, int colNumber)
         {
             double result=0;
@@ -348,6 +440,10 @@ namespace ReestrUslugOMS
             return result;
         }
 
+        /// <summary>
+        /// Вставляет значения ячеек отчета на лист ReoGridControl
+        /// </summary>
+        /// <param name="sheet">Ссылка на лист ReoGridControl</param>
         public void ValuesToReoGrid(Worksheet sheet)
         {
             //заполняем значения
@@ -365,6 +461,10 @@ namespace ReestrUslugOMS
 
         }
 
+        /// <summary>
+        /// Вставляет заголовки отчета на лист ReoGridControl и настраивает внешний вид отчета
+        /// </summary>
+        /// <param name="sheet">Ссылка на лист ReoGridControl</param>
         public void HeadersToReoGrid(Worksheet sheet)
         {
             sheet.Reset();
@@ -508,6 +608,10 @@ namespace ReestrUslugOMS
             #endregion задаем форматы
         }
 
+        /// <summary>
+        /// Создает, изменяет, удаляет и сохраняет введенные планы с листа ReoGridControl
+        /// </summary>
+        /// <param name="sheet">Ссылка на лист ReoGridControl</param>
         public void SavePlan(Worksheet sheet)
         {
             double newVal, oldVal;
@@ -556,6 +660,11 @@ namespace ReestrUslugOMS
             Config.Instance.Runtime.dbContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Сворачивает и разворачивает строки и столбцы отчета по двойному клику на ячейке
+        /// </summary>
+        /// <param name="control">Ссылка на ReoGridControl</param>
+        /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
         public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
         {
             var sheet = control.CurrentWorksheet;
@@ -609,6 +718,13 @@ namespace ReestrUslugOMS
             control.ScrollCurrentWorksheet(pos.X, pos.Y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="control">Ссылка на ReoGridControl</param>
+        /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
+        /// <param name="rowLevel">Новый максимальный уровень отображения строк (-1 если без изменений)</param>
+        /// <param name="colLevel">Новый максимальный уровень отображения столбцов (-1 если без изменений)</param>
         public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1 )
         {
             var sheet = control.CurrentWorksheet;
@@ -690,6 +806,7 @@ namespace ReestrUslugOMS
                                 }
 
         }
+
 
     }
 

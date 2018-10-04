@@ -6,33 +6,60 @@ using System.Text;
 
 namespace ReestrUslugOMS.Classes_and_structures
 {
+    /// <summary>
+    /// Вспомогательный класс для получения списков локальных и доменных (Active Directory) пользователей и групп
+    /// </summary>
     public class SecurityPrincipals
     {
         string domainName;
         string domainPrefix;
 
-        public bool DomainIsAvailable { get; private set; }
+        /// <summary>
+        /// Домен  доступен по сети
+        /// </summary>
+        public bool DomainAvailable { get; private set; }
+        /// <summary>
+        /// Список локальных пользователей
+        /// </summary>
         public List<Principal> LocalUsers { get; private set; }
+        /// <summary>
+        /// Список локальных групп безопасности
+        /// </summary>
         public List<Principal> LocalGroups { get; private set; }
-        public List<Principal> ADUsers { get; private set; }
-        public List<Principal> ADGroups { get; private set; }
+        /// <summary>
+        /// Список доменных пользователей
+        /// </summary>
+        public List<Principal> DomainUsers { get; private set; }
+        /// <summary>
+        /// Список доменных групп безопасности
+        /// </summary>
+        public List<Principal> DomainGroups { get; private set; }
 
-        public SecurityPrincipals(string DomainName)
+        /// <summary>
+        /// Конструктор класса, принимает Имя домена
+        /// </summary>
+        /// <param name="DomainName">Имя домена</param>
+        public SecurityPrincipals(string domainName)
         {
-            this.domainName = DomainName;
+            this.domainName = domainName;
 
-            if (DomainName.Length > 0)
+            if (domainName.Length > 0)
             {
-                DomainIsAvailable = true;
+                DomainAvailable = true;
                 domainPrefix = domainName.Substring(0, domainName.IndexOf('.')).ToUpper();
             }
 
             LocalUsers = new List<Principal>();
             LocalGroups = new List<Principal>();
-            ADUsers = new List<Principal>();
-            ADGroups = new List<Principal>();
+            DomainUsers = new List<Principal>();
+            DomainGroups = new List<Principal>();
         }
 
+        /// <summary>
+        /// Создает список локальных или доменных групп безопасности 
+        /// </summary>
+        /// <param name="contextType">Значение перечисления ContextType - задает расположение учетных записей: Локальная или Доменная</param>
+        /// <param name="OUName">Название Organizational Unit для доменных учетных записей</param>
         public void SetGroups(ContextType contextType, string OUName = null)
         {
             var list=new List<Principal>();
@@ -42,7 +69,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             if (contextType == ContextType.Domain)
             {
-                if (DomainIsAvailable == false)
+                if (DomainAvailable == false)
                     return;
                 prefix = domainPrefix;
                 context = new PrincipalContext(contextType, domainName, GetFilter(OUName));
@@ -67,7 +94,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                 }
 
                 if (contextType == ContextType.Domain)
-                    ADGroups = list.OrderBy(x => x.Name).ToList();
+                    DomainGroups = list.OrderBy(x => x.Name).ToList();
                 else
                     LocalGroups = list.OrderBy(x => x.Name).ToList();
             }
@@ -79,6 +106,11 @@ namespace ReestrUslugOMS.Classes_and_structures
             }
         }
 
+        /// <summary>
+        /// Создает список локальных или доменных пользователей 
+        /// </summary>
+        /// <param name="contextType">Значение перечисления ContextType - задает расположение учетных записей: Локальная или Доменная</param>
+        /// <param name="OUName">Название Organizational Unit для доменных учетных записей</param>
         public void SetUsers(ContextType contextType, string OUName = null)
         {
             var list=new List<Principal>();
@@ -88,7 +120,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             if (contextType == ContextType.Domain)
             {
-                if (DomainIsAvailable == false)
+                if (DomainAvailable == false)
                     return;
                 prefix = domainPrefix;
 
@@ -113,7 +145,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                     list.Add(item);
                 }
                 if (contextType == ContextType.Domain)
-                    ADUsers = list.OrderBy(x => x.Name).ToList();
+                    DomainUsers = list.OrderBy(x => x.Name).ToList();
                 else
                     LocalUsers = list.OrderBy(x => x.Name).ToList();
             }
@@ -125,6 +157,11 @@ namespace ReestrUslugOMS.Classes_and_structures
             }
         }
 
+        /// <summary>
+        /// Формирует строку для фильтра в соответствии с доменом и заданным OU
+        /// </summary>
+        /// <param name="OU">Название Organizational Unit</param>
+        /// <returns></returns>
         string GetFilter(string OU)
         {
             var filter = new StringBuilder();
@@ -141,6 +178,9 @@ namespace ReestrUslugOMS.Classes_and_structures
             return filter.ToString();
         }
 
+        /// <summary>
+        /// Класс учетной записи пользователя или группые
+        /// </summary>
         public class Principal
         {
             public string Name { get; set; }

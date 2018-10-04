@@ -1,10 +1,10 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace ReestrUslugOMS
 {
-
-
+    /// <summary>
+    /// Перечисление видов источников данных
+    /// </summary>
     public enum enDataSource:byte
     {
         [Description("")]                           Пусто = 0,
@@ -14,6 +14,9 @@ namespace ReestrUslugOMS
         [Description("План Врача")]                 ПланВрача = 4
     }
 
+    /// <summary>
+    /// Перечисление видов данных
+    /// </summary>
     public enum enDataType : byte
     {
         [Description("")]                           Пусто = 0,
@@ -24,6 +27,9 @@ namespace ReestrUslugOMS
         [Description("Номер Элемента")]             НомерЭлемента = 5,
     }
 
+    /// <summary>
+    /// Перечисление видов операций со значением данных
+    /// </summary>
     public enum enOperation : byte
     {
         [Description("")]                           Пусто = 0,
@@ -33,6 +39,9 @@ namespace ReestrUslugOMS
         [Description("Не применять Выборочно")]     НеПрименятьВыборочно = 4,
     }
 
+    /// <summary>
+    /// Перечисление типов результатов
+    /// </summary>
     public enum enResultType : byte
     {
         [Description("")]                           Пусто = 0,
@@ -47,6 +56,10 @@ namespace ReestrUslugOMS
         [Description("Диспансеризация Раз в 2 Года")]   ДиспансеризацияРазВ2Года = 9
 
     }
+
+    /// <summary>
+    /// Перечисление видов пациентов относительно места страхования
+    /// </summary>
     public enum enInsuranceMode : byte
     {
         [Description("")]                           Пусто = 0,
@@ -55,6 +68,9 @@ namespace ReestrUslugOMS
         [Description("Только иногородние")]         ТолькоИногородние = 3
     }
 
+    /// <summary>
+    /// Перечисление видов услуг относительно статуса оплаты
+    /// </summary>
     public enum enErrorMode : byte
     {
         [Description("")]                           Пусто = 0,
@@ -63,6 +79,9 @@ namespace ReestrUslugOMS
         [Description("Только ошибки")]              ТолькоОшибки = 3
     }
 
+    /// <summary>
+    /// Перечисление видов отчета
+    /// </summary>
     public enum enReportMode :byte
     {
         none = 0,        
@@ -70,6 +89,10 @@ namespace ReestrUslugOMS
         ПланОтделения = 2,
         Отчет = 3
     }
+
+    /// <summary>
+    /// Перечисление видов суммирования
+    /// </summary>
     public enum enDirection : byte
     {
         none=0,

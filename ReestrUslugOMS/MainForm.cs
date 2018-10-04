@@ -33,7 +33,7 @@ namespace ReestrUslugOMS
         {
             InitializeComponent();
 
-            Config.Create();
+            //Config.Create();
             metroLabel1.Text = Config.Instance.Runtime.CurrentUserName;
 
             ucContainer = metroPanel1;

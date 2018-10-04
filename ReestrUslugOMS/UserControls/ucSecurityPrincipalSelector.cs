@@ -23,7 +23,7 @@ namespace ReestrUslugOMS.UserControls
 
             SecurityPrincipals = securityPrincipals;
             metroRadioButton1.Enabled = SelectLocalMachine;
-            metroRadioButton2.Enabled = securityPrincipals.DomainIsAvailable;
+            metroRadioButton2.Enabled = securityPrincipals.DomainAvailable;
             metroRadioButton4.Enabled = SelectGroups;
 
             if (metroRadioButton1.Enabled != metroRadioButton2.Enabled)
@@ -61,9 +61,9 @@ namespace ReestrUslugOMS.UserControls
             else if (metroRadioButton2.Checked)  //Active Directory
             {
                 if (metroRadioButton3.Checked)  // Пользователь
-                    list = SecurityPrincipals.ADUsers;
+                    list = SecurityPrincipals.DomainUsers;
                 else if (metroRadioButton4.Checked) //Группа
-                    list = SecurityPrincipals.ADGroups;
+                    list = SecurityPrincipals.DomainGroups;
             }
 
             metroGrid1.Rows.Clear();

@@ -31,7 +31,7 @@ namespace ReestrUslugOMS.UserControls
         {
             string login = metroTextBox1.Text;
             string password = metroTextBox2.Text;
-            string dataBase = Config.Instance.Runtime.db.connection.Database;
+            string dataBase = Config.Instance.SqlDataBase;
 
             if (login.Length == 0 || (metroRadioButton2.Checked && password.Length == 0))
                 return;
@@ -83,7 +83,7 @@ namespace ReestrUslugOMS.UserControls
             if (Config.Instance.SqlServerOnLocalMachine)
                 SelectLocalMachine = true;
 
-            if (SelectLocalMachine == false && SecurityPrincipals.DomainIsAvailable == false)
+            if (SelectLocalMachine == false && SecurityPrincipals.DomainAvailable == false)
                 return;
 
             var userControl = new ucSecurityPrincipalSelector(SecurityPrincipals, Update, SelectLocalMachine);

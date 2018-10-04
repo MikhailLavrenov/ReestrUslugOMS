@@ -5,8 +5,16 @@ using System.Reflection;
 
 namespace ReestrUslugOMS
 {
+    /// <summary>
+    /// Вспомогательный класс конвертеров
+    /// </summary>
     public static class Tools
     {
+        /// <summary>
+        /// Преобразует любой enum в объект для DataSource графических компонентов
+        /// </summary>
+        /// <typeparam name="T">Тип перечесления enum</typeparam>
+        /// <returns>Объект для DataSource</returns>
         public static object EnumToDataSource<T>()
         {
             var list = Enum.GetValues(typeof(T))
@@ -17,6 +25,11 @@ namespace ReestrUslugOMS
             return list;
         }
 
+        /// <summary>
+        /// Возвращает описание (Description) перечисления класса Enum
+        /// </summary>
+        /// <param name="item">Перечисление класса Enum</param>
+        /// <returns>Строка описания (Description)</returns>
         public static string GetEnumDescription(Enum item)
         {
             Type type = item.GetType();
@@ -27,21 +40,43 @@ namespace ReestrUslugOMS
             return dAttr.Description;
         }
 
+        /// <summary>
+        /// Возвращает дату с первым числом месяца указанной даты
+        /// </summary>
+        /// <param name="value">Дата</param>
+        /// <returns>Новая дата</returns>
         public static DateTime FirstDayDate(this DateTime value)
         {
             return value.AddDays(1-value.Day);
         }
 
+        /// <summary>
+        /// Возвращает дату с последним числом месяца указанной даты
+        /// </summary>
+        /// <param name="value">Дата</param>
+        /// <returns>Новая дата</returns>
         public static DateTime LastDayDate(this DateTime value)
         {
             return value.AddMonths(1).AddDays(-value.Day);
         }
 
+        /// <summary>
+        /// Преобразует заданную в количество полных месяцов
+        /// </summary>
+        /// <param name="value">Дата</param>
+        /// <returns>Количество месяцев</returns>
         public static int Months(this DateTime value)
         {
             return value.Year * 12 + value.Month;
         }
 
+        /// <summary>
+        /// Определяет находиться ли дата в заданном диапазоне дат. Сравнение даты с Null возвращает true. Сравнение происходит с условиями включения: >= и <=.
+        /// </summary>
+        /// <param name="value">Сравниваемая дата</param>
+        /// <param name="begin">Начальная дата интервала</param>
+        /// <param name="end">Конечная дата интервала</param>
+        /// <returns>Логический результат сравнения</returns>
         public static bool BetweenInMonths (this DateTime value, DateTime? begin, DateTime? end)
         {
             bool result;

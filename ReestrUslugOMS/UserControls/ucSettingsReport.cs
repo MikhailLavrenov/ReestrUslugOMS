@@ -148,25 +148,27 @@ namespace ReestrUslugOMS.UserControls
             return newRow;
         }
 
-        dbtNode CopyReport(dbtNode fromReport, dbtNode newParent = null)
+        dbtNode CopyReport(dbtNode fromNode, dbtNode newParent = null)
         {
-            var newReport = fromReport.PartialCopy();
-            if (newParent != null)
-                newReport.ParentId = newParent.NodeId;
+            var newNode = fromNode.PartialCopy();
+            newNode.NodeId = 0;
 
-            Config.Instance.Runtime.dbContext.dbtNode.AddOrUpdate(newReport);
+            if (newParent != null)
+                newNode.ParentId = newParent.NodeId;
+
+            Config.Instance.Runtime.dbContext.dbtNode.AddOrUpdate(newNode);
             Config.Instance.Runtime.dbContext.SaveChanges();
 
             //копируем формулы
-            foreach (var item in fromReport.Formula)
+            foreach (var item in fromNode.Formula)
             {
                 var newFormula = item.PartialCopy();
-                newFormula.NodeId = newReport.NodeId;
+                newFormula.NodeId = newNode.NodeId;
                 Config.Instance.Runtime.dbContext.dbtFormula.AddOrUpdate(newFormula);
             }
             Config.Instance.Runtime.dbContext.SaveChanges();
 
-            return newReport;
+            return newNode;
         }
 
         void DeleteRow(dbtNode row)
@@ -183,7 +185,7 @@ namespace ReestrUslugOMS.UserControls
         public void RefreshGrid()
         {
             string additionalFilterName = metroTextBox1.Text;
-            Config.Instance.Runtime.dbContext.dbtNode.Local.Where(x => x.Prev == null).ToList().ForEach(x => x.SetAllFullNamesAndOrders());
+            Config.Instance.Runtime.dbContext.dbtNode.Local.Where(x => x.Prev == null).ToList().ForEach(x => x.InitializeProperties());
 
 
             var list = Config.Instance.Runtime.dbContext.dbtNode.Local
