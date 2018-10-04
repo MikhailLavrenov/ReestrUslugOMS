@@ -19,8 +19,7 @@ namespace ReestrUslugOMS
         public int RowNodeId { get; set; }
         public int ColNodeId { get; set; }
         public double Value { get; set; }
-        public int Month { get; set; }
-        public int Year { get; set; }
+        public System.DateTime Period { get; set; }
     
         public virtual dbtNode ColNode { get; set; }
         public virtual dbtNode RowNode { get; set; }

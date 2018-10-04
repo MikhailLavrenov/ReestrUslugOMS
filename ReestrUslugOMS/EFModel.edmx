@@ -40,8 +40,7 @@
           <Property Name="RowNodeId" Type="int" Nullable="false" />
           <Property Name="ColNodeId" Type="int" Nullable="false" />
           <Property Name="Value" Type="float" Nullable="false" />
-          <Property Name="Month" Type="int" Nullable="false" />
-          <Property Name="Year" Type="int" Nullable="false" />
+          <Property Name="Period" Type="date" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -311,10 +310,9 @@
           <Property Name="RowNodeId" Type="Int32" Nullable="false" />
           <Property Name="ColNodeId" Type="Int32" Nullable="false" />
           <Property Name="Value" Type="Double" Nullable="false" />
-          <Property Name="Month" Type="Int32" Nullable="false" />
-          <Property Name="Year" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ColNode" Relationship="REESTR_FOMSModel.FK_Plan_Node" FromRole="Plan" ToRole="dbtNode" />
           <NavigationProperty Name="RowNode" Relationship="REESTR_FOMSModel.FK_Plan_Node1" FromRole="Plan" ToRole="dbtNode" />
+          <Property Name="Period" Type="DateTime" Nullable="false" Precision="0" />
         </EntityType>
         <Association Name="FK_Plan_Node">
           <End Type="REESTR_FOMSModel.dbtNode" Role="dbtNode" Multiplicity="1">
@@ -413,8 +411,7 @@
           <EntitySetMapping Name="dbtPlan">
             <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtPlan">
               <MappingFragment StoreEntitySet="Plan">
-                <ScalarProperty Name="Year" ColumnName="Year" />
-                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Period" ColumnName="Period" />
                 <ScalarProperty Name="Value" ColumnName="Value" />
                 <ScalarProperty Name="ColNodeId" ColumnName="ColNodeId" />
                 <ScalarProperty Name="RowNodeId" ColumnName="RowNodeId" />

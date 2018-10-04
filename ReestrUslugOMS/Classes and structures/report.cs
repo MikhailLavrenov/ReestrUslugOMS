@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using unvell.ReoGrid;
 using ReestrUslugOMS.Classes_and_structures;
 using unvell.ReoGrid.DataFormat;
+using System.Threading.Tasks;
 
 namespace ReestrUslugOMS
 {
@@ -172,12 +173,10 @@ namespace ReestrUslugOMS
         /// <param name="insuranceTerritory">Режим построения отчета относительно региона выдачи полиса ОМС (иногородние пациенты)</param>
         public void SetParams(DateTime dateStart, DateTime dateEnd, enErrorMode errors = (enErrorMode)1, enInsuranceMode insuranceTerritory = (enInsuranceMode)1)
         {
-            BeginPeriod = dateStart;
-            EndPeriod = dateEnd;
+            BeginPeriod = dateStart.FirstDayDate();
+            EndPeriod = dateEnd.LastDayDate();
             Errors = errors;
-            InsuranceTerritory = insuranceTerritory;
-
-            
+            InsuranceTerritory = insuranceTerritory;            
         }
 
         /// <summary>
@@ -192,22 +191,24 @@ namespace ReestrUslugOMS
                 var val1 = Config.Instance.Runtime.dbContext.sp_ReportFact(BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year, Config.Instance.LpuCode, (int)Errors, (int)InsuranceTerritory).ToList();
                 DataSourcesDict.Add(enDataSource.РеестрыСчетов, val1);
 
-                var val2 = Config.Instance.Runtime.dbContext.sp_ReportPlan((byte)enReportMode.ПланВрача, BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year).ToList();
+                var val2 = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланВрача && x.Period >= BeginPeriod && x.Period <= EndPeriod).ToList();
                 DataSourcesDict.Add(enDataSource.ПланВрача, val2);
 
-                var val3 = Config.Instance.Runtime.dbContext.sp_ReportPlan((byte)enReportMode.ПланОтделения, BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year).ToList();
+
+                var val3 = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланОтделения && x.Period >= BeginPeriod && x.Period <= EndPeriod).ToList();
                 DataSourcesDict.Add(enDataSource.ПланОтделения, val3);
+
             }
 
             else if (ReportType == enReportMode.ПланВрача)
             {
-                var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланВрача && x.Year == BeginPeriod.Year && x.Month == BeginPeriod.Month).ToList();
+                var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланВрача && x.Period.Month == BeginPeriod.Month && x.Period.Year == BeginPeriod.Year).ToList();
                 DataSourcesDict.Add(enDataSource.ПланВрача, val);
             }
 
             else if (ReportType == enReportMode.ПланОтделения)
             {
-                var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланОтделения && x.Year == BeginPeriod.Year && x.Month == BeginPeriod.Month).ToList();
+                var val = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланОтделения && x.Period.Month == BeginPeriod.Month && x.Period.Year == BeginPeriod.Year).ToList();
                 DataSourcesDict.Add(enDataSource.ПланОтделения, val);
             }
         }
@@ -294,33 +295,15 @@ namespace ReestrUslugOMS
         /// <returns>Рассчитанное значение</returns>
         private double GetPlan(int rowNumber, int colNumber, DateTime date)
         {
-            double result = 0;
+            double result;
 
-            if (ReportType == enReportMode.Отчет)
-            {
-                var data = ((List<sp_ReportPlanResult>)DataSourcesDict[Rows[rowNumber].DataSource]).Where(x=>x.Period?.Month==date.Month && x.Period?.Year==date.Year).ToList();
+            var data = (List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource];
 
-                foreach (var dataItem in data)
-                    if (Rows[rowNumber].NodeId == dataItem.RowNodeId)
-                        if (Cols[colNumber].NodeId == dataItem.ColNodeId)
-                        {
-                            result = (double)dataItem.Value;
-                            break;
-                        }
-            }
-            else if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
-            {
-                var data = ((List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource]).Where(x => x.Month == date.Month && x.Year == date.Year).ToList(); ;
-
-                foreach (var dataItem in data)
-                    if (Rows[rowNumber].NodeId == dataItem.RowNodeId)
-                        if (Cols[colNumber].NodeId == dataItem.ColNodeId)
-                        {
-                            result = dataItem.Value;
-                            break;
-                        }
-            }
-
+            result =data
+                .Where(x => x.Period.Month == date.Month && x.Period.Year == date.Year)
+                .Where(x => x.RowNodeId == Rows[rowNumber].NodeId && x.ColNodeId == Cols[colNumber].NodeId)
+                .FirstOrDefault()?.Value ?? 0;
+            
             result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
             return result;
@@ -617,6 +600,7 @@ namespace ReestrUslugOMS
             double newVal, oldVal;
             List<dbtPlan> listValues = null;
             dbtPlan planItem;
+            var period = BeginPeriod.FirstDayDate().AddDays(14);
 
             foreach (var entry in Config.Instance.Runtime.dbContext.ChangeTracker.Entries())
                 if (Config.Instance.Runtime.dbContext.Entry(entry.Entity).State != EntityState.Unchanged)
@@ -650,8 +634,7 @@ namespace ReestrUslugOMS
                         planItem.RowNodeId = Rows[i].NodeId;
                         planItem.ColNodeId = Cols[j].NodeId;
                         planItem.Type = ReportType;
-                        planItem.Month = BeginPeriod.Month;
-                        planItem.Year = BeginPeriod.Year;
+                        planItem.Period = period;
                         Config.Instance.Runtime.dbContext.dbtPlan.Add(planItem);
                     }
                     planItem.Value = newVal;
