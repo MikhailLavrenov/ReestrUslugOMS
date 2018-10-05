@@ -196,6 +196,7 @@ namespace ReestrUslugOMS.UserControls
                     x.FullName,
                     x.Color,
                     x.ReadOnly,
+                    x.Hidden,
                     DataSource = Tools.GetEnumDescription(x.DataSource)
                 })
                  .Where(x => x.FullName.StartsWith(mainFilterName) && x.FullName.Contains(additionalFilterName))

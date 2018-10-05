@@ -84,6 +84,7 @@
             newItem.Order = Order;
             newItem.Color = Color;
             newItem.ReadOnly = ReadOnly;
+            newItem.Hidden = Hidden;
             newItem.DataSource = DataSource;
 
             return newItem;

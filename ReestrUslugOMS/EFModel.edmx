@@ -30,6 +30,7 @@
           <Property Name="Color" Type="varchar" MaxLength="10" />
           <Property Name="ReadOnly" Type="bit" Nullable="false" />
           <Property Name="DataSource" Type="tinyint" Nullable="false" />
+          <Property Name="Hidden" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Plan">
           <Key>
@@ -247,6 +248,7 @@
           <NavigationProperty Name="Plan" Relationship="REESTR_FOMSModel.FK_Plan_Node" FromRole="dbtNode" ToRole="Plan" />
           <NavigationProperty Name="Plan1" Relationship="REESTR_FOMSModel.FK_Plan_Node1" FromRole="dbtNode" ToRole="Plan" />
           <Property Name="DataSource" Type="REESTR_FOMSModel.enDataSource" Nullable="false" />
+          <Property Name="Hidden" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="dbtUser">
           <Key>
@@ -383,6 +385,7 @@
           <EntitySetMapping Name="dbtNode">
             <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtNode">
               <MappingFragment StoreEntitySet="Node">
+                <ScalarProperty Name="Hidden" ColumnName="Hidden" />
                 <ScalarProperty Name="DataSource" ColumnName="DataSource" />
                 <ScalarProperty Name="ReadOnly" ColumnName="ReadOnly" />
                 <ScalarProperty Name="Color" ColumnName="Color" />

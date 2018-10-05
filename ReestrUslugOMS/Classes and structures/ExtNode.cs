@@ -60,7 +60,7 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// <summary>
         /// Может сворачиваться и разворачиваться
         /// </summary>
-        public bool CanCollapse { get; private set; }
+        public bool CanGroupUngroup { get; private set; }
         /// <summary>
         /// Имя ноды в соответствии с состоянием: развернута -  свернута +
         /// </summary>
@@ -70,14 +70,14 @@ namespace ReestrUslugOMS.Classes_and_structures
             {
                 string result;
 
-                if (CanCollapse == false)
+                if (CanGroupUngroup == false)
                     result = Name;
                 else
                 {
                     if (Collapsed == true)
-                        result = string.Format("{0}  {1}", "+", Name);
+                        result = string.Format("+  {0}", Name);
                     else
-                        result = string.Format("{0}  {1}", "-", Name);
+                        result = string.Format("-  {0}", Name);
                 }
 
                 return result;
@@ -92,11 +92,11 @@ namespace ReestrUslugOMS.Classes_and_structures
         {
             get
             {
-                return this._Collapsed;
+                return _Collapsed;
             }
             set
             {
-                this._Collapsed = value;
+                _Collapsed = value;
                 SetVisibleNextNodes(!value, true);
             }
         }
@@ -132,7 +132,6 @@ namespace ReestrUslugOMS.Classes_and_structures
             ReadOnly = node.ReadOnly;
             DataSource = node.DataSource;
             Index = index++;
-            Visible = true;
             PlanSet = false;
             Formula = node.Formula == null ? new List<dbtFormula>() : node.Formula.ToList();
             Prev = prev;
@@ -140,12 +139,14 @@ namespace ReestrUslugOMS.Classes_and_structures
             SetFullName();
             SetFullOrder();
             SetLevel();
+            SetVisible();
 
             Next = new List<ExtNode>();
             foreach (var item in node.Next.OrderBy(x => x.Order).ToList())
                 Next.Add(new ExtNode(item, this, ref index));
 
             SetCanCollapse();
+            SetGrouped();
         }
 
         /// <summary>
@@ -189,9 +190,28 @@ namespace ReestrUslugOMS.Classes_and_structures
         private void SetCanCollapse()
         {
             if (DataSource == 0 && Next.Count(x => x.DataSource == 0) != 0)
-                CanCollapse = true;
+                CanGroupUngroup = true;                
             else
-                CanCollapse = false;
+                CanGroupUngroup = false;
+        }
+
+        /// <summary>
+        /// Задает видимость
+        /// </summary>
+        private void SetVisible()
+        {
+            if (Hidden == false)
+                Visible = true;
+            else
+                Visible = false;
+        }
+
+        private void SetGrouped()
+        {
+            if (CanGroupUngroup == true)
+                Grouped = false;
+            else
+                Grouped = true;
         }
 
         /// <summary>
@@ -284,7 +304,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                 {
                     node.Visible = visible;
 
-                    if ((node.CanCollapse == true) && (node.Collapsed == true))
+                    if ((node.CanGroupUngroup == true) && (node.Collapsed == true))
                     {
                         visibleCopy = !visibleCopy;
                         skip = true;
@@ -378,5 +398,81 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             return result.ToArray();
         }
+
+
+        public string GetAltName()
+        {
+            string result;
+
+            if (CanGroupUngroup == false)
+                result = Name;
+            else
+            {
+                if (Grouped == true)
+                    result = string.Format("+  {0}", Name);
+                else
+                    result = string.Format("-  {0}", Name);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Имя ноды в соответствии с состоянием: развернута -  свернута +
+        /// </summary>
+        public bool? Grouped { get; set; }
+
+
+        public void GroupedReverse()
+        {
+            if (CanGroupUngroup==true)
+            {
+                if (Grouped == true)
+                    UnGroup();
+                else
+                    Group();
+            }
+        }
+
+        public void Group()
+        {
+            if (CanGroupUngroup == true)
+            {
+                Grouped = true;
+
+                foreach (var item in Next.Where(x => x.DataSource == 0))
+                    item._Group();
+            }
+        }
+
+        private void _Group()
+        {
+            if (CanGroupUngroup == true)
+                Grouped = true;
+
+            Visible = false;
+
+            foreach (var item in Next)
+                item._Group();
+        }
+
+        public void UnGroup()
+        {
+            if (CanGroupUngroup == true)
+            {
+                Grouped = false;
+
+                foreach (var item in Next)
+                {
+                    item.Visible = true;
+                    foreach (var node in item.Next.Where(x=>x.DataSource!=0))
+                        node.Visible = true;
+                }
+            }
+        }
+
+
     }
+
+
 }

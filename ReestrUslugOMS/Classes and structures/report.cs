@@ -655,16 +655,16 @@ namespace ReestrUslugOMS
             int index;
             ExtNode node;
 
-            if (Rows[0].Root.Exist(clickPoint, out node) && node.CanCollapse)
+            if (Rows[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
             {
                 index = Array.IndexOf(Rows, node);
 
-                if (Rows[index].CanCollapse == true)
+                if (Rows[index].CanGroupUngroup == true)
                 {
                     Rows[index].Collapsed = !Rows[index].Collapsed;
                     sheet[Rows[index].Row, Rows[index].Col] = Rows[index].AltName;
 
-                    for (int i = index; i < Rows.Length; i++)
+                    for (int i = 0; i < Rows.Length; i++)
                     {
                         if (Rows[i].Visible == false)
                             sheet.HideRows(Rows[i].Row, 1);
@@ -674,15 +674,15 @@ namespace ReestrUslugOMS
                 }
             }
 
-            else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanCollapse)
+            else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
             {
                 index = Array.IndexOf(Cols, node);
-                if (Cols[index].CanCollapse == true)
+                if (Cols[index].CanGroupUngroup == true)
                 {
-                    Cols[index].Collapsed = !Cols[index].Collapsed;
-                    sheet[Cols[index].Row, Cols[index].Col] = Cols[index].AltName;
+                    Cols[index].GroupedReverse();
+                    sheet[Cols[index].Row, Cols[index].Col] = Cols[index].GetAltName();
 
-                    for (int i = index + 1; i < Cols.Length; i++)
+                    for (int i = 0; i < Cols.Length; i++)
                     {
                         if (Cols[i].Visible == false)
                             sheet.HideColumns(Cols[i].Col, 1);
@@ -716,7 +716,7 @@ namespace ReestrUslugOMS
             {
                 for (int i = 0; i < Rows.Length; i++)
                 {
-                    if (Rows[i].CanCollapse == true)
+                    if (Rows[i].CanGroupUngroup == true)
                     {
                         if (Rows[i].Level == rowLevel)  //текущий уровень сворачиваем
                             Rows[i].Collapsed = true;
@@ -740,7 +740,7 @@ namespace ReestrUslugOMS
             {
                 for (int i = 0; i < Cols.Length; i++)
                 {
-                    if (Cols[i].CanCollapse == true)
+                    if (Cols[i].CanGroupUngroup == true)
                     {
                         if (Cols[i].Level == colLevel)  //текущий уровень сворачиваем
                             Cols[i].Collapsed = true;
@@ -790,6 +790,64 @@ namespace ReestrUslugOMS
 
         }
 
+
+        ///// <summary>
+        ///// Сворачивает и разворачивает строки и столбцы отчета по двойному клику на ячейке
+        ///// </summary>
+        ///// <param name="control">Ссылка на ReoGridControl</param>
+        ///// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
+        //public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
+        //{
+        //    var sheet = control.CurrentWorksheet;
+        //    var clickPoint = new Point { X = sheet.FocusPos.Col, Y = sheet.FocusPos.Row };
+        //    int index;
+        //    ExtNode node;
+
+        //    if (Rows[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
+        //    {
+        //        index = Array.IndexOf(Rows, node);
+
+        //        if (Rows[index].CanGroupUngroup == true)
+        //        {
+        //            Rows[index].Collapsed = !Rows[index].Collapsed;
+        //            sheet[Rows[index].Row, Rows[index].Col] = Rows[index].AltName;
+
+        //            for (int i = index; i < Rows.Length; i++)
+        //            {
+        //                if (Rows[i].Visible == false)
+        //                    sheet.HideRows(Rows[i].Row, 1);
+        //                else
+        //                    sheet.ShowRows(Rows[i].Row, 1);
+        //            }
+        //        }
+        //    }
+
+        //    else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
+        //    {
+        //        index = Array.IndexOf(Cols, node);
+        //        if (Cols[index].CanGroupUngroup == true)
+        //        {
+        //            Cols[index].Collapsed = !Cols[index].Collapsed;
+        //            sheet[Cols[index].Row, Cols[index].Col] = Cols[index].AltName;
+
+        //            for (int i = index + 1; i < Cols.Length; i++)
+        //            {
+        //                if (Cols[i].Visible == false)
+        //                    sheet.HideColumns(Cols[i].Col, 1);
+        //                else
+        //                    sheet.ShowColumns(Cols[i].Col, 1);
+        //            }
+        //        }
+        //    }
+        //    else
+        //        return;
+
+        //    var pos = scrollBarsPosition;
+        //    scrollBarsPosition.X = 0;
+        //    scrollBarsPosition.Y = 0;
+
+        //    control.ScrollCurrentWorksheet(pos.X, pos.Y);
+        //}
 
     }
 

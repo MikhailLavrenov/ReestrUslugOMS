@@ -31,6 +31,7 @@ namespace ReestrUslugOMS
         public string Color { get; set; }
         public bool ReadOnly { get; set; }
         public ReestrUslugOMS.enDataSource DataSource { get; set; }
+        public bool Hidden { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<dbtFormula> Formula { get; set; }

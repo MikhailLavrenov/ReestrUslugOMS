@@ -41,6 +41,8 @@ namespace ReestrUslugOMS.UserControls
             metroTextBox1.Text = dbtNodeRow.Name;
             metroTextBox2.Text = dbtNodeRow.Order;
             metroTextBox4.Text = dbtNodeRow.Color;
+            metroCheckBox1.Checked = dbtNodeRow.ReadOnly;
+            metroCheckBox2.Checked = dbtNodeRow.Hidden;
             metroComboBox2.SelectedValue = dbtNodeRow.DataSource;
 
             RefreshGrid();
@@ -131,6 +133,8 @@ namespace ReestrUslugOMS.UserControls
             dbtNodeRow.Name = metroTextBox1.Text;
             dbtNodeRow.Order = metroTextBox2.Text;
             dbtNodeRow.Color = metroTextBox4.Text;
+            dbtNodeRow.ReadOnly = metroCheckBox1.Checked;
+            dbtNodeRow.Hidden = metroCheckBox2.Checked;
             dbtNodeRow.DataSource = (enDataSource)metroComboBox2.SelectedValue;
 
             Config.Instance.Runtime.dbContext.dbtNode.AddOrUpdate(dbtNodeRow);
@@ -161,13 +165,19 @@ namespace ReestrUslugOMS.UserControls
                     DateEnd = x.DateEnd == null ? null : ((DateTime)x.DateEnd).ToString("MMMM yyyy")
                 }).ToList();
 
+
+            Point cur = new Point();
+            int index=0;
+
             if (metroGrid1.CurrentCell != null)
             {
-                Point cur = new Point(metroGrid1.CurrentCell.ColumnIndex, metroGrid1.CurrentCell.RowIndex);
-                int index = metroGrid1.FirstDisplayedScrollingRowIndex;
-
+                cur = new Point(metroGrid1.CurrentCell.ColumnIndex, metroGrid1.CurrentCell.RowIndex);
+                index = metroGrid1.FirstDisplayedScrollingRowIndex;
+            }
                 metroGrid1.DataSource = list;
 
+            if (metroGrid1.CurrentCell != null)
+            {
                 if (cur.Y >= metroGrid1.Rows.Count)
                     cur.Y = metroGrid1.Rows.Count - 1;
 
@@ -176,8 +186,7 @@ namespace ReestrUslugOMS.UserControls
                 if (index < metroGrid1.Rows.Count)
                     metroGrid1.FirstDisplayedScrollingRowIndex = index;
             }
-            else
-                metroGrid1.DataSource = list;
+
         }
     }
 }
