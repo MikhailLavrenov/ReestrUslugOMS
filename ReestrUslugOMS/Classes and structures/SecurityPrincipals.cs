@@ -11,8 +11,8 @@ namespace ReestrUslugOMS.Classes_and_structures
     /// </summary>
     public class SecurityPrincipals
     {
-        string domainName;
-        string domainPrefix;
+        private string domainName;
+        private string domainPrefix;
 
         /// <summary>
         /// Домен  доступен по сети
@@ -54,7 +54,6 @@ namespace ReestrUslugOMS.Classes_and_structures
             DomainUsers = new List<Principal>();
             DomainGroups = new List<Principal>();
         }
-
         /// <summary>
         /// Создает список локальных или доменных групп безопасности 
         /// </summary>
@@ -105,7 +104,6 @@ namespace ReestrUslugOMS.Classes_and_structures
                 searcher.Dispose();
             }
         }
-
         /// <summary>
         /// Создает список локальных или доменных пользователей 
         /// </summary>
@@ -156,7 +154,6 @@ namespace ReestrUslugOMS.Classes_and_structures
                 searcher.Dispose();
             }
         }
-
         /// <summary>
         /// Формирует строку для фильтра в соответствии с доменом и заданным OU
         /// </summary>
@@ -177,7 +174,6 @@ namespace ReestrUslugOMS.Classes_and_structures
 
             return filter.ToString();
         }
-
         /// <summary>
         /// Класс учетной записи пользователя или группые
         /// </summary>

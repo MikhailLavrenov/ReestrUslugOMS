@@ -10,7 +10,6 @@ namespace ReestrUslugOMS
     /// </summary>
     public partial class sp_ReportFactResult
     {
-
         /// <summary>
         /// Возвращает значение соответствующее значению перечисления enDataType
         /// </summary>
@@ -29,7 +28,6 @@ namespace ReestrUslugOMS
 
             return result;
         }
-
         /// <summary>
         /// Возвращает значение соответствующее значению перечисления enResultType
         /// </summary>
@@ -54,6 +52,5 @@ namespace ReestrUslugOMS
 
             return result;
         }
-
     }
 }

@@ -9,6 +9,9 @@ namespace ReestrUslugOMS.Classes_and_structures
     /// </summary>
     public class ExtNode : dbtNode
     {
+        private bool? _Grouped;
+        private bool _Visible;
+
         /// <summary>
         /// Возвращает ссылку на корневую ноду.
         /// </summary>
@@ -48,66 +51,72 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// Список волженных нод.
         /// </summary>
         public new List<ExtNode> Next { get; private set; }
-
         /// <summary>
-        /// Номер строки (координата) в отчете
+        /// Номер строки (координата) в отчете.
         /// </summary>
         public int Col { get; set; }
         /// <summary>
-        /// Номер столбца (координата) в отчете
+        /// Номер столбца (координата) в отчете.
         /// </summary>
         public int Row { get; set; }
         /// <summary>
-        /// Может сворачиваться и разворачиваться
+        /// Может сворачиваться и разворачиваться.
         /// </summary>
         public bool CanGroupUngroup { get; private set; }
         /// <summary>
-        /// Имя ноды в соответствии с состоянием: развернута -  свернута +
+        /// Видимость.
         /// </summary>
-        public string AltName
+        public bool Visible
         {
             get
             {
-                string result;
-
-                if (CanGroupUngroup == false)
-                    result = Name;
-                else
-                {
-                    if (Collapsed == true)
-                        result = string.Format("+  {0}", Name);
-                    else
-                        result = string.Format("-  {0}", Name);
-                }
-
-                return result;
-            }
-        }
-
-        private bool _Collapsed = false;
-        /// <summary>
-        /// Управляет состоянием сворачивания/разворачивания
-        /// </summary>
-        public bool Collapsed
-        {
-            get
-            {
-                return _Collapsed;
+                return _Visible;
             }
             set
             {
-                _Collapsed = value;
-                SetVisibleNextNodes(!value, true);
+                _Visible = Hidden ? false : value;
             }
         }
-        /// <summary>
-        /// Видимость.
-        /// </summary>
-        public bool Visible { get; set; }
         /// <summary>
         /// Разрешение вводить план пользователем.
         /// </summary>
         public bool PlanSet { get; set; }
+        /// <summary>
+        /// Имя ноды в соответствии с состоянием: развернута -  свернута +
+        /// </summary>
+        public string GetAltName()
+        {
+            string result;
+
+            if (CanGroupUngroup == false)
+                result = Name;
+            else
+            {
+                if (Grouped == true)
+                    result = $"+  {Name}";
+                else
+                    result = $"-  {Name}";
+            }
+
+            return result;
+        }        
+        /// <summary>
+        /// Состояние свернуто (true),развернуто (false), не применимо (null)
+        /// </summary>
+        public bool? Grouped
+        {
+            get
+            {
+                return _Grouped;
+            }
+            set
+            {
+                if (Hidden)
+                    _Grouped = true;
+                else
+                    _Grouped = CanGroupUngroup ? value : null;
+            }
+        }
 
         /// <summary>
         /// Конструктор по-умолчанию.
@@ -115,7 +124,6 @@ namespace ReestrUslugOMS.Classes_and_structures
         private ExtNode()
         {
         }
-
         /// <summary>
         /// Конструктор для создания связанных нод по нодам из базового класса
         /// </summary>
@@ -124,117 +132,74 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// <param name="index">Порядковый номер по ссылке</param>
         public ExtNode(dbtNode node, ExtNode prev, ref int index)
         {
+            Prev = prev;
             NodeId = node.NodeId;
             ParentId = node.ParentId;
             Name = node.Name;
             Order = node.Order;
             Color = ColorTranslator.FromHtml(node.Color);
             ReadOnly = node.ReadOnly;
+            Hidden = node.Hidden || Prev?.Hidden == true ? true : false;
             DataSource = node.DataSource;
             Index = index++;
             PlanSet = false;
             Formula = node.Formula == null ? new List<dbtFormula>() : node.Formula.ToList();
-            Prev = prev;
+
 
             SetFullName();
             SetFullOrder();
             SetLevel();
-            SetVisible();
+            Visible = true;
 
             Next = new List<ExtNode>();
             foreach (var item in node.Next.OrderBy(x => x.Order).ToList())
                 Next.Add(new ExtNode(item, this, ref index));
 
-            SetCanCollapse();
-            SetGrouped();
+            SetCanGroupUnGroup();
+            Grouped = false;
         }
-
         /// <summary>
         /// Задает полное имя. Зависит от этого же свойства предыдущей ноды.
         /// </summary>
         private void SetFullName()
         {
-            if (Prev == null)
-                FullName = Name;
-            else
-                FullName = string.Format("{0}  >  {1}", this.Prev.FullName, this.Name);
-
+            FullName = Prev == null ? Name : $"{Prev.FullName}  >  {Name}";
         }
-
         /// <summary>
         /// Задает полный порядок сортировки. Зависит от этого же свойства предыдущей ноды.
         /// </summary>
         private void SetFullOrder()
         {
-            if (Prev == null)
-                FullOrder = Order;
-            else
-                FullOrder = string.Format("{0}.{1}", Prev.FullOrder, this.Order);
+            FullOrder = Prev == null ? Order : $"{Prev.FullOrder}.{Order}";
         }
-
         /// <summary>
         /// Задает уровень вложенности. Зависит от этого же свойства предыдущей ноды.
         /// </summary>
         /// <returns>Уровень вложенности</returns>
         private void SetLevel()
         {
-            if (Prev == null)
-                Level = 0;
-            else
-                Level = Prev.Level + 1;
+            Level = Prev == null ? 0 : Prev.Level + 1;
         }
-
         /// <summary>
         /// Задает возможность сворачивания/разворачивания. Зависит от своих вложенных нод на +1 уровне.
         /// </summary>
-        private void SetCanCollapse()
+        private void SetCanGroupUnGroup()
         {
-            if (DataSource == 0 && Next.Count(x => x.DataSource == 0) != 0)
-                CanGroupUngroup = true;                
+            if (Next.Count(x => x.Next.Count > 0 && x.Hidden == false) > 0)
+                CanGroupUngroup = true;
             else
                 CanGroupUngroup = false;
         }
-
-        /// <summary>
-        /// Задает видимость
-        /// </summary>
-        private void SetVisible()
-        {
-            if (Hidden == false)
-                Visible = true;
-            else
-                Visible = false;
-        }
-
-        private void SetGrouped()
-        {
-            if (CanGroupUngroup == true)
-                Grouped = false;
-            else
-                Grouped = true;
-        }
-
         /// <summary>
         /// Проверяет среди всех вложенных нод наличие хотя бы одной ноды (результат true), значение которой может быть рассчитано.
         /// </summary>
         /// <returns>Результат</returns>
         public bool IsEmptyBranch()
         {
-            bool result = true;
+            var count = ToList().Count(x => x.DataSource != 0);
 
-            if (DataSource != 0)
-                result = false;
-            else
-                foreach (var item in Next)
-                    if (item.IsEmptyBranch() == false)
-                    {
-                        result = false;
-                        break;
-                    }
-
-            return result;
+            return count == 0 ? true : false;
         }
-
         /// <summary>
         /// Устанавливает свойства полей, значения которых зависят от других нод. Начинает с корневой ноды не зависимо от текущего экземпляра, перебирает все связанные ноды. 
         /// </summary>
@@ -243,7 +208,6 @@ namespace ReestrUslugOMS.Classes_and_structures
             int ind = -1;
             Root._InitializeProperties(ref ind);
         }
-
         /// <summary>
         /// Рекурсивно вперед вглубину устанавливает свойства полей, значения которых зависят от других нод.
         /// </summary>
@@ -253,13 +217,12 @@ namespace ReestrUslugOMS.Classes_and_structures
             SetFullName();
             SetFullOrder();
             SetLevel();
-            SetCanCollapse();
+            SetCanGroupUnGroup();
             Index = index++;
 
             foreach (var item in Next)
                 item._InitializeProperties(ref index);
         }
-
         /// <summary>
         /// Создает новую корневую ноду. Новая корневая нода будет ссылать только на текущую ноду, текущая нода - на новую корневую ноду. Не пересчитывает зависимые свойства нод.
         /// </summary>
@@ -267,53 +230,17 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// <returns>Экземпляр корневой ноды</returns>
         public ExtNode AddRoot(string name)
         {
-            var root = new ExtNode();
-
-            root.Name = name;
-            root.Order = "0";
-            Prev = root;
-            root.Next = new List<ExtNode>();
+            var root = new ExtNode
+            {
+                Name = name,
+                Order = "0",
+                Next = new List<ExtNode>()
+            };
             root.Next.Add(this);
+            Prev = root;
 
             return root;
         }
-
-        /// <summary>
-        /// Устанавливает видимость для всех волженных нод.
-        /// </summary>
-        /// <param name="visible">Видимость.</param>
-        /// <param name="skipWithdataSource">Не скрывать ноды, значение которой может быть рассчитано.</param>
-        public void SetVisibleNextNodes(bool visible, bool skipWithdataSource = false)
-        {
-            bool skip = false;
-            bool visibleCopy;
-
-            foreach (ExtNode node in this.Next)
-            {
-                skip = false;
-                visibleCopy = visible;
-
-                if (visible == false)
-                {
-                    if (!(skipWithdataSource == true && node.DataSource != 0))
-                        node.Visible = visible;
-                    else
-                        node.Visible = !visible;
-                }
-                else
-                {
-                    node.Visible = visible;
-
-                    if ((node.CanGroupUngroup == true) && (node.Collapsed == true))
-                    {
-                        visibleCopy = !visibleCopy;
-                        skip = true;
-                    }
-                }
-                node.SetVisibleNextNodes(visibleCopy, skip);
-            }
-        }
-
         /// <summary>
         /// Поиск ноды с заданными координатами ячейки отчета в текущей и всех вложенных нодах. 
         /// </summary>
@@ -322,41 +249,9 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// <returns>True если найдена,иначе False.</returns>
         public bool Exist(Point point, out ExtNode node)
         {
-            node = _Exist(point);
-
-            if (node == null)
-                return false;
-            else
-                return true;
+            node = ToList().Where(x => x.Row == point.Y && x.Col == point.X).FirstOrDefault();
+            return node == null ? false : true;
         }
-
-        /// <summary>
-        /// Рекурсивный поиск ноды с заданными координатами ячейки отчета в текущей и всех вложенных нодах.
-        /// </summary>
-        /// <param name="point">Координата ячейки в отчете.</param>
-        /// <returns>Найденная нода, если не найдена Null.</returns>
-        private ExtNode _Exist(Point point)
-        {
-            ExtNode result = null;
-            ExtNode node;
-
-            if ((this.Col == point.X) && (this.Row == point.Y))
-                result = this;
-            else
-                foreach (var item in Next)
-                {
-                    node = item._Exist(point);
-
-                    if (node != null)
-                    {
-                        result = node;
-                        break;
-                    }
-                }
-
-            return result;
-        }
-
         /// <summary>
         /// Возвращает список  из текущей и вложенных нод, с заданным смещением от текущей ноды.
         /// </summary>
@@ -364,14 +259,13 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// <returns>Список нод.</returns>
         public List<ExtNode> ToList(int pos = 0)
         {
-            var result = new List<ExtNode>();
+            var list = new List<ExtNode>();
 
-            _ToList(result);
-            result = result.GetRange(pos, result.Count - pos);
+            _ToList(list);
+            list = list.GetRange(pos, list.Count - pos);
 
-            return result;
+            return list;
         }
-
         /// <summary>
         /// Рекурсивно вперед вглубину формирует список нод.
         /// </summary>
@@ -383,49 +277,12 @@ namespace ReestrUslugOMS.Classes_and_structures
             foreach (var node in Next)
                 node._ToList(list);
         }
-
         /// <summary>
-        /// Возвращает массив из текущей и вложенных нод, с заданным смещением от текущей ноды.
+        /// Инверсия свернутого/развернутого состояния.
         /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
-        public ExtNode[] ToArray(int pos = 0)
+        public void GroupUnGroupReverse()
         {
-            var result = new List<ExtNode>();
-
-            _ToList(result);
-            result = result.GetRange(pos, result.Count - pos);
-
-            return result.ToArray();
-        }
-
-
-        public string GetAltName()
-        {
-            string result;
-
-            if (CanGroupUngroup == false)
-                result = Name;
-            else
-            {
-                if (Grouped == true)
-                    result = string.Format("+  {0}", Name);
-                else
-                    result = string.Format("-  {0}", Name);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Имя ноды в соответствии с состоянием: развернута -  свернута +
-        /// </summary>
-        public bool? Grouped { get; set; }
-
-
-        public void GroupedReverse()
-        {
-            if (CanGroupUngroup==true)
+            if (CanGroupUngroup == true)
             {
                 if (Grouped == true)
                     UnGroup();
@@ -433,7 +290,9 @@ namespace ReestrUslugOMS.Classes_and_structures
                     Group();
             }
         }
-
+        /// <summary>
+        /// Сворачивает вложенные ноды.
+        /// </summary>
         public void Group()
         {
             if (CanGroupUngroup == true)
@@ -441,21 +300,13 @@ namespace ReestrUslugOMS.Classes_and_structures
                 Grouped = true;
 
                 foreach (var item in Next.Where(x => x.DataSource == 0))
-                    item._Group();
+                    item.ToList().ForEach(x => { x.Visible = false; x.Grouped = true; });
             }
+
         }
-
-        private void _Group()
-        {
-            if (CanGroupUngroup == true)
-                Grouped = true;
-
-            Visible = false;
-
-            foreach (var item in Next)
-                item._Group();
-        }
-
+        /// <summary>
+        /// Разворачивает вложенные ноды.
+        /// </summary>
         public void UnGroup()
         {
             if (CanGroupUngroup == true)
@@ -465,14 +316,13 @@ namespace ReestrUslugOMS.Classes_and_structures
                 foreach (var item in Next)
                 {
                     item.Visible = true;
-                    foreach (var node in item.Next.Where(x=>x.DataSource!=0))
-                        node.Visible = true;
+                    item.Grouped = true;
+
+                    item.Next.Where(x => x.DataSource != 0)
+                        .ToList()
+                        .ForEach(x => { x.Visible = true; x.Grouped = true; });
                 }
             }
         }
-
-
     }
-
-
 }

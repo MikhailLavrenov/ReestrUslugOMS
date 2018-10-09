@@ -24,7 +24,6 @@ namespace ReestrUslugOMS
 
             return list;
         }
-
         /// <summary>
         /// Возвращает описание (Description) перечисления класса Enum
         /// </summary>
@@ -39,7 +38,6 @@ namespace ReestrUslugOMS
 
             return dAttr.Description;
         }
-
         /// <summary>
         /// Возвращает дату с первым числом месяца указанной даты
         /// </summary>
@@ -49,7 +47,6 @@ namespace ReestrUslugOMS
         {
             return value.AddDays(1-value.Day);
         }
-
         /// <summary>
         /// Возвращает дату с последним числом месяца указанной даты
         /// </summary>
@@ -59,7 +56,6 @@ namespace ReestrUslugOMS
         {
             return value.AddMonths(1).AddDays(-value.Day);
         }
-
         /// <summary>
         /// Преобразует заданную в количество полных месяцов
         /// </summary>
@@ -69,7 +65,6 @@ namespace ReestrUslugOMS
         {
             return value.Year * 12 + value.Month;
         }
-
         /// <summary>
         /// Определяет находиться ли дата в заданном диапазоне дат. Сравнение даты с Null возвращает true. Сравнение происходит с условиями включения: >= и <=.
         /// </summary>
@@ -103,6 +98,5 @@ namespace ReestrUslugOMS
 
             return result;
         }
-
     }
 }

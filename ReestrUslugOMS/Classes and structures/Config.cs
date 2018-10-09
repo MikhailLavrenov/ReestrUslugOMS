@@ -50,7 +50,6 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// Путь к отчету по объемам медицинской помощи.
         /// </summary>
         public string PathReportXlsx { get; private set; }
-
         /// <summary>
         /// Ссылка на экземпляр настроек. 
         /// </summary>
@@ -94,7 +93,6 @@ namespace ReestrUslugOMS.Classes_and_structures
             if (SqlServer.IndexOf(Environment.MachineName, StringComparison.CurrentCultureIgnoreCase) > 0)
                 SqlServerOnLocalMachine = true;
         }
-
         /// <summary>
         /// Настройки запущенного приложения.
         /// </summary>
@@ -108,7 +106,6 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// Строка подключения ADO Microsft Sql Server
             /// </summary>
             public string MsSqlConnectionString { get; private set; }
-
             /// <summary>
             /// Полное квалифицированное имя домена (FQDN)
             /// </summary>
@@ -121,9 +118,14 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// Права текущего пользователя на доступ к разделам программы
             /// </summary>
             public dbtUser CurrentUser { get; private set; }
-
-            public MSSQLDB db;
-            public EFModel dbContext;
+            /// <summary>
+            /// Работа с базой данных через ADO
+            /// </summary>
+            public MSSQLDB db { get; set; }
+            /// <summary>
+            /// Работа с базой данных через Entity Framework
+            /// </summary>
+            public EFModel dbContext { get; set; }
 
             /// <summary>
             /// Конструктор

@@ -9,9 +9,9 @@ namespace ReestrUslugOMS
     /// </summary>
     public class MSSQLDB : IDisposable
     {
-        SqlCommand command;
-        SqlConnection connection;
-        SqlDataAdapter da;
+        private SqlCommand command;
+        private SqlConnection connection;
+        private SqlDataAdapter da;
 
         /// <summary>
         /// Конструктор, принимает строку подлючения
@@ -23,7 +23,6 @@ namespace ReestrUslugOMS
             connection = new SqlConnection(connectionString);
             connection.Open();
         }
-
         /// <summary>
         /// Выполняет sql запрос, возвращающий значения (select)
         /// </summary>
@@ -39,7 +38,6 @@ namespace ReestrUslugOMS
 
             return dt;
         }
-
         /// <summary>
         /// Выполняет sql запрос, не возвращающий значения (insert, update, delete ...)
         /// </summary>
@@ -49,7 +47,6 @@ namespace ReestrUslugOMS
             command = new SqlCommand(sql,connection);
             command.ExecuteNonQuery();
         }
-
         /// <summary>
         /// Закрывает подключение к базе данных и освобождает ресурсы
         /// </summary>
@@ -60,6 +57,4 @@ namespace ReestrUslugOMS
             command.Dispose();
         }
     }
-
-
 }

@@ -33,7 +33,6 @@ namespace ReestrUslugOMS
         /// Словарь содержащий наборы значений различных типов
         /// </summary>
         public Dictionary<enDataSource, object> DataSourcesDict { get; set; }
-
         /// <summary>
         /// Максимальный уровень строк
         /// </summary>
@@ -42,7 +41,6 @@ namespace ReestrUslugOMS
         /// Максимальный уровень столбцов
         /// </summary>
         public int MaxColLevel { get; private set; }
-
         /// <summary>
         /// Колчество знаков после запятой для округления значений ячеек
         /// </summary>
@@ -89,10 +87,9 @@ namespace ReestrUslugOMS
             SetRowsCols();
             SetPlanSet();
 
-            MaxRowLevel = this.Rows.Max(x => x.Level);
-            MaxColLevel = this.Cols.Max(x => x.Level);
+            MaxRowLevel = Rows.Max(x => x.Level);
+            MaxColLevel = Cols.Max(x => x.Level);
         }
-
         /// <summary>
         /// Формирует массив строк и столбцов отчета
         /// </summary>
@@ -103,21 +100,18 @@ namespace ReestrUslugOMS
 
             Config.Instance.Runtime.dbContext.dbtNode.Include(x => x.Formula).Load();
             var nodes = Config.Instance.Runtime.dbContext.dbtNode.Local.ToList();
-            //var nodes = Config.Instance.Runtime.dbContext.dbtNode.Include(x => x.Formula).AsNoTracking().ToList();            
-
 
             //формируем и заполняем массив столбцов
             dbtRoot = nodes.Where(x => x.Name == "Столбцы" && x.Prev == null).First();
 
             int ind = -1;
-            extRoot = new ExtNode(dbtRoot, null,ref ind);
-            Cols = extRoot.ToArray(1);
-
+            extRoot = new ExtNode(dbtRoot, null, ref ind);
+            Cols = extRoot.ToList(1).ToArray();
 
             //формируем и заполняем массив строк 
             dbtRoot = nodes.Where(x => x.Name == "Строки" && x.Prev == null).First();
             ind = 1;
-            extRoot = new ExtNode(dbtRoot, null,ref ind);
+            extRoot = new ExtNode(dbtRoot, null, ref ind);
 
             if (ReportType == enReportMode.ПланВрача || ReportType == enReportMode.ПланОтделения)
             {
@@ -143,9 +137,8 @@ namespace ReestrUslugOMS
                 row.Next.RemoveAll(x => x.IsEmptyBranch());
 
             extRoot.InitializeProperties();
-            Rows = extRoot.ToArray(1);
+            Rows = extRoot.ToList(1).ToArray();
         }
-
         /// <summary>
         /// помечает ноды на пересечении которых пользователь может вводить планы
         /// </summary>
@@ -163,7 +156,6 @@ namespace ReestrUslugOMS
                             item.PlanSet = true;
             }
         }
-
         /// <summary>
         /// Устанавливает настройки отчета для рассчета значений ячеек
         /// </summary>
@@ -176,9 +168,8 @@ namespace ReestrUslugOMS
             BeginPeriod = dateStart.FirstDayDate();
             EndPeriod = dateEnd.LastDayDate();
             Errors = errors;
-            InsuranceTerritory = insuranceTerritory;            
+            InsuranceTerritory = insuranceTerritory;
         }
-
         /// <summary>
         /// Создает словарь с источниками данных для расчетов
         /// </summary>
@@ -212,7 +203,6 @@ namespace ReestrUslugOMS
                 DataSourcesDict.Add(enDataSource.ПланОтделения, val);
             }
         }
-
         /// <summary>
         /// Рассчитывает значения ячеек отчета за весь период, в т.ч. вычисляет строки с процентами
         /// </summary>
@@ -227,7 +217,7 @@ namespace ReestrUslugOMS
             while (date.BetweenInMonths(BeginPeriod, EndPeriod))
             {
                 list.Add(SetResultValues(date));
-                date=date.AddMonths(1);
+                date = date.AddMonths(1);
             };
 
             ResultValues = new double[Rows.Length, Cols.Length];
@@ -246,7 +236,6 @@ namespace ReestrUslugOMS
                             if (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелитель)
                                 ResultValues[i, j] = PercentRows(i, j);
         }
-
         /// <summary>
         /// Рассчитывает значения ячеек отчета за заданный период, не вычисляет строки с процентами
         /// </summary>
@@ -273,7 +262,7 @@ namespace ReestrUslugOMS
                     for (int j = 0; j < Cols.Length; j++)
                         if (lev == Rows[i].Level && result[i, j] == 0 && Cols[j].DataSource != 0)
                             if (Rows[i].DataSource == enDataSource.Отчет && Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
-                                result[i, j] = SubSum(i, j, enDirection.Строки, date,result);
+                                result[i, j] = SubSum(i, j, enDirection.Строки, date, result);
 
             //суммируем столбцы
             for (int lev = MaxColLevel - 1; lev > 0; lev--)
@@ -281,11 +270,10 @@ namespace ReestrUslugOMS
                     for (int j = 0; j < Rows.Length; j++)
                         if (lev == Cols[i].Level && result[j, i] == 0 && Rows[j].DataSource != 0)
                             if (Cols[i].DataSource == enDataSource.Отчет && Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
-                                result[j, i] = SubSum(i, j, enDirection.Столбцы, date,result);
+                                result[j, i] = SubSum(i, j, enDirection.Столбцы, date, result);
 
             return result;
         }
-
         /// <summary>
         /// Рассчитывает значение на пересечении строки и столбца отчета по выполненым услугам
         /// </summary>
@@ -299,16 +287,13 @@ namespace ReestrUslugOMS
 
             var data = (List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource];
 
-            result =data
+            result = data
                 .Where(x => x.Period.Month == date.Month && x.Period.Year == date.Year)
                 .Where(x => x.RowNodeId == Rows[rowNumber].NodeId && x.ColNodeId == Cols[colNumber].NodeId)
                 .FirstOrDefault()?.Value ?? 0;
-            
-            result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
-            return result;
+            return Math.Round(result, Round, MidpointRounding.AwayFromZero);
         }
-
         /// <summary>
         /// Рассчитывает значение на пересечении строки и столбца отчета по введенным планам
         /// </summary>
@@ -320,16 +305,12 @@ namespace ReestrUslugOMS
         {
             double res = 0;
             double num;
-            var data = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.Period?.Month == date.Month && x.Period?.Year == date.Year).ToList(); ;
+            var data = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.Period?.Month == date.Month && x.Period?.Year == date.Year).ToList();
 
             foreach (var fRow in Rows[rowNumber].Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
                 foreach (var fCol in Cols[colNumber].Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
                     foreach (var dataItem in data)
                     {
-                        string r1 = fRow.DataValue;
-                        string dr = dataItem.GetValue(fRow.DataType);
-                        string c1 = fCol.DataValue;
-                        string dc = dataItem.GetValue(fCol.DataType);
                         if (dataItem.GetValue(fRow.DataType) == fRow.DataValue)
                             if (dataItem.GetValue(fCol.DataType) == fCol.DataValue)
                             {
@@ -338,11 +319,8 @@ namespace ReestrUslugOMS
                             }
                     }
 
-            res = Math.Round(res, Round, MidpointRounding.AwayFromZero);
-
-            return res;
+            return  Math.Round(res, Round, MidpointRounding.AwayFromZero);
         }
-
         /// <summary>
         /// Рассчитывает значение на пересечении строки и столбца отчета, путем суммирования элементов вложенных нод
         /// </summary>
@@ -373,38 +351,37 @@ namespace ReestrUslugOMS
             var subNodes = new List<ExtNode>();
 
             foreach (var item in node.Prev.Next)
-                subNodes.AddRange( item.Next.Where(x => x.DataSource != 0).ToList() );
+                subNodes.AddRange(item.Next.Where(x => x.DataSource != 0).ToList());
 
             foreach (var formula in node.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
-                    foreach (var subNode in subNodes)
-                        if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НомерЭлемента && subNode.NodeId.ToString() == formula.DataValue))
-                        {
-                            if (direction == enDirection.Строки)
-                                num = resultValues[subNode.Index, resPos];
-                            else if (direction == enDirection.Столбцы)
-                                num = resultValues[resPos, subNode.Index];
-                            else
-                                num = 0;
+                foreach (var subNode in subNodes)
+                    if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НомерЭлемента && subNode.NodeId.ToString() == formula.DataValue))
+                    {
+                        if (direction == enDirection.Строки)
+                            num = resultValues[subNode.Index, resPos];
+                        else if (direction == enDirection.Столбцы)
+                            num = resultValues[resPos, subNode.Index];
+                        else
+                            num = 0;
 
-                            result += formula.Calculate(num, secondMultiplier);
-                        }
+                        result += formula.Calculate(num, secondMultiplier);
+                    }
 
             result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
             return result;
         }
-
         /// <summary>
         /// Рассчитывает значение в процентах на пересечении строки и столбца отчета
         /// </summary>
         /// <param name="rowNumber">Порядковый номер строки в массиве строк</param>
         /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
         /// <returns>Рассчитанное значение</returns>
-        private double PercentRows (int rowNumber, int colNumber)
+        private double PercentRows(int rowNumber, int colNumber)
         {
-            double result=0;
+            double result = 0;
 
-            ExtNode row= Rows[rowNumber];
+            ExtNode row = Rows[rowNumber];
 
             var formulaDelimoe = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелимое).First();
             var formulaDelitel = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелитель).First();
@@ -415,14 +392,13 @@ namespace ReestrUslugOMS
             var delimoe = ResultValues[nodeDelimoe.Index, colNumber];
             var delitel = ResultValues[nodeDelitel.Index, colNumber];
 
-            if (delimoe!=0 && delitel!=0)
-                result = 100*delimoe/delitel;
+            if (delimoe != 0 && delitel != 0)
+                result = 100 * delimoe / delitel;
 
             result = Math.Round(result, PercentRound, MidpointRounding.AwayFromZero);
 
             return result;
         }
-
         /// <summary>
         /// Вставляет значения ячеек отчета на лист ReoGridControl
         /// </summary>
@@ -443,7 +419,6 @@ namespace ReestrUslugOMS
                         sheet[Rows[i].Row, Cols[j].Col] = null;
 
         }
-
         /// <summary>
         /// Вставляет заголовки отчета на лист ReoGridControl и настраивает внешний вид отчета
         /// </summary>
@@ -464,7 +439,7 @@ namespace ReestrUslugOMS
             {
                 Rows[i].Col = Rows[i].Level - 1;
                 Rows[i].Row = MaxColLevel + i;
-                sheet[Rows[i].Row, Rows[i].Col] = Rows[i].AltName;
+                sheet[Rows[i].Row, Rows[i].Col] = Rows[i].GetAltName();
             }
 
             //заполняем заголовки столбцов
@@ -472,7 +447,7 @@ namespace ReestrUslugOMS
             {
                 Cols[i].Col = MaxRowLevel + i;
                 Cols[i].Row = Cols[i].Level - 1;
-                sheet[Cols[i].Row, Cols[i].Col] = Cols[i].AltName;
+                sheet[Cols[i].Row, Cols[i].Col] = Cols[i].GetAltName();
             }
 
             //ValuesToReoGrid(sheet);
@@ -485,7 +460,7 @@ namespace ReestrUslugOMS
 
             //задаем внешнюю границу
             borderStyle = new RangeBorderStyle(Color.Gray, BorderLineStyle.None);
-            sheet.SetRangeBorders(0, 0, sheet.Rows, sheet.Columns, BorderPositions.Left| BorderPositions.Top, borderStyle);
+            sheet.SetRangeBorders(0, 0, sheet.Rows, sheet.Columns, BorderPositions.Left | BorderPositions.Top, borderStyle);
 
             //задаем размер шрифта
             sheet.Ranges[0, 0, sheet.RowCount, sheet.ColumnCount].Style.FontSize = 8;
@@ -590,7 +565,6 @@ namespace ReestrUslugOMS
 
             #endregion задаем форматы
         }
-
         /// <summary>
         /// Создает, изменяет, удаляет и сохраняет введенные планы с листа ReoGridControl
         /// </summary>
@@ -642,7 +616,6 @@ namespace ReestrUslugOMS
 
             Config.Instance.Runtime.dbContext.SaveChanges();
         }
-
         /// <summary>
         /// Сворачивает и разворачивает строки и столбцы отчета по двойному клику на ячейке
         /// </summary>
@@ -650,116 +623,85 @@ namespace ReestrUslugOMS
         /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
         public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
         {
+            ExtNode node, row, col;
+            node = row = col = null;
             var sheet = control.CurrentWorksheet;
             var clickPoint = new Point { X = sheet.FocusPos.Col, Y = sheet.FocusPos.Row };
-            int index;
-            ExtNode node;
 
-            if (Rows[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
+            if (Rows[0].Root.Exist(clickPoint, out row))
+                node = row;
+            else if (Cols[0].Root.Exist(clickPoint, out col))
+                node = col;
+
+            if (node?.CanGroupUngroup == true)
             {
-                index = Array.IndexOf(Rows, node);
-
-                if (Rows[index].CanGroupUngroup == true)
-                {
-                    Rows[index].Collapsed = !Rows[index].Collapsed;
-                    sheet[Rows[index].Row, Rows[index].Col] = Rows[index].AltName;
-
-                    for (int i = 0; i < Rows.Length; i++)
+                node.GroupUnGroupReverse();
+                
+                if (row != null)
+                    foreach (var item in Rows)
                     {
-                        if (Rows[i].Visible == false)
-                            sheet.HideRows(Rows[i].Row, 1);
+                        sheet[item.Row, item.Col] = item.GetAltName();
+                        if (item.Visible == false)
+                            sheet.HideRows(item.Row, 1);
                         else
-                            sheet.ShowRows(Rows[i].Row, 1);
+                            sheet.ShowRows(item.Row, 1);
                     }
-                }
-            }
-
-            else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
-            {
-                index = Array.IndexOf(Cols, node);
-                if (Cols[index].CanGroupUngroup == true)
-                {
-                    Cols[index].GroupedReverse();
-                    sheet[Cols[index].Row, Cols[index].Col] = Cols[index].GetAltName();
-
-                    for (int i = 0; i < Cols.Length; i++)
+                else if (col != null)
+                    foreach (var item in Cols)
                     {
-                        if (Cols[i].Visible == false)
-                            sheet.HideColumns(Cols[i].Col, 1);
+                        sheet[item.Row, item.Col] = item.GetAltName();
+                        if (item.Visible == false)
+                            sheet.HideColumns(item.Col, 1);
                         else
-                            sheet.ShowColumns(Cols[i].Col, 1);
+                            sheet.ShowColumns(item.Col, 1);
                     }
-                }
-            }
-            else
-                return;
 
-            var pos = scrollBarsPosition;
-            scrollBarsPosition.X = 0;
-            scrollBarsPosition.Y = 0;
-            
-            control.ScrollCurrentWorksheet(pos.X, pos.Y);
+                var pos = scrollBarsPosition;
+                scrollBarsPosition = new PointF();
+                control.ScrollCurrentWorksheet(pos.X, pos.Y);
+            }
         }
-
         /// <summary>
-        /// 
+        /// Cворачивает и разворачивает строки и столбцы отчета по заданному уровню
         /// </summary>
         /// <param name="control">Ссылка на ReoGridControl</param>
         /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
         /// <param name="rowLevel">Новый максимальный уровень отображения строк (-1 если без изменений)</param>
         /// <param name="colLevel">Новый максимальный уровень отображения столбцов (-1 если без изменений)</param>
-        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1 )
+        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1)
         {
             var sheet = control.CurrentWorksheet;
 
             if (rowLevel != -1)
             {
-                for (int i = 0; i < Rows.Length; i++)
-                {
-                    if (Rows[i].CanGroupUngroup == true)
-                    {
-                        if (Rows[i].Level == rowLevel)  //текущий уровень сворачиваем
-                            Rows[i].Collapsed = true;
-                        else if (Rows[i].Level < rowLevel)   //предыдущие уровни разворачиваем
-                            Rows[i].Collapsed = false;
+                Rows.Where(x => x.Level < rowLevel && x.CanGroupUngroup).ToList().ForEach(x => x.UnGroup());    //предыдущие уровни разворачиваем
+                Rows.Where(x => x.Level == rowLevel && x.CanGroupUngroup).ToList().ForEach(x => x.Group());     //текущий уровень сворачиваем
 
-                        sheet[Rows[i].Row, Rows[i].Col] = Rows[i].AltName;
-                    }
-                }
-
-                for (int j = 0; j < Rows.Length; j++)
+                foreach (var row in Rows)
                 {
-                    if (Rows[j].Visible == false)
-                        sheet.HideRows(Rows[j].Row, 1);
+                    sheet[row.Row, row.Col] = row.GetAltName();
+
+                    if (row.Visible == false)
+                        sheet.HideRows(row.Row, 1);
                     else
-                        sheet.ShowRows(Rows[j].Row, 1);
+                        sheet.ShowRows(row.Row, 1);
                 }
             }
 
             if (colLevel != -1)
             {
-                for (int i = 0; i < Cols.Length; i++)
-                {
-                    if (Cols[i].CanGroupUngroup == true)
-                    {
-                        if (Cols[i].Level == colLevel)  //текущий уровень сворачиваем
-                            Cols[i].Collapsed = true;
-                        else if (Cols[i].Level < colLevel)   //предыдущие уровни разворачиваем
-                            Cols[i].Collapsed = false;
+                Cols.Where(x => x.Level < colLevel && x.CanGroupUngroup).ToList().ForEach(x => x.UnGroup());    //предыдущие уровни разворачиваем
+                Cols.Where(x => x.Level == colLevel && x.CanGroupUngroup).ToList().ForEach(x => x.Group());     //текущий уровень сворачиваем
 
-                        sheet[Cols[i].Row, Cols[i].Col] = Cols[i].AltName;
-                    }
-                }
-
-                for (int j = 0; j < Cols.Length; j++)
+                foreach (var col in Cols)
                 {
-                    if (Cols[j].Visible == false)
-                        sheet.HideColumns(Cols[j].Col, 1);
+                    if (col.Visible == false)
+                        sheet.HideColumns(col.Col, 1);
                     else
-                        sheet.ShowColumns(Cols[j].Col, 1);
+                        sheet.ShowColumns(col.Col, 1);
                 }
             }
-
+            
             var pos = scrollBarsPosition;
             scrollBarsPosition.X = 0;
             scrollBarsPosition.Y = 0;
@@ -789,65 +731,6 @@ namespace ReestrUslugOMS
                                 }
 
         }
-
-
-        ///// <summary>
-        ///// Сворачивает и разворачивает строки и столбцы отчета по двойному клику на ячейке
-        ///// </summary>
-        ///// <param name="control">Ссылка на ReoGridControl</param>
-        ///// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
-        //public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
-        //{
-        //    var sheet = control.CurrentWorksheet;
-        //    var clickPoint = new Point { X = sheet.FocusPos.Col, Y = sheet.FocusPos.Row };
-        //    int index;
-        //    ExtNode node;
-
-        //    if (Rows[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
-        //    {
-        //        index = Array.IndexOf(Rows, node);
-
-        //        if (Rows[index].CanGroupUngroup == true)
-        //        {
-        //            Rows[index].Collapsed = !Rows[index].Collapsed;
-        //            sheet[Rows[index].Row, Rows[index].Col] = Rows[index].AltName;
-
-        //            for (int i = index; i < Rows.Length; i++)
-        //            {
-        //                if (Rows[i].Visible == false)
-        //                    sheet.HideRows(Rows[i].Row, 1);
-        //                else
-        //                    sheet.ShowRows(Rows[i].Row, 1);
-        //            }
-        //        }
-        //    }
-
-        //    else if (Cols[0].Root.Exist(clickPoint, out node) && node.CanGroupUngroup)
-        //    {
-        //        index = Array.IndexOf(Cols, node);
-        //        if (Cols[index].CanGroupUngroup == true)
-        //        {
-        //            Cols[index].Collapsed = !Cols[index].Collapsed;
-        //            sheet[Cols[index].Row, Cols[index].Col] = Cols[index].AltName;
-
-        //            for (int i = index + 1; i < Cols.Length; i++)
-        //            {
-        //                if (Cols[i].Visible == false)
-        //                    sheet.HideColumns(Cols[i].Col, 1);
-        //                else
-        //                    sheet.ShowColumns(Cols[i].Col, 1);
-        //            }
-        //        }
-        //    }
-        //    else
-        //        return;
-
-        //    var pos = scrollBarsPosition;
-        //    scrollBarsPosition.X = 0;
-        //    scrollBarsPosition.Y = 0;
-
-        //    control.ScrollCurrentWorksheet(pos.X, pos.Y);
-        //}
 
     }
 
