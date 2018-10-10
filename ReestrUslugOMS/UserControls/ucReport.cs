@@ -164,7 +164,7 @@ namespace ReestrUslugOMS.UserControls
 
         private void reoGridControl1_DoubleClick(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition);
+            report.GroupUngroup(reoGridControl1, ref gridScrollBarsPosition);
         }
 
         private void metroButton7_Click(object sender, EventArgs e)
@@ -173,12 +173,12 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroTrackBar1_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition, metroTrackBar1.Value, -1);
+            report.GroupUngroup(reoGridControl1, ref gridScrollBarsPosition, metroTrackBar1.Value, -1);
         }
 
         private void metroTrackBar2_MouseCaptureChanged(object sender, EventArgs e)
         {
-            report.ExpandCollapse(reoGridControl1, ref gridScrollBarsPosition, -1, metroTrackBar2.Value);
+            report.GroupUngroup(reoGridControl1, ref gridScrollBarsPosition, -1, metroTrackBar2.Value);
         }
 
         private void metroLabel8_Click(object sender, EventArgs e)

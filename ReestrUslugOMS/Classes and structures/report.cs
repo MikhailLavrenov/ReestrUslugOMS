@@ -621,7 +621,7 @@ namespace ReestrUslugOMS
         /// </summary>
         /// <param name="control">Ссылка на ReoGridControl</param>
         /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
-        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition)
+        public void GroupUngroup(ReoGridControl control, ref PointF scrollBarsPosition)
         {
             ExtNode node, row, col;
             node = row = col = null;
@@ -662,13 +662,13 @@ namespace ReestrUslugOMS
             }
         }
         /// <summary>
-        /// Cворачивает и разворачивает строки и столбцы отчета по заданному уровню
+        /// Cворачивает и разворачивает строки и столбцы отчета по заданному уровню детализации.
         /// </summary>
         /// <param name="control">Ссылка на ReoGridControl</param>
         /// <param name="scrollBarsPosition">Координаты полос прокруток (костыль из-за бага ReoGridControl)</param>
-        /// <param name="rowLevel">Новый максимальный уровень отображения строк (-1 если без изменений)</param>
-        /// <param name="colLevel">Новый максимальный уровень отображения столбцов (-1 если без изменений)</param>
-        public void ExpandCollapse(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1)
+        /// <param name="rowLevel">Заданный польозвателем уровень отображения строк (-1 если без изменений)</param>
+        /// <param name="colLevel">Заданный польозвателем уровень отображения столбцов (-1 если без изменений)</param>
+        public void GroupUngroup(ReoGridControl control, ref PointF scrollBarsPosition, int rowLevel = -1, int colLevel = -1)
         {
             var sheet = control.CurrentWorksheet;
 
@@ -677,14 +677,14 @@ namespace ReestrUslugOMS
                 Rows.Where(x => x.Level < rowLevel && x.CanGroupUngroup).ToList().ForEach(x => x.UnGroup());    //предыдущие уровни разворачиваем
                 Rows.Where(x => x.Level == rowLevel && x.CanGroupUngroup).ToList().ForEach(x => x.Group());     //текущий уровень сворачиваем
 
-                foreach (var row in Rows)
+                foreach (var node in Rows)
                 {
-                    sheet[row.Row, row.Col] = row.GetAltName();
+                    sheet[node.Row, node.Col] = node.GetAltName();
 
-                    if (row.Visible == false)
-                        sheet.HideRows(row.Row, 1);
+                    if (node.Visible == false)
+                        sheet.HideRows(node.Row, 1);
                     else
-                        sheet.ShowRows(row.Row, 1);
+                        sheet.ShowRows(node.Row, 1);
                 }
             }
 
@@ -693,12 +693,14 @@ namespace ReestrUslugOMS
                 Cols.Where(x => x.Level < colLevel && x.CanGroupUngroup).ToList().ForEach(x => x.UnGroup());    //предыдущие уровни разворачиваем
                 Cols.Where(x => x.Level == colLevel && x.CanGroupUngroup).ToList().ForEach(x => x.Group());     //текущий уровень сворачиваем
 
-                foreach (var col in Cols)
+                foreach (var node in Cols)
                 {
-                    if (col.Visible == false)
-                        sheet.HideColumns(col.Col, 1);
+                    sheet[node.Row, node.Col] = node.GetAltName();
+
+                    if (node.Visible == false)
+                        sheet.HideColumns(node.Col, 1);
                     else
-                        sheet.ShowColumns(col.Col, 1);
+                        sheet.ShowColumns(node.Col, 1);
                 }
             }
             
@@ -708,6 +710,8 @@ namespace ReestrUslugOMS
 
             control.ScrollCurrentWorksheet(pos.X, pos.Y);
         }
+
+        
 
         //тестовый метод для подбора цвета клеток для ввода плана
         public void SetColor(ReoGridControl control)
