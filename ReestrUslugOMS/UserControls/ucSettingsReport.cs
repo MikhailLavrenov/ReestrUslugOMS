@@ -19,6 +19,7 @@ namespace ReestrUslugOMS.UserControls
         public ucSettingsReport()
         {
             InitializeComponent();
+            Dock = DockStyle.Fill;
             Config.Instance.Runtime.dbContext.dbtNode.Load();
             Config.Instance.Runtime.dbContext.dbtFormula.Load();
 
@@ -68,11 +69,6 @@ namespace ReestrUslugOMS.UserControls
             }
         }
 
-        private void ucSettingsReport_Load(object sender, EventArgs e)
-        {
-            this.Dock = DockStyle.Fill;
-        }
-
         private void metroButton3_Click(object sender, EventArgs e)
         {
             int id = (int)metroGrid1["NodeId", metroGrid1.CurrentCell.RowIndex].Value;
@@ -105,9 +101,15 @@ namespace ReestrUslugOMS.UserControls
         private void metroButton4_Click(object sender, EventArgs e)
         {
             if (metroButton4.Text == "Строки")
+            {
                 metroButton4.Text = "Столбцы";
+                metroButton6.Visible = false;
+            }
             else
+            {
                 metroButton4.Text = "Строки";
+                metroButton6.Visible = true;
+            }
 
             mainFilterName = metroButton4.Text;
             metroTextBox1.Text = "";
@@ -195,9 +197,9 @@ namespace ReestrUslugOMS.UserControls
                     x.FullOrder,
                     x.FullName,
                     x.Color,
+                    DataSource = Tools.GetEnumDescription(x.DataSource),
                     x.ReadOnly,
-                    x.Hidden,
-                    DataSource = Tools.GetEnumDescription(x.DataSource)
+                    x.Hidden
                 })
                  .Where(x => x.FullName.StartsWith(mainFilterName) && x.FullName.Contains(additionalFilterName))
                  .OrderBy(x => x.FullOrder)
@@ -222,8 +224,33 @@ namespace ReestrUslugOMS.UserControls
                 metroGrid1.DataSource = list;
         }
 
+        private void metroButton6_Click(object sender, EventArgs e)
+        {
+            var clones = Config.Instance.Runtime.dbContext.dbtFormula.Local
+                .Where(x => x.DataType == enDataType.КодВрача)
+                .GroupBy(x => x.DataValue)
+                .Where(x => x.Count() > 1)
+                .ToList();
+
+                      
+            if (clones.Count > 0)
+            {
+                var sb = new StringBuilder();
+
+                foreach (var item in clones)
+                {
+                    sb.Append($"\n  Код врача: {item.Key}");
+                    foreach (var formula in item)
+                        sb.Append($"\n         {formula.Node.FullName}");
+                }
+
+               // sb.Append(sb);
+                MetroFramework.MetroMessageBox.Show(this, sb.ToString(), "Найдены повторящиеся коды врача:", MessageBoxButtons.OK, MessageBoxIcon.Information, 250);
+            }
+            else
+                MetroFramework.MetroMessageBox.Show(this, "", "Повторяющиеся коды врача не найдены", MessageBoxButtons.OK, MessageBoxIcon.Information, 150);
 
 
-
+        }
     }
 }

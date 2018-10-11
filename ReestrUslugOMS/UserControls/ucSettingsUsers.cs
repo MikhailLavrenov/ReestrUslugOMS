@@ -22,6 +22,7 @@ namespace ReestrUslugOMS.UserControls
         public ucSettingsUsers()
         {
             InitializeComponent();
+            Dock = DockStyle.Fill;
 
             SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.DomainName);
             //SecurityPrincipals.SetGroups(System.DirectoryServices.AccountManagement.ContextType.Domain, Config.Instance.ADGroupsOU);

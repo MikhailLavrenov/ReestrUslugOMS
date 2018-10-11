@@ -44,7 +44,7 @@
             this.metroPanel1.HorizontalScrollbarSize = 10;
             this.metroPanel1.Location = new System.Drawing.Point(23, 84);
             this.metroPanel1.Name = "metroPanel1";
-            this.metroPanel1.Size = new System.Drawing.Size(978, 643);
+            this.metroPanel1.Size = new System.Drawing.Size(978, 633);
             this.metroPanel1.TabIndex = 2;
             this.metroPanel1.VerticalScrollbarBarColor = true;
             this.metroPanel1.VerticalScrollbarHighlightOnWheel = false;
@@ -80,7 +80,7 @@
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1024, 750);
+            this.ClientSize = new System.Drawing.Size(1024, 740);
             this.Controls.Add(this.metroPanel1);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.metroLabel1);

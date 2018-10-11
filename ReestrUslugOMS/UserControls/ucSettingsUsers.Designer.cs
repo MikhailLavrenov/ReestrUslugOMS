@@ -109,7 +109,7 @@
             this.metroGrid1.RowHeadersVisible = false;
             this.metroGrid1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.metroGrid1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.metroGrid1.Size = new System.Drawing.Size(1000, 568);
+            this.metroGrid1.Size = new System.Drawing.Size(970, 568);
             this.metroGrid1.TabIndex = 0;
             this.metroGrid1.DoubleClick += new System.EventHandler(this.metroGrid1_DoubleClick);
             // 
@@ -153,29 +153,36 @@
             // 
             this.UserId.DataPropertyName = "UserId";
             this.UserId.HeaderText = "ID";
+            this.UserId.MinimumWidth = 40;
             this.UserId.Name = "UserId";
             this.UserId.ReadOnly = true;
             this.UserId.Width = 40;
             // 
             // Login
             // 
+            this.Login.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Login.DataPropertyName = "Login";
+            this.Login.FillWeight = 10F;
             this.Login.HeaderText = "Логин";
+            this.Login.MinimumWidth = 180;
             this.Login.Name = "Login";
             this.Login.ReadOnly = true;
-            this.Login.Width = 180;
             // 
             // Sid
             // 
+            this.Sid.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Sid.DataPropertyName = "Sid";
             this.Sid.HeaderText = "Sid";
+            this.Sid.MinimumWidth = 120;
             this.Sid.Name = "Sid";
             this.Sid.ReadOnly = true;
             // 
             // ProgramSettings
             // 
             this.ProgramSettings.DataPropertyName = "ProgramSettings";
+            this.ProgramSettings.FillWeight = 10F;
             this.ProgramSettings.HeaderText = "Настройки Программы";
+            this.ProgramSettings.MinimumWidth = 80;
             this.ProgramSettings.Name = "ProgramSettings";
             this.ProgramSettings.ReadOnly = true;
             this.ProgramSettings.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -185,50 +192,59 @@
             // UserSettings
             // 
             this.UserSettings.DataPropertyName = "UserSettings";
+            this.UserSettings.FillWeight = 10F;
             this.UserSettings.HeaderText = "Настройка Пользователей";
+            this.UserSettings.MinimumWidth = 90;
             this.UserSettings.Name = "UserSettings";
             this.UserSettings.ReadOnly = true;
             this.UserSettings.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.UserSettings.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.UserSettings.Width = 80;
+            this.UserSettings.Width = 90;
             // 
             // ReportSettings
             // 
             this.ReportSettings.DataPropertyName = "ReportSettings";
+            this.ReportSettings.FillWeight = 10F;
             this.ReportSettings.HeaderText = "Настройка Отчета";
+            this.ReportSettings.MinimumWidth = 70;
             this.ReportSettings.Name = "ReportSettings";
             this.ReportSettings.ReadOnly = true;
             this.ReportSettings.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.ReportSettings.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ReportSettings.Width = 80;
+            this.ReportSettings.Width = 70;
             // 
             // PlanDoc
             // 
             this.PlanDoc.DataPropertyName = "PlanDoc";
+            this.PlanDoc.FillWeight = 10F;
             this.PlanDoc.HeaderText = "Ввод Плана Врачей";
+            this.PlanDoc.MinimumWidth = 70;
             this.PlanDoc.Name = "PlanDoc";
             this.PlanDoc.ReadOnly = true;
             this.PlanDoc.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.PlanDoc.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.PlanDoc.Width = 80;
+            this.PlanDoc.Width = 70;
             // 
             // PlanDep
             // 
             this.PlanDep.DataPropertyName = "PlanDep";
+            this.PlanDep.FillWeight = 10F;
             this.PlanDep.HeaderText = "Ввод Плана Отделения";
+            this.PlanDep.MinimumWidth = 70;
             this.PlanDep.Name = "PlanDep";
             this.PlanDep.ReadOnly = true;
             this.PlanDep.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.PlanDep.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.PlanDep.Width = 80;
+            this.PlanDep.Width = 70;
             // 
             // FullName
             // 
+            this.FullName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.FullName.DataPropertyName = "FullName";
             this.FullName.HeaderText = "Ввод Плана в Строки Отчета";
+            this.FullName.MinimumWidth = 170;
             this.FullName.Name = "FullName";
             this.FullName.ReadOnly = true;
-            this.FullName.Width = 200;
             // 
             // ucSettingsUsers
             // 
@@ -238,8 +254,9 @@
             this.Controls.Add(this.metroButton2);
             this.Controls.Add(this.metroButton1);
             this.Controls.Add(this.metroGrid1);
+            this.MaximumSize = new System.Drawing.Size(1400, 9999);
             this.Name = "ucSettingsUsers";
-            this.Size = new System.Drawing.Size(1000, 600);
+            this.Size = new System.Drawing.Size(970, 600);
             this.Load += new System.EventHandler(this.ucUserPermissions_Load);
             ((System.ComponentModel.ISupportInitialize)(this.metroGrid1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dbtUserBindingSource)).EndInit();

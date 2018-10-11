@@ -48,6 +48,13 @@
             this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel7 = new MetroFramework.Controls.MetroLabel();
             this.metroGrid1 = new MetroFramework.Controls.MetroGrid();
+            this.metroButton3 = new MetroFramework.Controls.MetroButton();
+            this.metroButton4 = new MetroFramework.Controls.MetroButton();
+            this.metroButton5 = new MetroFramework.Controls.MetroButton();
+            this.metroButton6 = new MetroFramework.Controls.MetroButton();
+            this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
+            this.metroComboBox2 = new MetroFramework.Controls.MetroComboBox();
+            this.metroCheckBox2 = new MetroFramework.Controls.MetroCheckBox();
             this.FormulaId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -56,13 +63,6 @@
             this.Column7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateBegin = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateEnd = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.metroButton3 = new MetroFramework.Controls.MetroButton();
-            this.metroButton4 = new MetroFramework.Controls.MetroButton();
-            this.metroButton5 = new MetroFramework.Controls.MetroButton();
-            this.metroButton6 = new MetroFramework.Controls.MetroButton();
-            this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
-            this.metroComboBox2 = new MetroFramework.Controls.MetroComboBox();
-            this.metroCheckBox2 = new MetroFramework.Controls.MetroCheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dbtReportBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.metroGrid1)).BeginInit();
             this.SuspendLayout();
@@ -135,7 +135,7 @@
             this.metroComboBox1.ItemHeight = 19;
             this.metroComboBox1.Location = new System.Drawing.Point(145, 89);
             this.metroComboBox1.Name = "metroComboBox1";
-            this.metroComboBox1.Size = new System.Drawing.Size(815, 25);
+            this.metroComboBox1.Size = new System.Drawing.Size(687, 25);
             this.metroComboBox1.TabIndex = 4;
             this.metroComboBox1.UseSelectable = true;
             this.metroComboBox1.ValueMember = "NodeId";
@@ -280,6 +280,9 @@
             this.metroGrid1.AllowUserToAddRows = false;
             this.metroGrid1.AllowUserToDeleteRows = false;
             this.metroGrid1.AllowUserToResizeRows = false;
+            this.metroGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.metroGrid1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.metroGrid1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.metroGrid1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
@@ -315,6 +318,7 @@
             this.metroGrid1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.metroGrid1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.metroGrid1.Location = new System.Drawing.Point(145, 340);
+            this.metroGrid1.MaximumSize = new System.Drawing.Size(1100, 9999);
             this.metroGrid1.MultiSelect = false;
             this.metroGrid1.Name = "metroGrid1";
             this.metroGrid1.ReadOnly = true;
@@ -333,71 +337,6 @@
             this.metroGrid1.Size = new System.Drawing.Size(815, 260);
             this.metroGrid1.TabIndex = 6;
             this.metroGrid1.DoubleClick += new System.EventHandler(this.metroGrid1_DoubleClick);
-            // 
-            // FormulaId
-            // 
-            this.FormulaId.DataPropertyName = "FormulaId";
-            this.FormulaId.HeaderText = "ID";
-            this.FormulaId.Name = "FormulaId";
-            this.FormulaId.ReadOnly = true;
-            this.FormulaId.Width = 40;
-            // 
-            // Column3
-            // 
-            this.Column3.DataPropertyName = "ResultType";
-            this.Column3.HeaderText = "Тип Результата";
-            this.Column3.Name = "Column3";
-            this.Column3.ReadOnly = true;
-            this.Column3.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column3.Width = 130;
-            // 
-            // Column4
-            // 
-            this.Column4.DataPropertyName = "DataType";
-            this.Column4.HeaderText = "Тип Данных";
-            this.Column4.Name = "Column4";
-            this.Column4.ReadOnly = true;
-            this.Column4.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column4.Width = 120;
-            // 
-            // Column5
-            // 
-            this.Column5.DataPropertyName = "DataValue";
-            this.Column5.HeaderText = "Данные";
-            this.Column5.Name = "Column5";
-            this.Column5.ReadOnly = true;
-            this.Column5.Width = 80;
-            // 
-            // Column6
-            // 
-            this.Column6.DataPropertyName = "Operation";
-            this.Column6.HeaderText = "Оператор";
-            this.Column6.Name = "Column6";
-            this.Column6.ReadOnly = true;
-            this.Column6.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            // 
-            // Column7
-            // 
-            this.Column7.DataPropertyName = "FactorValue";
-            this.Column7.HeaderText = "Коэффициент";
-            this.Column7.Name = "Column7";
-            this.Column7.ReadOnly = true;
-            // 
-            // DateBegin
-            // 
-            this.DateBegin.DataPropertyName = "DateBegin";
-            this.DateBegin.HeaderText = "Действует С";
-            this.DateBegin.Name = "DateBegin";
-            this.DateBegin.ReadOnly = true;
-            this.DateBegin.Width = 110;
-            // 
-            // DateEnd
-            // 
-            this.DateEnd.DataPropertyName = "DateEnd";
-            this.DateEnd.HeaderText = "Действует По";
-            this.DateEnd.Name = "DateEnd";
-            this.DateEnd.ReadOnly = true;
-            this.DateEnd.Width = 110;
             // 
             // metroButton3
             // 
@@ -472,6 +411,81 @@
             this.metroCheckBox2.Text = "Скрытый";
             this.metroCheckBox2.UseSelectable = true;
             // 
+            // FormulaId
+            // 
+            this.FormulaId.DataPropertyName = "FormulaId";
+            this.FormulaId.HeaderText = "ID";
+            this.FormulaId.MinimumWidth = 40;
+            this.FormulaId.Name = "FormulaId";
+            this.FormulaId.ReadOnly = true;
+            this.FormulaId.Width = 40;
+            // 
+            // Column3
+            // 
+            this.Column3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column3.DataPropertyName = "ResultType";
+            this.Column3.HeaderText = "Тип Результата";
+            this.Column3.MinimumWidth = 130;
+            this.Column3.Name = "Column3";
+            this.Column3.ReadOnly = true;
+            this.Column3.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            // 
+            // Column4
+            // 
+            this.Column4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column4.DataPropertyName = "DataType";
+            this.Column4.HeaderText = "Тип Данных";
+            this.Column4.MinimumWidth = 120;
+            this.Column4.Name = "Column4";
+            this.Column4.ReadOnly = true;
+            this.Column4.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            // 
+            // Column5
+            // 
+            this.Column5.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column5.DataPropertyName = "DataValue";
+            this.Column5.HeaderText = "Данные";
+            this.Column5.MinimumWidth = 80;
+            this.Column5.Name = "Column5";
+            this.Column5.ReadOnly = true;
+            // 
+            // Column6
+            // 
+            this.Column6.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column6.DataPropertyName = "Operation";
+            this.Column6.HeaderText = "Оператор";
+            this.Column6.MinimumWidth = 130;
+            this.Column6.Name = "Column6";
+            this.Column6.ReadOnly = true;
+            this.Column6.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            // 
+            // Column7
+            // 
+            this.Column7.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column7.DataPropertyName = "FactorValue";
+            this.Column7.HeaderText = "Коэффициент";
+            this.Column7.MinimumWidth = 100;
+            this.Column7.Name = "Column7";
+            this.Column7.ReadOnly = true;
+            // 
+            // DateBegin
+            // 
+            this.DateBegin.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.DateBegin.DataPropertyName = "DateBegin";
+            this.DateBegin.HeaderText = "Действует С";
+            this.DateBegin.MinimumWidth = 110;
+            this.DateBegin.Name = "DateBegin";
+            this.DateBegin.ReadOnly = true;
+            // 
+            // DateEnd
+            // 
+            this.DateEnd.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.DateEnd.DataPropertyName = "DateEnd";
+            this.DateEnd.HeaderText = "Действует По";
+            this.DateEnd.MinimumWidth = 110;
+            this.DateEnd.Name = "DateEnd";
+            this.DateEnd.ReadOnly = true;
+            // 
             // ucSettingsReportEdit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -532,6 +546,7 @@
         private MetroFramework.Controls.MetroButton metroButton6;
         private MetroFramework.Controls.MetroLabel metroLabel8;
         private MetroFramework.Controls.MetroComboBox metroComboBox2;
+        private MetroFramework.Controls.MetroCheckBox metroCheckBox2;
         private System.Windows.Forms.DataGridViewTextBoxColumn FormulaId;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
@@ -540,6 +555,5 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column7;
         private System.Windows.Forms.DataGridViewTextBoxColumn DateBegin;
         private System.Windows.Forms.DataGridViewTextBoxColumn DateEnd;
-        private MetroFramework.Controls.MetroCheckBox metroCheckBox2;
     }
 }

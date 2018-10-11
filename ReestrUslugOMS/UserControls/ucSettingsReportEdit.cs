@@ -22,7 +22,7 @@ namespace ReestrUslugOMS.UserControls
         {
             InitializeComponent();
             metroGrid1.AutoGenerateColumns = false;
-            
+            Dock = DockStyle.Fill;
 
             this.dbtNodeRow = dbtNodeRow;
             this.onSave = onSave;
