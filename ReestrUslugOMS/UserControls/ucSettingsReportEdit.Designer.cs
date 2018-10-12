@@ -48,13 +48,6 @@
             this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel7 = new MetroFramework.Controls.MetroLabel();
             this.metroGrid1 = new MetroFramework.Controls.MetroGrid();
-            this.metroButton3 = new MetroFramework.Controls.MetroButton();
-            this.metroButton4 = new MetroFramework.Controls.MetroButton();
-            this.metroButton5 = new MetroFramework.Controls.MetroButton();
-            this.metroButton6 = new MetroFramework.Controls.MetroButton();
-            this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
-            this.metroComboBox2 = new MetroFramework.Controls.MetroComboBox();
-            this.metroCheckBox2 = new MetroFramework.Controls.MetroCheckBox();
             this.FormulaId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -63,6 +56,13 @@
             this.Column7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateBegin = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateEnd = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.metroButton3 = new MetroFramework.Controls.MetroButton();
+            this.metroButton4 = new MetroFramework.Controls.MetroButton();
+            this.metroButton5 = new MetroFramework.Controls.MetroButton();
+            this.metroButton6 = new MetroFramework.Controls.MetroButton();
+            this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
+            this.metroComboBox2 = new MetroFramework.Controls.MetroComboBox();
+            this.metroCheckBox2 = new MetroFramework.Controls.MetroCheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dbtReportBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.metroGrid1)).BeginInit();
             this.SuspendLayout();
@@ -135,7 +135,7 @@
             this.metroComboBox1.ItemHeight = 19;
             this.metroComboBox1.Location = new System.Drawing.Point(145, 89);
             this.metroComboBox1.Name = "metroComboBox1";
-            this.metroComboBox1.Size = new System.Drawing.Size(687, 25);
+            this.metroComboBox1.Size = new System.Drawing.Size(815, 25);
             this.metroComboBox1.TabIndex = 4;
             this.metroComboBox1.UseSelectable = true;
             this.metroComboBox1.ValueMember = "NodeId";
@@ -338,79 +338,6 @@
             this.metroGrid1.TabIndex = 6;
             this.metroGrid1.DoubleClick += new System.EventHandler(this.metroGrid1_DoubleClick);
             // 
-            // metroButton3
-            // 
-            this.metroButton3.Location = new System.Drawing.Point(145, 311);
-            this.metroButton3.Name = "metroButton3";
-            this.metroButton3.Size = new System.Drawing.Size(75, 23);
-            this.metroButton3.TabIndex = 7;
-            this.metroButton3.Text = "Новый";
-            this.metroButton3.UseSelectable = true;
-            this.metroButton3.Click += new System.EventHandler(this.metroButton3_Click);
-            // 
-            // metroButton4
-            // 
-            this.metroButton4.Location = new System.Drawing.Point(307, 311);
-            this.metroButton4.Name = "metroButton4";
-            this.metroButton4.Size = new System.Drawing.Size(75, 23);
-            this.metroButton4.TabIndex = 7;
-            this.metroButton4.Text = "Редактировать";
-            this.metroButton4.UseSelectable = true;
-            this.metroButton4.Click += new System.EventHandler(this.metroButton4_Click);
-            // 
-            // metroButton5
-            // 
-            this.metroButton5.Location = new System.Drawing.Point(388, 311);
-            this.metroButton5.Name = "metroButton5";
-            this.metroButton5.Size = new System.Drawing.Size(75, 23);
-            this.metroButton5.TabIndex = 7;
-            this.metroButton5.Text = "Удалить";
-            this.metroButton5.UseSelectable = true;
-            this.metroButton5.Click += new System.EventHandler(this.metroButton5_Click);
-            // 
-            // metroButton6
-            // 
-            this.metroButton6.Location = new System.Drawing.Point(226, 311);
-            this.metroButton6.Name = "metroButton6";
-            this.metroButton6.Size = new System.Drawing.Size(75, 23);
-            this.metroButton6.TabIndex = 8;
-            this.metroButton6.Text = "Копия";
-            this.metroButton6.UseSelectable = true;
-            this.metroButton6.Click += new System.EventHandler(this.metroButton6_Click);
-            // 
-            // metroLabel8
-            // 
-            this.metroLabel8.AutoSize = true;
-            this.metroLabel8.FontSize = MetroFramework.MetroLabelSize.Small;
-            this.metroLabel8.Location = new System.Drawing.Point(0, 188);
-            this.metroLabel8.Name = "metroLabel8";
-            this.metroLabel8.Size = new System.Drawing.Size(101, 15);
-            this.metroLabel8.TabIndex = 2;
-            this.metroLabel8.Text = "Источник Данных";
-            // 
-            // metroComboBox2
-            // 
-            this.metroComboBox2.DisplayMember = "Description";
-            this.metroComboBox2.FontSize = MetroFramework.MetroComboBoxSize.Small;
-            this.metroComboBox2.FormattingEnabled = true;
-            this.metroComboBox2.ItemHeight = 19;
-            this.metroComboBox2.Location = new System.Drawing.Point(145, 178);
-            this.metroComboBox2.Name = "metroComboBox2";
-            this.metroComboBox2.Size = new System.Drawing.Size(318, 25);
-            this.metroComboBox2.TabIndex = 9;
-            this.metroComboBox2.UseSelectable = true;
-            this.metroComboBox2.ValueMember = "Value";
-            // 
-            // metroCheckBox2
-            // 
-            this.metroCheckBox2.AutoSize = true;
-            this.metroCheckBox2.Location = new System.Drawing.Point(145, 259);
-            this.metroCheckBox2.Name = "metroCheckBox2";
-            this.metroCheckBox2.Size = new System.Drawing.Size(74, 15);
-            this.metroCheckBox2.TabIndex = 5;
-            this.metroCheckBox2.Text = "Скрытый";
-            this.metroCheckBox2.UseSelectable = true;
-            // 
             // FormulaId
             // 
             this.FormulaId.DataPropertyName = "FormulaId";
@@ -485,6 +412,79 @@
             this.DateEnd.MinimumWidth = 110;
             this.DateEnd.Name = "DateEnd";
             this.DateEnd.ReadOnly = true;
+            // 
+            // metroButton3
+            // 
+            this.metroButton3.Location = new System.Drawing.Point(145, 311);
+            this.metroButton3.Name = "metroButton3";
+            this.metroButton3.Size = new System.Drawing.Size(75, 23);
+            this.metroButton3.TabIndex = 7;
+            this.metroButton3.Text = "Новый";
+            this.metroButton3.UseSelectable = true;
+            this.metroButton3.Click += new System.EventHandler(this.metroButton3_Click);
+            // 
+            // metroButton4
+            // 
+            this.metroButton4.Location = new System.Drawing.Point(307, 311);
+            this.metroButton4.Name = "metroButton4";
+            this.metroButton4.Size = new System.Drawing.Size(75, 23);
+            this.metroButton4.TabIndex = 7;
+            this.metroButton4.Text = "Редактировать";
+            this.metroButton4.UseSelectable = true;
+            this.metroButton4.Click += new System.EventHandler(this.metroButton4_Click);
+            // 
+            // metroButton5
+            // 
+            this.metroButton5.Location = new System.Drawing.Point(388, 311);
+            this.metroButton5.Name = "metroButton5";
+            this.metroButton5.Size = new System.Drawing.Size(75, 23);
+            this.metroButton5.TabIndex = 7;
+            this.metroButton5.Text = "Удалить";
+            this.metroButton5.UseSelectable = true;
+            this.metroButton5.Click += new System.EventHandler(this.metroButton5_Click);
+            // 
+            // metroButton6
+            // 
+            this.metroButton6.Location = new System.Drawing.Point(226, 311);
+            this.metroButton6.Name = "metroButton6";
+            this.metroButton6.Size = new System.Drawing.Size(75, 23);
+            this.metroButton6.TabIndex = 8;
+            this.metroButton6.Text = "Копия";
+            this.metroButton6.UseSelectable = true;
+            this.metroButton6.Click += new System.EventHandler(this.metroButton6_Click);
+            // 
+            // metroLabel8
+            // 
+            this.metroLabel8.AutoSize = true;
+            this.metroLabel8.FontSize = MetroFramework.MetroLabelSize.Small;
+            this.metroLabel8.Location = new System.Drawing.Point(0, 188);
+            this.metroLabel8.Name = "metroLabel8";
+            this.metroLabel8.Size = new System.Drawing.Size(101, 15);
+            this.metroLabel8.TabIndex = 2;
+            this.metroLabel8.Text = "Источник Данных";
+            // 
+            // metroComboBox2
+            // 
+            this.metroComboBox2.DisplayMember = "Description";
+            this.metroComboBox2.FontSize = MetroFramework.MetroComboBoxSize.Small;
+            this.metroComboBox2.FormattingEnabled = true;
+            this.metroComboBox2.ItemHeight = 19;
+            this.metroComboBox2.Location = new System.Drawing.Point(145, 178);
+            this.metroComboBox2.Name = "metroComboBox2";
+            this.metroComboBox2.Size = new System.Drawing.Size(318, 25);
+            this.metroComboBox2.TabIndex = 9;
+            this.metroComboBox2.UseSelectable = true;
+            this.metroComboBox2.ValueMember = "Value";
+            // 
+            // metroCheckBox2
+            // 
+            this.metroCheckBox2.AutoSize = true;
+            this.metroCheckBox2.Location = new System.Drawing.Point(145, 259);
+            this.metroCheckBox2.Name = "metroCheckBox2";
+            this.metroCheckBox2.Size = new System.Drawing.Size(74, 15);
+            this.metroCheckBox2.TabIndex = 5;
+            this.metroCheckBox2.Text = "Скрытый";
+            this.metroCheckBox2.UseSelectable = true;
             // 
             // ucSettingsReportEdit
             // 

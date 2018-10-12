@@ -6,12 +6,12 @@ using System.Text;
 namespace ReestrUslugOMS
 {
     /// <summary>
-    /// Класс возвращаемого значение хранимой процедуры sp_ReportFact
+    /// Класс возвращаемого значение хранимой процедуры sp_ReportFact - содержит набор оказанных услуг по каждому периоду.
     /// </summary>
     public partial class sp_ReportFactResult
     {
         /// <summary>
-        /// Возвращает значение соответствующее значению перечисления enDataType
+        /// Возвращает значение поля соответствующее значению перечисления enDataType
         /// </summary>
         /// <param name="enu">Значение перечисления</param>
         /// <returns>Возвращаемое значение</returns>

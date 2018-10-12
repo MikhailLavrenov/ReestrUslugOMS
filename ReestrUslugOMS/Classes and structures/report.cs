@@ -261,7 +261,8 @@ namespace ReestrUslugOMS
                 for (int i = 0; i < Rows.Length; i++)
                     for (int j = 0; j < Cols.Length; j++)
                         if (lev == Rows[i].Level && result[i, j] == 0 && Cols[j].DataSource != 0)
-                            if (Rows[i].DataSource == enDataSource.Отчет && Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+                            if (Rows[i].DataSource == enDataSource.Отчет)
+                                if(Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены || Rows[i].Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
                                 result[i, j] = SubSum(i, j, enDirection.Строки, date, result);
 
             //суммируем столбцы
@@ -269,7 +270,8 @@ namespace ReestrUslugOMS
                 for (int i = 0; i < Cols.Length; i++)
                     for (int j = 0; j < Rows.Length; j++)
                         if (lev == Cols[i].Level && result[j, i] == 0 && Rows[j].DataSource != 0)
-                            if (Cols[i].DataSource == enDataSource.Отчет && Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены)
+                            if (Cols[i].DataSource == enDataSource.Отчет)
+                                if(Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены || Cols[i].Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
                                 result[j, i] = SubSum(i, j, enDirection.Столбцы, date, result);
 
             return result;
@@ -311,8 +313,8 @@ namespace ReestrUslugOMS
                 foreach (var fCol in Cols[colNumber].Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
                     foreach (var dataItem in data)
                     {
-                        if (dataItem.GetValue(fRow.DataType) == fRow.DataValue)
-                            if (dataItem.GetValue(fCol.DataType) == fCol.DataValue)
+                        if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType== enDataType.КодВрача && fRow.DataValue=="*"))
+                            if(dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
                             {
                                 num = dataItem.GetValue(fCol.ResultType);
                                 res += fCol.Calculate(num, fRow.Operation);
@@ -332,6 +334,9 @@ namespace ReestrUslugOMS
         /// <returns>Рассчитанное значение</returns>
         private double SubSum(int nodePos, int resPos, enDirection direction, DateTime date, double[,] resultValues)
         {
+            if (direction == 0)
+                throw new Exception("Не определено направление суммирования");
+
             ExtNode[] nodes;
             enOperation? secondMultiplier;
             if (direction == enDirection.Строки)
@@ -347,25 +352,28 @@ namespace ReestrUslugOMS
 
             var node = nodes[nodePos];
             double result = 0;
-            double num;
+            double num = 0;
             var subNodes = new List<ExtNode>();
+            var neighbourNodes = node.Prev.Next.Where(x => x.DataSource != 0).ToList();
 
             foreach (var item in node.Prev.Next)
                 subNodes.AddRange(item.Next.Where(x => x.DataSource != 0).ToList());
 
+
             foreach (var formula in node.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
-                foreach (var subNode in subNodes)
-                    if ((formula.DataType == enDataType.НазваниеЭлемента && subNode.Name == formula.DataValue) || (formula.DataType == enDataType.НомерЭлемента && subNode.NodeId.ToString() == formula.DataValue))
+            {
+                var nodeList = formula.ResultType == enResultType.ВложенныеЭлемены ? subNodes : neighbourNodes;
+                foreach (var item in nodeList)
+                    if ((formula.DataType == enDataType.НазваниеЭлемента && item.Name == formula.DataValue) || (formula.DataType == enDataType.НомерЭлемента && item.NodeId.ToString() == formula.DataValue))
                     {
                         if (direction == enDirection.Строки)
-                            num = resultValues[subNode.Index, resPos];
+                            num = resultValues[item.Index, resPos];
                         else if (direction == enDirection.Столбцы)
-                            num = resultValues[resPos, subNode.Index];
-                        else
-                            num = 0;
+                            num = resultValues[resPos, item.Index];
 
                         result += formula.Calculate(num, secondMultiplier);
                     }
+            }
 
             result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
