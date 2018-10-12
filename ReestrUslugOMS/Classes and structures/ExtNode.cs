@@ -28,7 +28,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             }
         }
         /// <summary>
-        /// Порядковый номер.
+        /// Порядковый номер, начиная с -1 для корневой ноды
         /// </summary>
         public int Index { get; set; }
         /// <summary>
