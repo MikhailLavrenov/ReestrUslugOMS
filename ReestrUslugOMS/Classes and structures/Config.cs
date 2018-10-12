@@ -51,6 +51,10 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// </summary>
         public string PathReportXlsx { get; private set; }
         /// <summary>
+        /// Название строки отчета, по которой проверяется отклонение от контрольной суммы. Отклонение сигнализирует, что пропущены или дублируются коды врачей.
+        /// </summary>
+        public string ReportCheckSumNodeName { get; private set; }
+        /// <summary>
         /// Ссылка на экземпляр настроек. 
         /// </summary>
         public static Config Instance { get; private set; }
@@ -86,6 +90,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             DomainGroupsOU = @"Все пользователи";
 
             LpuCode = "2101008";
+            ReportCheckSumNodeName = "Расхождение (Контрольная сумма)";
 
             PathReportXlsx = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\report.xlsx";
 

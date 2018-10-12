@@ -574,7 +574,7 @@
             this.flowLayoutPanel1.Controls.Add(this.metroPanel5);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(960, 103);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(960, 97);
             this.flowLayoutPanel1.TabIndex = 12;
             // 
             // metroPanel9

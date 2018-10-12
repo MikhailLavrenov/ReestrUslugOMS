@@ -18,6 +18,14 @@ namespace ReestrUslugOMS
     public class Report
     {
         /// <summary>
+        /// Строка отчета по которой проверяется отклонение от  контрольной суммы. Отклонение сигнализирует, что пропущены или дублируются коды врачей.
+        /// </summary>
+        public ExtNode CheckSumRow { get; private set; }
+        /// <summary>
+        /// Результат проверки отклонения от контрольной суммы. True- отклонение обнаружено. False - не обнаружено. По умолчанию False.
+        /// </summary>
+        public bool CheckSumFailed { get; private set; }
+        /// <summary>
         /// Массив отображаемых строк отчета
         /// </summary>
         public ExtNode[] Rows { get; private set; }
@@ -82,13 +90,16 @@ namespace ReestrUslugOMS
             Round = 0;
             PercentRound = 1;
             DataSourcesDict = new Dictionary<enDataSource, object>();
-            ReportType = reportType;
+            ReportType = reportType;           
 
             SetRowsCols();
             SetPlanSet();
 
             MaxRowLevel = Rows.Max(x => x.Level);
             MaxColLevel = Cols.Max(x => x.Level);
+
+            CheckSumRow=Rows.Where(x => x.Name == Config.Instance.ReportCheckSumNodeName).FirstOrDefault();
+            CheckSumFailed = false;
         }
         /// <summary>
         /// Формирует массив строк и столбцов отчета
@@ -210,8 +221,7 @@ namespace ReestrUslugOMS
         {
             SetDataSources();
 
-            DateTime date = BeginPeriod.AddDays(14);
-
+            var date = BeginPeriod.AddDays(14);            
             var list = new List<double[,]>();
 
             while (date.BetweenInMonths(BeginPeriod, EndPeriod))
@@ -221,20 +231,35 @@ namespace ReestrUslugOMS
             };
 
             ResultValues = new double[Rows.Length, Cols.Length];
+            double value;
 
             for (int i = 0; i < Rows.Length; i++)
                 for (int j = 0; j < Cols.Length; j++)
-                    foreach (var item in list)
-                        ResultValues[i, j] += item[i, j];
+                {
+                    value = 0;
 
+                    foreach (var item in list)
+                        value += item[i, j];
+
+                    ResultValues[i, j] = Math.Round(value, Round, MidpointRounding.AwayFromZero);
+                }
 
             //считаем проценты в строках
-            for (int lev = MaxRowLevel; lev > 0; lev--)
-                for (int i = 0; i < Rows.Length; i++)
-                    for (int j = 0; j < Cols.Length; j++)
-                        if (lev == Rows[i].Level && ResultValues[i, j] == 0 && Rows[i].DataSource == enDataSource.Отчет)
-                            if (Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелимое || Rows[i].Formula[0].ResultType == enResultType.ПроцентыДелитель)
-                                ResultValues[i, j] = PercentRows(i, j);
+            foreach (var row in Rows)
+                foreach (var col in Cols)
+                    if (row.DataSource == enDataSource.Отчет)
+                            if (row.Formula[0].ResultType == enResultType.ПроцентыДелимое || row.Formula[0].ResultType == enResultType.ПроцентыДелитель)
+                                ResultValues[row.Index, col.Index] = PercentRows(row, col);
+
+            //Проверяем отклонение от контрольной суммы
+            CheckSumFailed = false;
+            if (CheckSumRow!=null)
+            for (int j = 0; j < Cols.Length; j++)
+                if (Math.Abs( ResultValues[CheckSumRow.Index, j]) > 1)
+                {
+                    CheckSumFailed = true;
+                    break;
+                }
         }
         /// <summary>
         /// Рассчитывает значения ячеек отчета за заданный период, не вычисляет строки с процентами
@@ -246,33 +271,31 @@ namespace ReestrUslugOMS
             var result = new double[Rows.Length, Cols.Length];
 
             //подставляем известные данные
-            for (int i = 0; i < Rows.Length; i++)
-                for (int j = 0; j < Cols.Length; j++)
-                    if (Rows[i].DataSource != 0 && Cols[j].DataSource != 0)
+            foreach (var row in Rows)
+                foreach (var col in Cols)
                     {
-                        if (Rows[i].DataSource == enDataSource.РеестрыСчетов && Cols[j].DataSource == enDataSource.РеестрыСчетов)
-                            result[i, j] = GetFact(i, j, date);
-                        else if (Rows[i].DataSource == enDataSource.ПланВрача || Rows[i].DataSource == enDataSource.ПланОтделения)
-                            result[i, j] = GetPlan(i, j, date);
+                        if (row.DataSource == enDataSource.РеестрыСчетов && col.DataSource == enDataSource.РеестрыСчетов)
+                            result[row.Index, col.Index] = GetFact(row, col, date);
+                        else if (row.DataSource == enDataSource.ПланВрача || row.DataSource == enDataSource.ПланОтделения)
+                            if (col.DataSource != 0)
+                                result[row.Index, col.Index] = GetPlan(row, col, date);
                     }
 
             //суммируем строки
             for (int lev = MaxRowLevel - 1; lev > 0; lev--)
-                for (int i = 0; i < Rows.Length; i++)
-                    for (int j = 0; j < Cols.Length; j++)
-                        if (lev == Rows[i].Level && result[i, j] == 0 && Cols[j].DataSource != 0)
-                            if (Rows[i].DataSource == enDataSource.Отчет)
-                                if(Rows[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены || Rows[i].Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
-                                result[i, j] = SubSum(i, j, enDirection.Строки, date, result);
+                foreach (var row in Rows)
+                    foreach (var col in Cols)
+                        if (lev == row.Level && result[row.Index, col.Index] == 0 && row.DataSource == enDataSource.Отчет && col.DataSource != 0)
+                                if (row.Formula[0].ResultType == enResultType.ВложенныеЭлемены || row.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
+                                    result[row.Index, col.Index] = SubSum(row, Rows, col, enDirection.Строки, date, result);
 
             //суммируем столбцы
             for (int lev = MaxColLevel - 1; lev > 0; lev--)
-                for (int i = 0; i < Cols.Length; i++)
-                    for (int j = 0; j < Rows.Length; j++)
-                        if (lev == Cols[i].Level && result[j, i] == 0 && Rows[j].DataSource != 0)
-                            if (Cols[i].DataSource == enDataSource.Отчет)
-                                if(Cols[i].Formula[0].ResultType == enResultType.ВложенныеЭлемены || Cols[i].Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
-                                result[j, i] = SubSum(i, j, enDirection.Столбцы, date, result);
+                foreach (var col in Cols)
+                    foreach (var row in Rows)                    
+                        if (lev == col.Level && result[row.Index, col.Index] == 0 && col.DataSource == enDataSource.Отчет && row.DataSource != 0)
+                                if (col.Formula[0].ResultType == enResultType.ВложенныеЭлемены || col.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
+                                    result[row.Index, col.Index] = SubSum(col, Cols, row, enDirection.Столбцы, date, result);
 
             return result;
         }
@@ -283,18 +306,18 @@ namespace ReestrUslugOMS
         /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
         /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
         /// <returns>Рассчитанное значение</returns>
-        private double GetPlan(int rowNumber, int colNumber, DateTime date)
+        private double GetPlan(ExtNode row, ExtNode col, DateTime date)
         {
             double result;
 
-            var data = (List<dbtPlan>)DataSourcesDict[Rows[rowNumber].DataSource];
+            var data = (List<dbtPlan>)DataSourcesDict[row.DataSource];
 
             result = data
                 .Where(x => x.Period.Month == date.Month && x.Period.Year == date.Year)
-                .Where(x => x.RowNodeId == Rows[rowNumber].NodeId && x.ColNodeId == Cols[colNumber].NodeId)
+                .Where(x => x.RowNodeId == row.NodeId && x.ColNodeId == col.NodeId)
                 .FirstOrDefault()?.Value ?? 0;
 
-            return Math.Round(result, Round, MidpointRounding.AwayFromZero);
+            return result;
         }
         /// <summary>
         /// Рассчитывает значение на пересечении строки и столбца отчета по введенным планам
@@ -303,79 +326,65 @@ namespace ReestrUslugOMS
         /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
         /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
         /// <returns>Рассчитанное значение</returns>
-        private double GetFact(int rowNumber, int colNumber, DateTime date)
+        private double GetFact(ExtNode row, ExtNode col, DateTime date)
         {
-            double res = 0;
+            double result = 0;
             double num;
             var data = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.Period?.Month == date.Month && x.Period?.Year == date.Year).ToList();
 
-            foreach (var fRow in Rows[rowNumber].Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
-                foreach (var fCol in Cols[colNumber].Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
+            foreach (var fRow in row.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
+                foreach (var fCol in col.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
                     foreach (var dataItem in data)
                     {
-                        if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType== enDataType.КодВрача && fRow.DataValue=="*"))
-                            if(dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
+                        if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType == enDataType.КодВрача && fRow.DataValue == "*"))
+                            if (dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
                             {
                                 num = dataItem.GetValue(fCol.ResultType);
-                                res += fCol.Calculate(num, fRow.Operation);
+                                result += fCol.Calculate(num, fRow.Operation);
                             }
                     }
 
-            return  Math.Round(res, Round, MidpointRounding.AwayFromZero);
+            return result;
         }
         /// <summary>
         /// Рассчитывает значение на пересечении строки и столбца отчета, путем суммирования элементов вложенных нод
         /// </summary>
-        /// <param name="nodePos">Номер ноды в массиве, во вложенных элементах которой рассчитывается значение</param>
-        /// <param name="resPos">Номер ноды в массиве, на пересечении с которой рассчитывается значение</param>
+        /// <param name="nodePos">Нода, во вложенных элементах которой рассчитывается значение</param>
+        /// <param name="nodes">Массив нод по которым производится суммирование</param>
+        /// <param name="resPos">Нода, на пересечении с которой рассчитывается значение</param>
         /// <param name="direction">Значение перечисления, определяющее направление расчета (Строки или Столбцы)</param>
         /// <param name="date">Задает период (месяц и год, день не важен) за который рассчитывается значение</param>
         /// <param name="resultValues">Массив рассчитанных значений за период</param>
         /// <returns>Рассчитанное значение</returns>
-        private double SubSum(int nodePos, int resPos, enDirection direction, DateTime date, double[,] resultValues)
+        private double SubSum(ExtNode node, ExtNode[] nodes, ExtNode resNode, enDirection direction, DateTime date, double[,] resultValues)
         {
             if (direction == 0)
                 throw new Exception("Не определено направление суммирования");
 
-            ExtNode[] nodes;
-            enOperation? secondMultiplier;
-            if (direction == enDirection.Строки)
-            {
-                nodes = Rows;
-                secondMultiplier = Cols[resPos].Formula.Count == 0 ? null : Cols[resPos].Formula[0]?.Operation;
-            }
-            else
-            {
-                nodes = Cols;
-                secondMultiplier = Rows[resPos].Formula.Count == 0 ? null : Rows[resPos].Formula[0]?.Operation;
-            }
-
-            var node = nodes[nodePos];
+            enOperation? secondMultiplier= resNode.Formula.Count == 0 ? null : resNode.Formula[0]?.Operation;
+            
             double result = 0;
             double num = 0;
             var subNodes = new List<ExtNode>();
-            var neighbourNodes = node.Prev.Next.Where(x => x.DataSource != 0).ToList();
-
             foreach (var item in node.Prev.Next)
                 subNodes.AddRange(item.Next.Where(x => x.DataSource != 0).ToList());
 
+            var neighbourNodes = node.Prev.Next.Where(x => x.DataSource != 0).ToList();
 
-            foreach (var formula in node.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
+            foreach (var formula in node.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)))
             {
                 var nodeList = formula.ResultType == enResultType.ВложенныеЭлемены ? subNodes : neighbourNodes;
                 foreach (var item in nodeList)
                     if ((formula.DataType == enDataType.НазваниеЭлемента && item.Name == formula.DataValue) || (formula.DataType == enDataType.НомерЭлемента && item.NodeId.ToString() == formula.DataValue))
                     {
                         if (direction == enDirection.Строки)
-                            num = resultValues[item.Index, resPos];
+                            num = resultValues[item.Index, resNode.Index];
                         else if (direction == enDirection.Столбцы)
-                            num = resultValues[resPos, item.Index];
+                            num = resultValues[resNode.Index, item.Index];
 
                         result += formula.Calculate(num, secondMultiplier);
                     }
             }
-
-            result = Math.Round(result, Round, MidpointRounding.AwayFromZero);
 
             return result;
         }
@@ -385,11 +394,9 @@ namespace ReestrUslugOMS
         /// <param name="rowNumber">Порядковый номер строки в массиве строк</param>
         /// <param name="colNumber">Порядковый номер столбца в массиве столбцов</param>
         /// <returns>Рассчитанное значение</returns>
-        private double PercentRows(int rowNumber, int colNumber)
+        private double PercentRows(ExtNode row, ExtNode col)
         {
             double result = 0;
-
-            ExtNode row = Rows[rowNumber];
 
             var formulaDelimoe = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелимое).First();
             var formulaDelitel = row.Formula.Where(x => x.ResultType == enResultType.ПроцентыДелитель).First();
@@ -397,8 +404,8 @@ namespace ReestrUslugOMS
             var nodeDelimoe = row.Prev.Next.Where(x => x.Name == formulaDelimoe.DataValue).First();
             var nodeDelitel = row.Prev.Next.Where(x => x.Name == formulaDelitel.DataValue).First();
 
-            var delimoe = ResultValues[nodeDelimoe.Index, colNumber];
-            var delitel = ResultValues[nodeDelitel.Index, colNumber];
+            var delimoe = ResultValues[nodeDelimoe.Index, col.Index];
+            var delitel = ResultValues[nodeDelitel.Index, col.Index];
 
             if (delimoe != 0 && delitel != 0)
                 result = 100 * delimoe / delitel;
@@ -644,7 +651,7 @@ namespace ReestrUslugOMS
             if (node?.CanGroupUngroup == true)
             {
                 node.GroupUnGroupReverse();
-                
+
                 if (row != null)
                     foreach (var item in Rows)
                     {
@@ -711,15 +718,13 @@ namespace ReestrUslugOMS
                         sheet.ShowColumns(node.Col, 1);
                 }
             }
-            
+
             var pos = scrollBarsPosition;
             scrollBarsPosition.X = 0;
             scrollBarsPosition.Y = 0;
 
             control.ScrollCurrentWorksheet(pos.X, pos.Y);
         }
-
-        
 
         //тестовый метод для подбора цвета клеток для ввода плана
         public void SetColor(ReoGridControl control)
