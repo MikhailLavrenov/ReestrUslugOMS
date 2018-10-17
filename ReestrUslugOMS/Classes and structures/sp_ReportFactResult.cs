@@ -5,10 +5,12 @@ using System.Text;
 
 namespace ReestrUslugOMS
 {
+    //Доделать 
+
     /// <summary>
     /// Класс возвращаемого значение хранимой процедуры sp_ReportFact - содержит набор оказанных услуг по каждому периоду.
     /// </summary>
-    public partial class sp_ReportFactResult
+    public partial class  sp_ReportFactResult
     {
         /// <summary>
         /// Возвращает значение поля соответствующее значению перечисления enDataType
@@ -33,7 +35,7 @@ namespace ReestrUslugOMS
         /// </summary>
         /// <param name="enu">Значение перечисления</param>
         /// <returns>Возвращаемое значение</returns>
-        public double GetValue(enResultType enu)
+        public double GetValue (enResultType enu)
         {
             double result=0;
 

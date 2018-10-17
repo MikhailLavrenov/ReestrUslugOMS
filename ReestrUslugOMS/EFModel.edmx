@@ -130,13 +130,6 @@
           <Parameter Name="errId" Type="int" Mode="In" />
           <Parameter Name="inoId" Type="int" Mode="In" />
         </Function>
-        <Function Name="sp_ReportPlan" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="type" Type="int" Mode="In" />
-          <Parameter Name="month1" Type="int" Mode="In" />
-          <Parameter Name="god1" Type="int" Mode="In" />
-          <Parameter Name="month2" Type="int" Mode="In" />
-          <Parameter Name="god2" Type="int" Mode="In" />
-        </Function>
         <EntityContainer Name="Хранилище REESTR_FOMSModelContainer">
           <EntitySet Name="Formula" EntityType="Self.Formula" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Node" EntityType="Self.Node" Schema="dbo" store:Type="Tables" />
@@ -360,6 +353,8 @@
           <Property Type="Int32" Name="UslPosle3" Nullable="true" />
           <Property Type="Int32" Name="DispIn2Y" Nullable="true" />
           <Property Type="DateTime" Name="Period" Nullable="true" />
+          <Property Type="Boolean" Name="UsedInRow" Nullable="true" />
+          <Property Type="Boolean" Name="UsedInCol" Nullable="true" />
         </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
@@ -436,16 +431,8 @@
                 <ScalarProperty Name="UslPosle3" ColumnName="UslPosle3" />
                 <ScalarProperty Name="DispIn2Y" ColumnName="DispIn2Y" />
                 <ScalarProperty Name="Period" ColumnName="Period" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="sp_ReportPlan" FunctionName="Хранилище REESTR_FOMSModel.sp_ReportPlan">
-          <ResultMapping>
-              <ComplexTypeMapping TypeName="REESTR_FOMSModel.sp_ReportPlanResult">
-                <ScalarProperty Name="RowNodeId" ColumnName="RowNodeId" />
-                <ScalarProperty Name="ColNodeId" ColumnName="ColNodeId" />
-                <ScalarProperty Name="Value" ColumnName="Value" />
-                <ScalarProperty Name="Period" ColumnName="Period" />
+                <ScalarProperty Name="UsedInRow" ColumnName="UsedInRow" />
+                <ScalarProperty Name="UsedInCol" ColumnName="UsedInCol" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

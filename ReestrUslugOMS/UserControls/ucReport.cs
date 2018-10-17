@@ -123,9 +123,20 @@ namespace ReestrUslugOMS.UserControls
             if (report.ReportType== enReportMode.ПланВрача || report.ReportType == enReportMode.ПланОтделения)
                 metroButton7.Visible = true;
 
-            if (report.CheckSumFailed)
-                MetroFramework.MetroMessageBox.Show(this, "\nВероятно заданые не все коды врачей.\nКоды врачей задаются в настройках строк отчета.", "Обнаружено отклонение контрольной суммы!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
 
+            if (report.CheckSumFailed || report.LostDocCodes?.Count > 0)
+            {
+                var sb = new StringBuilder();
+
+                if (report.CheckSumFailed)
+                    sb.Append("\nВероятно заданые не все коды врачей.\nКоды врачей задаются в настройках строк отчета.");
+
+                foreach (var item in report.LostDocCodes)
+                    sb.Append($"/n{item}");
+
+                MetroFramework.MetroMessageBox.Show(this, sb.ToString(), "Обнаружено отклонение контрольной суммы!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void metroButton3_Click(object sender, EventArgs e)

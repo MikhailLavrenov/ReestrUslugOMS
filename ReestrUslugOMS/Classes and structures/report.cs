@@ -26,6 +26,10 @@ namespace ReestrUslugOMS
         /// </summary>
         public bool CheckSumFailed { get; private set; }
         /// <summary>
+        /// Список пропущенных кодов врачей
+        /// </summary>
+        public List<string> LostDocCodes { get; private set; }
+        /// <summary>
         /// Массив отображаемых строк отчета
         /// </summary>
         public ExtNode[] Rows { get; private set; }
@@ -221,15 +225,17 @@ namespace ReestrUslugOMS
         {
             SetDataSources();
 
+            //расчитываем значение для каждого месяца в отдельный массив
             var date = BeginPeriod.AddDays(14);            
             var list = new List<double[,]>();
-
+            
             while (date.BetweenInMonths(BeginPeriod, EndPeriod))
             {
                 list.Add(SetResultValues(date));
                 date = date.AddMonths(1);
             };
 
+            //суммируем массивы за каждый месяц в итоговый
             ResultValues = new double[Rows.Length, Cols.Length];
             double value;
 
@@ -260,6 +266,8 @@ namespace ReestrUslugOMS
                     CheckSumFailed = true;
                     break;
                 }
+            if (ReportType == enReportMode.Отчет)
+                LostDocCodes = (DataSourcesDict[enDataSource.РеестрыСчетов] as List<sp_ReportFactResult>).Where(x => x.UsedInCol == true && x.UsedInRow == false).Select(x => x.CodDoc).ToList();
         }
         /// <summary>
         /// Рассчитывает значения ячеек отчета за заданный период, не вычисляет строки с процентами
@@ -336,12 +344,18 @@ namespace ReestrUslugOMS
                 foreach (var fCol in col.Formula.Where(x => date.BetweenInMonths(x.DateBegin, x.DateEnd)).ToList())
                     foreach (var dataItem in data)
                     {
-                        if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType == enDataType.КодВрача && fRow.DataValue == "*"))
-                            if (dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
+                        if (dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
+                        {
+                            dataItem.UsedInCol = true;
+
+                            if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType == enDataType.КодВрача && fRow.DataValue == "*"))
                             {
+                                dataItem.UsedInRow = true;
+
                                 num = dataItem.GetValue(fCol.ResultType);
                                 result += fCol.Calculate(num, fRow.Operation);
                             }
+                        }
                     }
 
             return result;
