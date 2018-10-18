@@ -5,14 +5,27 @@ namespace ReestrUslugOMS.UserControls
 {
     public partial class ucPeriodSelector : MetroFramework.Controls.MetroUserControl
     {
-        public DateTime Date { get; set; } = DateTime.Today.FirstDayDate();
+        private DateTime date;
+        public DateTime Date
+        {
+            get
+            {
+                return date;
+            }
+            set
+            {
+                date = value;
+                Value.Text = value.ToString(DateFormat);
+            }
+
+        } 
         public string DateFormat { get; set; } = "MM.yyyy";
 
         public ucPeriodSelector()
         {
             InitializeComponent();
 
-            Value.Text = Date.ToString(DateFormat);
+            Date = DateTime.Today.FirstDayDate();
         }
 
         public ucPeriodSelector(DateTime date)
@@ -27,13 +40,11 @@ namespace ReestrUslugOMS.UserControls
         private void metroButton3_Click(object sender, EventArgs e)
         {
             Date = Date.AddMonths(-1);
-            Value.Text = Date.ToString(DateFormat);
         }
 
         private void metroButton2_Click(object sender, EventArgs e)
         {
             Date = Date.AddMonths(1);
-            Value.Text = Date.ToString(DateFormat);
         }
    }
 }

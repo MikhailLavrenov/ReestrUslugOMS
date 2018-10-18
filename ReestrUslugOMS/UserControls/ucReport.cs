@@ -18,8 +18,6 @@ namespace ReestrUslugOMS.UserControls
     {
         enReportMode ReportMode { get; set; }
 
-        private DateTime date1;
-        private DateTime date2;
         public PointF gridScrollBarsPosition;    //из-за бага ReoGridControl после hide/show строк/столбцов сбрасывается позиция scrollBars        
         private Report report;
 
@@ -36,14 +34,6 @@ namespace ReestrUslugOMS.UserControls
                 metroPanel2.Visible = false;
             else if (ReportMode == enReportMode.Отчет)
                 metroButton7.Visible = false;
-
-
-
-            date1 = DateTime.Today.FirstDayDate();
-            date2 = date1;
-
-            metroTextBox1.Text = date1.ToString("MM.yyyy");
-            metroTextBox2.Text = date2.ToString("MM.yyyy");
 
             metroComboBox1.DataSource = Tools.EnumToDataSource<enInsuranceMode>();
             metroComboBox2.DataSource = Tools.EnumToDataSource<enErrorMode>();
@@ -102,17 +92,24 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroButton1_Click(object sender, EventArgs e)
         {
-            var date1Copy = date1;
+            var date1 = ucPeriodSelector1.Date;
+            var date2 = ucPeriodSelector2.Date;
 
-            if (metroComboBox3.SelectedIndex == 0)
-                date2 = date1Copy;
-            else if (metroComboBox3.SelectedIndex == 1)
+            if (date2 < date1)
             {
-                date2 = date1Copy;
-                date1Copy = date1Copy.AddMonths(1 - date1Copy.Month);
+                MetroFramework.MetroMessageBox.Show(this, "\nНеобходимо исправить ошибку", "Дата начала периода больше даты окончания", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
 
-            report.SetParams(date1Copy, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
+            if (metroComboBox3.SelectedIndex == 0)
+                date2 = date1;
+            else if (metroComboBox3.SelectedIndex == 1)
+            {
+                date2 = date1;
+                date1 = date1.AddMonths(1 - date1.Month);
+            }
+
+            report.SetParams(date1, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
             report.SetResultValues();
             report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
 
@@ -145,41 +142,17 @@ namespace ReestrUslugOMS.UserControls
             }
         }
 
-        private void metroButton3_Click(object sender, EventArgs e)
-        {
-            date1 = date1.AddMonths(-1);
-            metroTextBox1.Text = date1.ToString("MM.yyyy");
-            if (metroTextBox2.Visible == false)
-                date2 = date1;
-        }
-
-        private void metroButton2_Click(object sender, EventArgs e)
-        {
-            date1 = date1.AddMonths(1);
-            metroTextBox1.Text = date1.ToString("MM.yyyy");
-            if (metroTextBox2.Visible == false)
-                date2 = date1;
-        }
-
-        private void metroButton5_Click(object sender, EventArgs e)
-        {
-            date2 = date2.AddMonths(-1);
-            metroTextBox2.Text = date2.ToString("MM.yyyy");
-        }
-
-        private void metroButton4_Click(object sender, EventArgs e)
-        {
-            date2 = date2.AddMonths(1);
-            metroTextBox2.Text = date2.ToString("MM.yyyy");
-        }
 
         private void metroComboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (metroComboBox3.SelectedIndex == 2)
-                metroPanel4.Visible = true;
+            {                
+                ucPeriodSelector2.Date = ucPeriodSelector1.Date;
+                ucPeriodSelector2.Visible = true;
+            }
             else
-                metroPanel4.Visible = false;
-
+                ucPeriodSelector2.Visible = false;
+           
             metroLabel7.Text = metroComboBox3.Text;
         }
 
