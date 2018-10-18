@@ -40,6 +40,7 @@
             this.metroTile3 = new MetroFramework.Controls.MetroTile();
             this.metroTile6 = new MetroFramework.Controls.MetroTile();
             this.metroTile7 = new MetroFramework.Controls.MetroTile();
+            this.metroTile8 = new MetroFramework.Controls.MetroTile();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -148,6 +149,7 @@
             this.flowLayoutPanel2.Controls.Add(this.metroTile3);
             this.flowLayoutPanel2.Controls.Add(this.metroTile6);
             this.flowLayoutPanel2.Controls.Add(this.metroTile7);
+            this.flowLayoutPanel2.Controls.Add(this.metroTile8);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(373, 33);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -187,6 +189,17 @@
             this.metroTile7.UseSelectable = true;
             this.metroTile7.Click += new System.EventHandler(this.metroTile7_Click);
             // 
+            // metroTile8
+            // 
+            this.metroTile8.ActiveControl = null;
+            this.metroTile8.Location = new System.Drawing.Point(3, 315);
+            this.metroTile8.Name = "metroTile8";
+            this.metroTile8.Size = new System.Drawing.Size(150, 150);
+            this.metroTile8.TabIndex = 2;
+            this.metroTile8.Text = "Загрузка dbf";
+            this.metroTile8.UseSelectable = true;
+            this.metroTile8.Click += new System.EventHandler(this.metroTile8_Click);
+            // 
             // ucMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -217,5 +230,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private MetroFramework.Controls.MetroTile metroTile6;
         private MetroFramework.Controls.MetroTile metroTile7;
+        private MetroFramework.Controls.MetroTile metroTile8;
     }
 }

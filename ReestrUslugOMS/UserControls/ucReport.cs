@@ -40,7 +40,6 @@ namespace ReestrUslugOMS.UserControls
 
 
             date1 = DateTime.Today.FirstDayDate();
-            date1 = date1.AddDays(1 - date1.Day);
             date2 = date1;
 
             metroTextBox1.Text = date1.ToString("MM.yyyy");
@@ -132,7 +131,7 @@ namespace ReestrUslugOMS.UserControls
                     sb.Append("nВ настройках строк отчета некоторые коды врачей пропущены или дублируются.");
                 else
                 {
-                    sb.Append($"\n\nПропущеные коды врачей (скопированы в буфер обмена), всего {report.LostDocCodes.Count}:");
+                    sb.Append($"\n\nПропущены коды врачей (скопировано в буфер обмена), всего {report.LostDocCodes.Count}:");
 
                     var sb2 = new StringBuilder();
                     foreach (var item in report.LostDocCodes)

@@ -116,6 +116,18 @@
     <Compile Include="sp_ReportFactResult.cs">
       <DependentUpon>EFModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ucDbfLoader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucDbfLoader.Designer.cs">
+      <DependentUpon>ucDbfLoader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucPeriodSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucPeriodSelector.Designer.cs">
+      <DependentUpon>ucPeriodSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ucReport.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -188,6 +200,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UserControls\ucDbfLoader.resx">
+      <DependentUpon>ucDbfLoader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\ucPeriodSelector.resx">
+      <DependentUpon>ucPeriodSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserControls\ucReport.resx">
       <DependentUpon>ucReport.cs</DependentUpon>
     </EmbeddedResource>

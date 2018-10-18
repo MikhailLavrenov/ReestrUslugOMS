@@ -45,5 +45,10 @@ namespace ReestrUslugOMS.UserControls
         {
             MainForm.Instance.AddUserControl(new ucReport(enReportMode.ПланОтделения));
         }
+
+        private void metroTile8_Click(object sender, EventArgs e)
+        {
+            MainForm.Instance.AddUserControl(new ucDbfLoader());
+        }
     }
 }
