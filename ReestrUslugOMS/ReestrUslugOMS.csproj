@@ -116,9 +116,6 @@
     <Compile Include="sp_ReportFactResult.cs">
       <DependentUpon>EFModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="sp_ReportPlanResult.cs">
-      <DependentUpon>EFModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\ucReport.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -194,13 +194,6 @@
             <Parameter Name="errId" Mode="In" Type="Int32" />
             <Parameter Name="inoId" Mode="In" Type="Int32" />
           </FunctionImport>
-          <FunctionImport Name="sp_ReportPlan" ReturnType="Collection(REESTR_FOMSModel.sp_ReportPlanResult)">
-            <Parameter Name="type" Mode="In" Type="Int32" />
-            <Parameter Name="month1" Mode="In" Type="Int32" />
-            <Parameter Name="god1" Mode="In" Type="Int32" />
-            <Parameter Name="month2" Mode="In" Type="Int32" />
-            <Parameter Name="god2" Mode="In" Type="Int32" />
-          </FunctionImport>
         </EntityContainer>
         <EnumType Name="enResultType" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enResultType" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration">
           </EnumType>
@@ -336,12 +329,6 @@
           </ReferentialConstraint>
         </Association>
         <EnumType Name="enReportMode" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enReportMode" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
-        <ComplexType Name="sp_ReportPlanResult">
-          <Property Type="Int32" Name="RowNodeId" Nullable="false" />
-          <Property Type="Int32" Name="ColNodeId" Nullable="false" />
-          <Property Type="Double" Name="Value" Nullable="true" />
-          <Property Type="DateTime" Name="Period" Nullable="true" />
-        </ComplexType>
         <ComplexType Name="sp_ReportFactResult">
           <Property Type="String" Name="CodUsl" Nullable="true" MaxLength="41" />
           <Property Type="String" Name="CodOtd" Nullable="true" MaxLength="4" />

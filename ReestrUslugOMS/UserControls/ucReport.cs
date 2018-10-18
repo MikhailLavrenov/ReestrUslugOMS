@@ -122,20 +122,27 @@ namespace ReestrUslugOMS.UserControls
 
             if (report.ReportType== enReportMode.ПланВрача || report.ReportType == enReportMode.ПланОтделения)
                 metroButton7.Visible = true;
-
             
-
-            if (report.CheckSumFailed || report.LostDocCodes?.Count > 0)
+            if (report.CheckSumFailed || report.LostDocCodes.Count > 0)
             {
-                var sb = new StringBuilder();
+                int height = report.LostDocCodes.Count > 3?350:250;
+                var sb = new StringBuilder(("\nЭто значит, что количество оказанных услуг рассчитано не правильно\nРекомендуется проверить настройки строк отчета или обратиться к ответственным специалистам"));
 
-                if (report.CheckSumFailed)
-                    sb.Append("\nВероятно заданые не все коды врачей.\nКоды врачей задаются в настройках строк отчета.");
+                if (report.CheckSumFailed && report.LostDocCodes.Count == 0)
+                    sb.Append("nВ настройках строк отчета некоторые коды врачей пропущены или дублируются.");
+                else
+                {
+                    sb.Append($"\n\nПропущеные коды врачей (скопированы в буфер обмена), всего {report.LostDocCodes.Count}:");
 
-                foreach (var item in report.LostDocCodes)
-                    sb.Append($"/n{item}");
+                    var sb2 = new StringBuilder();
+                    foreach (var item in report.LostDocCodes)
+                        sb2.Append($"\r\n{item}");
 
-                MetroFramework.MetroMessageBox.Show(this, sb.ToString(), "Обнаружено отклонение контрольной суммы!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Clipboard.SetText(sb2.ToString(), TextDataFormat.Text);
+                    sb.Append(sb2);
+                }
+                
+                MetroFramework.MetroMessageBox.Show(this, sb.ToString(), "Обнаружено отклонение контрольной суммы", MessageBoxButtons.OK, MessageBoxIcon.Information, height);
             }
         }
 

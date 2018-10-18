@@ -64,30 +64,5 @@ namespace ReestrUslugOMS
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_ReportFactResult>("sp_ReportFact", month1Parameter, god1Parameter, month2Parameter, god2Parameter, mcodParameter, errIdParameter, inoIdParameter);
         }
-    
-        public virtual ObjectResult<sp_ReportPlanResult> sp_ReportPlan(Nullable<int> type, Nullable<int> month1, Nullable<int> god1, Nullable<int> month2, Nullable<int> god2)
-        {
-            var typeParameter = type.HasValue ?
-                new ObjectParameter("type", type) :
-                new ObjectParameter("type", typeof(int));
-    
-            var month1Parameter = month1.HasValue ?
-                new ObjectParameter("month1", month1) :
-                new ObjectParameter("month1", typeof(int));
-    
-            var god1Parameter = god1.HasValue ?
-                new ObjectParameter("god1", god1) :
-                new ObjectParameter("god1", typeof(int));
-    
-            var month2Parameter = month2.HasValue ?
-                new ObjectParameter("month2", month2) :
-                new ObjectParameter("month2", typeof(int));
-    
-            var god2Parameter = god2.HasValue ?
-                new ObjectParameter("god2", god2) :
-                new ObjectParameter("god2", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_ReportPlanResult>("sp_ReportPlan", typeParameter, month1Parameter, god1Parameter, month2Parameter, god2Parameter);
-        }
     }
 }

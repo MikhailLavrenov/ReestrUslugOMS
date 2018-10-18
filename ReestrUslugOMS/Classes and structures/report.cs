@@ -94,6 +94,7 @@ namespace ReestrUslugOMS
             Round = 0;
             PercentRound = 1;
             DataSourcesDict = new Dictionary<enDataSource, object>();
+            LostDocCodes = new List<string>();
             ReportType = reportType;           
 
             SetRowsCols();
@@ -267,7 +268,7 @@ namespace ReestrUslugOMS
                     break;
                 }
             if (ReportType == enReportMode.Отчет)
-                LostDocCodes = (DataSourcesDict[enDataSource.РеестрыСчетов] as List<sp_ReportFactResult>).Where(x => x.UsedInCol == true && x.UsedInRow == false).Select(x => x.CodDoc).ToList();
+                LostDocCodes = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.UsedInCol == true && x.UsedInRow == false).Select(x => x.CodDoc).Distinct().ToList();
         }
         /// <summary>
         /// Рассчитывает значения ячеек отчета за заданный период, не вычисляет строки с процентами
@@ -346,10 +347,12 @@ namespace ReestrUslugOMS
                     {
                         if (dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
                         {
+                            if (fCol.DataValue != "*")
                             dataItem.UsedInCol = true;
 
                             if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType == enDataType.КодВрача && fRow.DataValue == "*"))
                             {
+                                if (fRow.DataValue != "*")
                                 dataItem.UsedInRow = true;
 
                                 num = dataItem.GetValue(fCol.ResultType);
