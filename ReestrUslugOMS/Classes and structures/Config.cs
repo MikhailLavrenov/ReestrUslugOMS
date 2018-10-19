@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,6 +47,24 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// Код медицинской организации по ФОМСу.
         /// </summary>
         public string LpuCode { get; private set; }
+        /// <summary>
+        /// Путь к директории Релакса.
+        /// </summary>
+        public string RelaxPath
+        {
+            get { return RelaxPath; }
+            set { RelaxPath = value[value.Length - 1] == '\\' ? value : $"{value}\\"; }
+        }
+        /// <summary>
+        /// Названия папок страховых компаний в Релаксе. Содержат разложенные по страховым компаниям реестры-счетов.
+        /// </summary>
+        public string[] SmoFolders { get; set; }
+        /// <summary>
+        /// Названия папки иногородних в Релаксе. Содержит разложенные по страховым компаниям реестры-счетов.
+        /// </summary>
+        public string InoFolder { get; set; }
+
+
         /// <summary>
         /// Путь к отчету по объемам медицинской помощи.
         /// </summary>

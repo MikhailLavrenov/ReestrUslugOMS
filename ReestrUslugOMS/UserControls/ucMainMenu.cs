@@ -48,7 +48,7 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroTile8_Click(object sender, EventArgs e)
         {
-            MainForm.Instance.AddUserControl(new ucDbfLoader());
+            MainForm.Instance.AddUserControl(new ucImportDbf());
         }
     }
 }

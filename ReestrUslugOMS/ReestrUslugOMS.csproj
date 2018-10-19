@@ -72,6 +72,7 @@
     <Compile Include="Classes and structures\dbtFormula.cs" />
     <Compile Include="Classes and structures\dbtNode.cs" />
     <Compile Include="Classes and structures\ExtNode.cs" />
+    <Compile Include="Classes and structures\ImportDbf.cs" />
     <Compile Include="Classes and structures\SecurityPrincipals.cs" />
     <Compile Include="Classes and structures\Enums.cs" />
     <Compile Include="Classes and structures\MSSQLDB.cs" />
@@ -116,11 +117,11 @@
     <Compile Include="sp_ReportFactResult.cs">
       <DependentUpon>EFModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ucDbfLoader.cs">
+    <Compile Include="UserControls\ucImportDbf.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UserControls\ucDbfLoader.Designer.cs">
-      <DependentUpon>ucDbfLoader.cs</DependentUpon>
+    <Compile Include="UserControls\ucImportDbf.Designer.cs">
+      <DependentUpon>ucImportDbf.cs</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ucPeriodSelector.cs">
       <SubType>UserControl</SubType>
@@ -200,8 +201,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UserControls\ucDbfLoader.resx">
-      <DependentUpon>ucDbfLoader.cs</DependentUpon>
+    <EmbeddedResource Include="UserControls\ucImportDbf.resx">
+      <DependentUpon>ucImportDbf.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\ucPeriodSelector.resx">
       <DependentUpon>ucPeriodSelector.cs</DependentUpon>
