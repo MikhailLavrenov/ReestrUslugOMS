@@ -104,4 +104,14 @@ namespace ReestrUslugOMS
         [Description("Сводный регистр застрахованных")]                     СРЗ = 5
 
     }
+
+    public enum enImportStatus:byte
+    {
+        none = 0,
+        Begin=1,
+        End=2,        
+        Failed=3
+    }
+
+
 }

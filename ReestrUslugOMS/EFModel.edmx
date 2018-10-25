@@ -19,6 +19,17 @@
           <Property Name="DateBegin" Type="date" />
           <Property Name="DateEnd" Type="date" />
         </EntityType>
+        <EntityType Name="ImportHistory">
+          <Key>
+            <PropertyRef Name="ImportHistoryId" />
+          </Key>
+          <Property Name="ImportHistoryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TableName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Period" Type="date" />
+          <Property Name="Count" Type="int" Nullable="false" />
+          <Property Name="Status" Type="tinyint" Nullable="false" />
+          <Property Name="DateTime" Type="datetime" Nullable="false" />
+        </EntityType>
         <EntityType Name="Node">
           <Key>
             <PropertyRef Name="NodeId" />
@@ -130,8 +141,12 @@
           <Parameter Name="errId" Type="int" Mode="In" />
           <Parameter Name="inoId" Type="int" Mode="In" />
         </Function>
+        <Function Name="sp_TableFields" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="tablename" Type="varchar" Mode="In" />
+        </Function>
         <EntityContainer Name="Хранилище REESTR_FOMSModelContainer">
           <EntitySet Name="Formula" EntityType="Self.Formula" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ImportHistory" EntityType="Self.ImportHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Node" EntityType="Self.Node" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Plan" EntityType="Self.Plan" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
@@ -194,6 +209,10 @@
             <Parameter Name="errId" Mode="In" Type="Int32" />
             <Parameter Name="inoId" Mode="In" Type="Int32" />
           </FunctionImport>
+          <FunctionImport Name="sp_TableFields" ReturnType="Collection(String)">
+          <Parameter Name="tablename" Mode="In" Type="String" />
+          </FunctionImport>
+          <EntitySet Name="dbtImportHistory" EntityType="REESTR_FOMSModel.dbtImportHistory" />
         </EntityContainer>
         <EnumType Name="enResultType" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enResultType" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration">
           </EnumType>
@@ -343,6 +362,18 @@
           <Property Type="Boolean" Name="UsedInRow" Nullable="true" />
           <Property Type="Boolean" Name="UsedInCol" Nullable="true" />
         </ComplexType>
+        <EnumType Name="enImportStatus" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enImportStatus" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EntityType Name="dbtImportHistory">
+          <Key>
+            <PropertyRef Name="ImportHistoryId" />
+          </Key>
+          <Property Name="ImportHistoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TableName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Period" Type="DateTime" Precision="0" />
+          <Property Name="Count" Type="Int32" Nullable="false" />
+          <Property Name="DateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Status" Type="REESTR_FOMSModel.enImportStatus" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -423,6 +454,19 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_TableFields" FunctionName="Хранилище REESTR_FOMSModel.sp_TableFields" />
+          <EntitySetMapping Name="dbtImportHistory">
+            <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtImportHistory">
+              <MappingFragment StoreEntitySet="ImportHistory">
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+                <ScalarProperty Name="Period" ColumnName="Period" />
+                <ScalarProperty Name="TableName" ColumnName="TableName" />
+                <ScalarProperty Name="ImportHistoryId" ColumnName="ImportHistoryId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

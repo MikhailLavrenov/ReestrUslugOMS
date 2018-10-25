@@ -48,6 +48,20 @@ namespace ReestrUslugOMS
             command.ExecuteNonQuery();
         }
         /// <summary>
+        /// Вставляет (insert) строки в таблицу sql-сервера.
+        /// </summary>
+        /// <param name="tableName">Название таблицы для вставки</param>
+        /// <param name="data">Вставляемые строки</param>
+        public void BulkInsert(string tableName, DataTable data)
+        {
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            {
+                bulkCopy.DestinationTableName = tableName;
+                bulkCopy.WriteToServer(data);
+            }
+
+        }
+        /// <summary>
         /// Закрывает подключение к базе данных и освобождает ресурсы
         /// </summary>
         public void Dispose()

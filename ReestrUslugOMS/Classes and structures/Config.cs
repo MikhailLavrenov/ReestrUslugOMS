@@ -47,13 +47,14 @@ namespace ReestrUslugOMS.Classes_and_structures
         /// Код медицинской организации по ФОМСу.
         /// </summary>
         public string LpuCode { get; private set; }
+        private string _RelaxPath;
         /// <summary>
         /// Путь к директории Релакса.
         /// </summary>
         public string RelaxPath
         {
-            get { return RelaxPath; }
-            set { RelaxPath = value[value.Length - 1] == '\\' ? value : $"{value}\\"; }
+            get { return _RelaxPath; }
+            set { _RelaxPath = value.Last() == '\\' ? value : $"{value}\\"; }
         }
         /// <summary>
         /// Названия папок страховых компаний в Релаксе. Содержат разложенные по страховым компаниям реестры-счетов.
@@ -111,6 +112,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             LpuCode = "2101008";
             ReportCheckSumNodeName = "Расхождение (Контрольная сумма)";
 
+            RelaxPath = @"P:\";
             PathReportXlsx = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\report.xlsx";
 
             SqlServerOnLocalMachine = false;

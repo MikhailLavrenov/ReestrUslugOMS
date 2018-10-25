@@ -31,6 +31,7 @@ namespace ReestrUslugOMS
         public virtual DbSet<dbtNode> dbtNode { get; set; }
         public virtual DbSet<dbtUser> dbtUser { get; set; }
         public virtual DbSet<dbtPlan> dbtPlan { get; set; }
+        public virtual DbSet<dbtImportHistory> dbtImportHistory { get; set; }
     
         public virtual ObjectResult<sp_ReportFactResult> sp_ReportFact(Nullable<int> month1, Nullable<int> god1, Nullable<int> month2, Nullable<int> god2, string mcod, Nullable<int> errId, Nullable<int> inoId)
         {
@@ -63,6 +64,15 @@ namespace ReestrUslugOMS
                 new ObjectParameter("inoId", typeof(int));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_ReportFactResult>("sp_ReportFact", month1Parameter, god1Parameter, month2Parameter, god2Parameter, mcodParameter, errIdParameter, inoIdParameter);
+        }
+    
+        public virtual ObjectResult<string> sp_TableFields(string tablename)
+        {
+            var tablenameParameter = tablename != null ?
+                new ObjectParameter("tablename", tablename) :
+                new ObjectParameter("tablename", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("sp_TableFields", tablenameParameter);
         }
     }
 }

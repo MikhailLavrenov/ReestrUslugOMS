@@ -18,6 +18,9 @@ namespace ReestrUslugOMS.UserControls
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
+
+            metroCheckBox1.Checked = true;
+            ucPeriodSelector1.Date = DateTime.Parse("2018/12/15");
         }
 
         private void metroButton1_Click(object sender, EventArgs e)
@@ -36,6 +39,7 @@ namespace ReestrUslugOMS.UserControls
                 list.Add(enImportItems.СРЗ);
 
             var importer = new ImportDbf(ucPeriodSelector1.Date, list);
+            importer.Import();
         }
     }
 

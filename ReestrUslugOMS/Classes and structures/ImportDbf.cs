@@ -5,109 +5,275 @@ using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ReestrUslugOMS;
 
 namespace ReestrUslugOMS.Classes_and_structures
 {
+    /// <summary>
+    /// Класс, описывает импортируемые сущности из dbf файлов в sql таблицы и выполняет импорт данных. Записывает ход выполнения в sql таблицу.
+    /// </summary>
     class ImportDbf
     {
+        /// <summary>
+        /// Список сущностей, подлежащий импорту.
+        /// </summary>
+        public List<Item> ImportList { get; private set; }
+        /// <summary>
+        /// Период, за который импортируются данные.
+        /// </summary>
+        public DateTime Period { get; private set; }
 
-        List<DbfFile> ImportList { get; set; }
-        public DateTime Period { get; set; }
-
-
-
+        /// <summary>
+        /// Конструктор.
+        /// </summary>
+        /// <param name="period">Задает свойство Period</param>
+        /// <param name="importItems">Список перечислений, соотвествующий названиям импортируемых сущностей.</param>
         public ImportDbf(DateTime period, List<enImportItems> importItems)
         {
-            ImportList = new List<DbfFile>();
-            Period = period;
-            BuildDbfFile(importItems);
-        }
+            ImportList = new List<Item>();
+            Period = period.AddDays(15 - period.Day);
 
-
-        private void BuildDbfFile(List<enImportItems> importEntities)
-        {
-            string periodPath = $"{Config.Instance.RelaxPath}OUTS{Period:YYYY}\\PERIOD{Period:MM}\\";
-
-            foreach (var item in importEntities)
+            string periodPath = $"{Config.Instance.RelaxPath}OUTS{Period:yyyy}\\PERIOD{Period:MM}\\";
+            foreach (var item in importItems)
             {
                 if (item == enImportItems.УслугиПациентыДоРазложения)
                 {
-                    ImportList.Add(new DbfFile(nameof(), $"{periodPath}PAT.DBF"));
-                    ImportList.Add(new DbfFile(nameof(), $"{periodPath}PATU.DBF"));
+                    ImportList.Add(new Item("Patient", $"{periodPath}PAT.DBF", Period));
+                    ImportList.Add(new Item("Service", $"{periodPath}PATU.DBF", Period));
                 }
                 else if (item == enImportItems.УслугиПациентыОшибкиПослеРазложения)
                 {
                     foreach (var smoFolder in Config.Instance.SmoFolders)
                     {
-                        ImportList.Add(new DbfFile(nameof(), $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF"));
-                        ImportList.Add(new DbfFile(nameof(), $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF"));
-                        ImportList.Add(new DbfFile(nameof(), $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF"));
+                        ImportList.Add(new Item("Patient", $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item("Service", $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item("Error", $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period));
                     }
-                    ImportList.Add(new DbfFile(nameof(), $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF"));
-                    ImportList.Add(new DbfFile(nameof(), $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF"));
-                    ImportList.Add(new DbfFile(nameof(), $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF"));
+                    ImportList.Add(new Item("Patient", $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item("Service", $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item("Error", $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period));
                 }
                 else if (item == enImportItems.МедПерсонал)
-                    ImportList.Add(new DbfFile(nameof(), $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
+                    ImportList.Add(new Item("Doctor", $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
 
                 else if (item == enImportItems.КлассификаторУслуг)
-                    ImportList.Add(new DbfFile(nameof(), $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
+                    ImportList.Add(new Item("ServiceList", $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
 
                 else if (item == enImportItems.СРЗ)
-                    ImportList.Add(new DbfFile(nameof(), $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF"));
+                    ImportList.Add(new Item("PreventiveExam", $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF"));
             }
-
-
-
         }
 
-
-
-        public class DbfFile
+        /// <summary>
+        /// Выполняет импорт каждой сущности из dbf файла в sql таблицу. Записывает ход выполнения в sql таблицу.
+        /// </summary>
+        public void Import()
         {
-            public string RelatedClassName { get; set; }
-            public string FilePath { get; set; }
-            public bool Exist { get; set; }
-            public DataSet Data { get; set; }
+            dbtImportHistory history;
+            bool res;
 
-
-            public DbfFile(string name, string path)
+            foreach (var item in ImportList)
             {
-                Data = new DataSet();
-                RelatedClassName = name;
-                FilePath = path;
-                Exist = File.Exists(FilePath);
+                history = new dbtImportHistory
+                {
+                    TableName = item.SqlTableName,
+                    DateTime = DateTime.Now,
+                    Period = item.Period,
+                    Status = enImportStatus.Begin,
+                    Count = 0,
+                };
+                Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
+                Config.Instance.Runtime.dbContext.SaveChanges();
+
+                res = item.Import();
+
+                history = new dbtImportHistory
+                {
+                    TableName = item.SqlTableName,
+                    DateTime = DateTime.Now,
+                    Period = item.Period,
+                    Status = res == false ? enImportStatus.End : enImportStatus.Failed,
+                    Count = res == false ? item.SqlData.Rows.Count : 0,
+                };
+                Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
+                Config.Instance.Runtime.dbContext.SaveChanges();
             }
-            public  void ReadFromDbf()
+        }
+
+        /// <summary>
+        /// Класс, описывает импортируемую  из dbf файла в sql таблицу сущность, и выполняет импорт.
+        /// </summary>
+        public class Item
+        {
+            /// <summary>
+            /// Полный путь к dbf файлу.
+            /// </summary>
+            public string DbfPath { get; private set; }
+            /// <summary>
+            /// Dbf файл доступен.
+            /// </summary>
+            public bool DbfExist { get; private set; }
+            /// <summary>
+            /// Данные из dbf файла.
+            /// </summary>
+            public DataTable DbfData { get; private set; }
+            /// <summary>
+            /// Название sql таблицы.
+            /// </summary>
+            public string SqlTableName { get; private set; }
+            /// <summary>
+            /// Данные для sql таблицы.
+            /// </summary>
+            public DataTable SqlData { get; private set; }
+            /// <summary>
+            /// Совпадающие по названию поля между dbf файлом и sql таблицей. Соотвествие типов не проверяется.
+            /// </summary>
+            public List<string> CommonFields { get; private set; }
+            /// <summary>
+            /// Период, за который импортируются данные. Если нет - null.
+            /// </summary>
+            public DateTime? Period { get; private set; }
+
+            /// <summary>
+            /// Конструктор
+            /// </summary>
+            /// <param name="sqlName">Название sql таблицы</param>
+            /// <param name="dbfPath">Полный путь к dbf файлу</param>
+            /// <param name="period">Период импорта. Если нет null.</param>
+            public Item(string sqlName, string dbfPath, DateTime? period = null)
             {
-                if (Exist == false)
+                DbfData = new DataTable();
+                DbfPath = dbfPath;
+                DbfExist = File.Exists(DbfPath);
+                SqlTableName = sqlName;
+                Period = period;
+                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {sqlName}");
+            }
+
+            /// <summary>
+            /// Преобразует неверно кодированную строку из dbf файла в нормальную
+            /// </summary>
+            /// <param name="str">Неверно кодированная строка</param>
+            /// <returns>Нормальную строка</returns>
+            private static string FixEncoding(string str)
+            {
+                byte[] strBytes = Encoding.GetEncoding(1252).GetBytes(str);
+                byte[] resultBytes = Encoding.Convert(Encoding.GetEncoding(866), Encoding.Default, strBytes);
+                return Encoding.Default.GetString(resultBytes);
+            }
+            /// <summary>
+            /// Заполняет свойство DbfData.
+            /// </summary>
+            private void LoadDbfData()
+            {
+                if (DbfExist == false)
                     return;
 
-                //устанавливаем байт с кодовой страницей 866 чтобы драйвер читал правильно
-                using (FileStream fs = new FileStream(FilePath, FileMode.Open))
-                {
-                    fs.Seek(29, SeekOrigin.Begin);
-                    if (fs.ReadByte() != 101)
+                //Если в заголовке указано наличие файла индекса, но его нет - исправляем заголовок, иначе возникнет ошибка драйвера
+                if (File.Exists(Path.ChangeExtension(DbfPath, ".cdx")) == false)
+                    using (var fs = new FileStream(DbfPath, FileMode.Open))
                     {
-                        fs.Seek(-1, SeekOrigin.Current);
-                        fs.WriteByte(101);
+                        fs.Seek(28, SeekOrigin.Begin);
+                        if (fs.ReadByte() != 0)
+                        {
+                            fs.Seek(-1, SeekOrigin.Current);
+                            fs.WriteByte(0);
+                        }
                     }
-                }
-                
-                string connectionString = $"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={Path.GetDirectoryName(FilePath)};Extended Properties = dBASE IV; User ID = Admin; Password =; ";
+
+                string connectionString = $"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={Path.GetDirectoryName(DbfPath)};Extended Properties = dBASE IV; User ID = Admin; Password =; ";
                 using (var connection = new OleDbConnection(connectionString))
                 {
-                    var req = $"select * from {Path.GetFileName(FilePath)}";
+                    var req = $"select * from {Path.GetFileName(DbfPath)}";
                     var command = new OleDbCommand(req, connection);
                     connection.Open();
 
                     var da = new OleDbDataAdapter(command);
-                    da.Fill(Data);
+                    DbfData = new DataTable();
+                    da.Fill(DbfData);
                 }
 
-                
+                var columns = DbfData.Columns.Cast<DataColumn>().Where(x => x.DataType == typeof(string)).Select(x => x.ColumnName).ToList();
+                foreach (var column in columns)
+                    foreach (var row in DbfData.AsEnumerable())
+                        row[column] = FixEncoding(row[column].ToString());
+            }
+            /// <summary>
+            /// Создает и заполняет CommonFields.
+            /// </summary>
+            private void SetCommonFields()
+            {
+                CommonFields = DbfData.Columns
+                    .Cast<DataColumn>()
+                    .Select(x => x.ColumnName)
+                    .Intersect(SqlData.Columns.Cast<DataColumn>().Select(x => x.ColumnName))
+                    .ToList();
+            }
+            /// <summary>
+            /// Заполняет свойство SqlData.
+            /// </summary>
+            private void SetSqlData()
+            {
+                DataRow dr;
+
+                foreach (var row in DbfData.AsEnumerable())
+                {
+                    dr = SqlData.NewRow();
+                    if (Period != null)
+                        dr["Period"] = Period;
+
+                    foreach (var field in CommonFields)
+                        dr[field] = row[field];
+
+                    SqlData.Rows.Add(dr);
+                }
+            }
+            /// <summary>
+            /// Записывает данные из свойства SqlData в sql таблицу.
+            /// </summary>
+            /// <returns>Результат операции: true - возникли ошибки; false - успешное завершение.</returns>
+            private bool SaveSqlData()
+            {
+                var sql = new StringBuilder();
+                string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTableName}";
+
+                string periodFilter = Period == null ? "" : $" where period='{Period?.Date}' ";
+
+                sql.AppendLine($@"IF OBJECT_ID('tempdb..{tempSqlTableName}') IS NOT NULL DROP TABLE {tempSqlTableName}");
+                sql.AppendLine($@"select top 0 * into {tempSqlTableName} from {SqlTableName}");
+                Config.Instance.Runtime.db.Execute(sql.ToString());
+
+                Config.Instance.Runtime.db.BulkInsert(tempSqlTableName, SqlData);
+
+                sql = new StringBuilder();
+                sql.AppendLine("BEGIN TRY \nBEGIN TRAN");
+                sql.AppendLine($@"ALTER TABLE {tempSqlTableName} DROP COLUMN {SqlTableName}Id");
+                sql.AppendLine($@"delete from {SqlTableName} {periodFilter}");
+                sql.AppendLine($@"exec('insert into  {SqlTableName} select * from {tempSqlTableName}')");
+                sql.AppendLine($@"DROP TABLE {tempSqlTableName}");
+                sql.AppendLine($@"select cast(0 as bit) as result");
+                sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
+                sql.AppendLine($@"select cast(1 as bit) as result");
+                sql.AppendLine("END CATCH");
+
+                var res = Config.Instance.Runtime.db.Select(sql.ToString());
+
+                return (bool)res.Rows[0]["result"];
+            }
+            /// <summary>
+            /// Выполняет импорт данных из dbf файла в sql таблицу.
+            /// </summary>
+            /// <returns>Результат операции: true - возникли ошибки; false - успешное завершение.</returns>
+            public bool Import()
+            {
+                LoadDbfData();
+                SetCommonFields();
+                SetSqlData();
+                var result = SaveSqlData();
+
+                return result;
             }
         }
-        
+
     }
 }
