@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using ReestrUslugOMS;
 
+
 namespace ReestrUslugOMS.Classes_and_structures
 {
     /// <summary>
@@ -60,7 +61,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                     ImportList.Add(new Item("ServiceList", $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
 
                 else if (item == enImportItems.СРЗ)
-                    ImportList.Add(new Item("PreventiveExam", $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF"));
+                    ImportList.Add(new Item("PreventiveExam", $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF", encoded: true));
             }
         }
 
@@ -70,10 +71,11 @@ namespace ReestrUslugOMS.Classes_and_structures
         public void Import()
         {
             dbtImportHistory history;
-            bool res;
+            int insertedCount;
 
             foreach (var item in ImportList)
             {
+
                 history = new dbtImportHistory
                 {
                     TableName = item.SqlTableName,
@@ -85,18 +87,19 @@ namespace ReestrUslugOMS.Classes_and_structures
                 Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
                 Config.Instance.Runtime.dbContext.SaveChanges();
 
-                res = item.Import();
-
-                history = new dbtImportHistory
+                insertedCount = 0;
+                try
                 {
-                    TableName = item.SqlTableName,
-                    DateTime = DateTime.Now,
-                    Period = item.Period,
-                    Status = res == false ? enImportStatus.End : enImportStatus.Failed,
-                    Count = res == false ? item.SqlData.Rows.Count : 0,
-                };
-                Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
-                Config.Instance.Runtime.dbContext.SaveChanges();
+                    insertedCount = item.Import();
+                }
+                catch (Exception) { }
+                finally
+                {
+                    history.DateTime = DateTime.Now;
+                    history.Status = insertedCount == 0 ? enImportStatus.Failed : enImportStatus.End;
+                    history.Count = insertedCount;
+                    Config.Instance.Runtime.dbContext.SaveChanges();
+                }
             }
         }
 
@@ -106,33 +109,38 @@ namespace ReestrUslugOMS.Classes_and_structures
         public class Item
         {
             /// <summary>
+            /// Данные из dbf файла.
+            /// </summary>
+            private DataTable DbfData;
+            /// <summary>
+            /// Совпадающие по названию поля между dbf файлом и sql таблицей. Соотвествие типов не проверяется.
+            /// </summary>
+            private List<string> CommonFields;
+            /// <summary>
+            /// Данные для sql таблицы.
+            /// </summary>
+            private DataTable SqlData;
+
+            /// <summary>
             /// Полный путь к dbf файлу.
             /// </summary>
             public string DbfPath { get; private set; }
             /// <summary>
             /// Dbf файл доступен.
             /// </summary>
-            public bool DbfExist { get; private set; }
-            /// <summary>
-            /// Данные из dbf файла.
-            /// </summary>
-            public DataTable DbfData { get; private set; }
+            public bool DbfExist;
             /// <summary>
             /// Название sql таблицы.
             /// </summary>
             public string SqlTableName { get; private set; }
             /// <summary>
-            /// Данные для sql таблицы.
-            /// </summary>
-            public DataTable SqlData { get; private set; }
-            /// <summary>
-            /// Совпадающие по названию поля между dbf файлом и sql таблицей. Соотвествие типов не проверяется.
-            /// </summary>
-            public List<string> CommonFields { get; private set; }
-            /// <summary>
             /// Период, за который импортируются данные. Если нет - null.
             /// </summary>
             public DateTime? Period { get; private set; }
+            /// <summary>
+            /// Содержит зашифрованные строки - true, иначе - false.
+            /// </summary>
+            public bool Encoded { get; set; }
 
             /// <summary>
             /// Конструктор
@@ -140,14 +148,14 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <param name="sqlName">Название sql таблицы</param>
             /// <param name="dbfPath">Полный путь к dbf файлу</param>
             /// <param name="period">Период импорта. Если нет null.</param>
-            public Item(string sqlName, string dbfPath, DateTime? period = null)
+            public Item(string sqlName, string dbfPath, DateTime? period = null, bool encoded = false)
             {
                 DbfData = new DataTable();
                 DbfPath = dbfPath;
                 DbfExist = File.Exists(DbfPath);
                 SqlTableName = sqlName;
                 Period = period;
-                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {sqlName}");
+                Encoded = encoded;
             }
 
             /// <summary>
@@ -160,6 +168,22 @@ namespace ReestrUslugOMS.Classes_and_structures
                 byte[] strBytes = Encoding.GetEncoding(1252).GetBytes(str);
                 byte[] resultBytes = Encoding.Convert(Encoding.GetEncoding(866), Encoding.Default, strBytes);
                 return Encoding.Default.GetString(resultBytes);
+            }
+
+            /// <summary>
+            /// Расшифровывает строки, путем перестановки букв по примитивному алгоритму.
+            /// </summary>
+            /// <param name="str">Зашифрованная строка.</param>
+            /// <returns>Расшифрованная строка.</returns>
+            private static string Decode(string str)
+            {
+                var result = new StringBuilder();
+
+                if (str.Length > 0)
+                    for (int i = str.Length - 1; i >= 0; i--)
+                        result.Append((char)(str[i] - str.Length + i));
+
+                return result.ToString();
             }
             /// <summary>
             /// Заполняет свойство DbfData.
@@ -197,6 +221,11 @@ namespace ReestrUslugOMS.Classes_and_structures
                 foreach (var column in columns)
                     foreach (var row in DbfData.AsEnumerable())
                         row[column] = FixEncoding(row[column].ToString());
+
+                if (Encoded)
+                    foreach (var column in columns.Select(x => x.ToUpper()).Where(x => x == "FAM" || x == "IM" || x == "OT"))
+                        foreach (var row in DbfData.AsEnumerable())
+                            row[column] = Decode(row[column].ToString());
             }
             /// <summary>
             /// Создает и заполняет CommonFields.
@@ -231,8 +260,8 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <summary>
             /// Записывает данные из свойства SqlData в sql таблицу.
             /// </summary>
-            /// <returns>Результат операции: true - возникли ошибки; false - успешное завершение.</returns>
-            private bool SaveSqlData()
+            /// <returns>Количество импортированных строк.</returns>
+            private int SaveSqlData()
             {
                 var sql = new StringBuilder();
                 string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTableName}";
@@ -251,25 +280,29 @@ namespace ReestrUslugOMS.Classes_and_structures
                 sql.AppendLine($@"delete from {SqlTableName} {periodFilter}");
                 sql.AppendLine($@"exec('insert into  {SqlTableName} select * from {tempSqlTableName}')");
                 sql.AppendLine($@"DROP TABLE {tempSqlTableName}");
-                sql.AppendLine($@"select cast(0 as bit) as result");
+                sql.AppendLine($@"select count(1) as result from {SqlTableName} {periodFilter}");
                 sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
-                sql.AppendLine($@"select cast(1 as bit) as result");
+                sql.AppendLine($@"select cast(0 as int) as result");
                 sql.AppendLine("END CATCH");
 
-                var res = Config.Instance.Runtime.db.Select(sql.ToString());
+                var dt = Config.Instance.Runtime.db.Select(sql.ToString());
 
-                return (bool)res.Rows[0]["result"];
+                return (int)dt.Rows[0]["result"];
             }
             /// <summary>
             /// Выполняет импорт данных из dbf файла в sql таблицу.
             /// </summary>
-            /// <returns>Результат операции: true - возникли ошибки; false - успешное завершение.</returns>
-            public bool Import()
+            /// <returns>Количество импортированных строу.</returns>
+            public int Import()
             {
                 LoadDbfData();
+                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTableName}");
                 SetCommonFields();
                 SetSqlData();
+                DbfData = null;
+                CommonFields = null;
                 var result = SaveSqlData();
+                SqlData = null;
 
                 return result;
             }
