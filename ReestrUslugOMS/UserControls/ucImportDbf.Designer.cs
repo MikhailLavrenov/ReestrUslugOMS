@@ -40,13 +40,13 @@
             this.metroButton1 = new MetroFramework.Controls.MetroButton();
             this.metroGrid1 = new MetroFramework.Controls.MetroGrid();
             this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
+            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.ImportHistoryId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TableName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Table = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Period = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Count = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.metroPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.metroGrid1)).BeginInit();
             this.SuspendLayout();
@@ -152,7 +152,7 @@
             this.metroGrid1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.metroGrid1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ImportHistoryId,
-            this.TableName,
+            this.Table,
             this.Period,
             this.Count,
             this.Status,
@@ -181,7 +181,7 @@
             this.metroGrid1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.metroGrid1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.metroGrid1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.metroGrid1.Size = new System.Drawing.Size(740, 398);
+            this.metroGrid1.Size = new System.Drawing.Size(788, 398);
             this.metroGrid1.TabIndex = 3;
             // 
             // metroLabel1
@@ -193,6 +193,16 @@
             this.metroLabel1.TabIndex = 4;
             this.metroLabel1.Text = "Статистика загрузки";
             // 
+            // ucPeriodSelector1
+            // 
+            this.ucPeriodSelector1.Date = new System.DateTime(2018, 10, 1, 0, 0, 0, 0);
+            this.ucPeriodSelector1.DateFormat = "MM.yyyy";
+            this.ucPeriodSelector1.Location = new System.Drawing.Point(171, 0);
+            this.ucPeriodSelector1.Name = "ucPeriodSelector1";
+            this.ucPeriodSelector1.Size = new System.Drawing.Size(122, 23);
+            this.ucPeriodSelector1.TabIndex = 0;
+            this.ucPeriodSelector1.UseSelectable = true;
+            // 
             // ImportHistoryId
             // 
             this.ImportHistoryId.DataPropertyName = "ImportHistoryId";
@@ -201,13 +211,13 @@
             this.ImportHistoryId.Name = "ImportHistoryId";
             this.ImportHistoryId.Width = 60;
             // 
-            // TableName
+            // Table
             // 
-            this.TableName.DataPropertyName = "TableName";
-            this.TableName.HeaderText = "Название таблицы";
-            this.TableName.MinimumWidth = 130;
-            this.TableName.Name = "TableName";
-            this.TableName.Width = 130;
+            this.Table.DataPropertyName = "Table";
+            this.Table.HeaderText = "Таблица";
+            this.Table.MinimumWidth = 130;
+            this.Table.Name = "Table";
+            this.Table.Width = 180;
             // 
             // Period
             // 
@@ -241,16 +251,6 @@
             this.DateTime.MinimumWidth = 130;
             this.DateTime.Name = "DateTime";
             // 
-            // ucPeriodSelector1
-            // 
-            this.ucPeriodSelector1.Date = new System.DateTime(2018, 10, 1, 0, 0, 0, 0);
-            this.ucPeriodSelector1.DateFormat = "MM.yyyy";
-            this.ucPeriodSelector1.Location = new System.Drawing.Point(171, 0);
-            this.ucPeriodSelector1.Name = "ucPeriodSelector1";
-            this.ucPeriodSelector1.Size = new System.Drawing.Size(122, 23);
-            this.ucPeriodSelector1.TabIndex = 0;
-            this.ucPeriodSelector1.UseSelectable = true;
-            // 
             // ucImportDbf
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -283,7 +283,7 @@
         private MetroFramework.Controls.MetroGrid metroGrid1;
         private MetroFramework.Controls.MetroLabel metroLabel1;
         private System.Windows.Forms.DataGridViewTextBoxColumn ImportHistoryId;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TableName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Table;
         private System.Windows.Forms.DataGridViewTextBoxColumn Period;
         private System.Windows.Forms.DataGridViewTextBoxColumn Count;
         private System.Windows.Forms.DataGridViewTextBoxColumn Status;

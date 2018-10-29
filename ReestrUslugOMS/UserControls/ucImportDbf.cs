@@ -57,7 +57,7 @@ namespace ReestrUslugOMS.UserControls
                 .Select(x => new
                 {
                     x.ImportHistoryId,
-                    x.TableName,
+                    Table=Tools.GetEnumDescription(x.Table),
                     Period = x.Period?.ToString("MMMM yyyy"),
                     x.Count,
                     Status = Tools.GetEnumDescription(x.Status),

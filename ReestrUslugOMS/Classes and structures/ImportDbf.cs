@@ -39,29 +39,29 @@ namespace ReestrUslugOMS.Classes_and_structures
             {
                 if (item == enImportItems.УслугиПациентыДоРазложения)
                 {
-                    ImportList.Add(new Item("Patient", $"{periodPath}PAT.DBF", Period));
-                    ImportList.Add(new Item("Service", $"{periodPath}PATU.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}PAT.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}PATU.DBF", Period));
                 }
                 else if (item == enImportItems.УслугиПациентыОшибкиПослеРазложения)
                 {
                     foreach (var smoFolder in Config.Instance.SmoFolders)
                     {
-                        ImportList.Add(new Item("Patient", $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period));
-                        ImportList.Add(new Item("Service", $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period));
-                        ImportList.Add(new Item("Error", $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period));
                     }
-                    ImportList.Add(new Item("Patient", $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period));
-                    ImportList.Add(new Item("Service", $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period));
-                    ImportList.Add(new Item("Error", $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period));
                 }
                 else if (item == enImportItems.МедПерсонал)
-                    ImportList.Add(new Item("Doctor", $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
+                    ImportList.Add(new Item(enImportTableNames.Doctor, $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
 
                 else if (item == enImportItems.КлассификаторУслуг)
-                    ImportList.Add(new Item("ServiceList", $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
+                    ImportList.Add(new Item(enImportTableNames.ServiceList, $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
 
                 else if (item == enImportItems.СРЗ)
-                    ImportList.Add(new Item("PreventiveExam", $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF", encoded: true));
+                    ImportList.Add(new Item(enImportTableNames.PreventiveExam, $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF", encoded: true));
             }
         }
 
@@ -78,7 +78,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
                 history = new dbtImportHistory
                 {
-                    TableName = item.SqlTableName,
+                    Table = item.SqlTable,
                     DateTime = DateTime.Now,
                     Period = item.Period,
                     Status = enImportStatus.Begin,
@@ -132,7 +132,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <summary>
             /// Название sql таблицы.
             /// </summary>
-            public string SqlTableName { get; private set; }
+            public enImportTableNames SqlTable { get; private set; }
             /// <summary>
             /// Период, за который импортируются данные. Если нет - null.
             /// </summary>
@@ -148,12 +148,12 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <param name="sqlName">Название sql таблицы</param>
             /// <param name="dbfPath">Полный путь к dbf файлу</param>
             /// <param name="period">Период импорта. Если нет null.</param>
-            public Item(string sqlName, string dbfPath, DateTime? period = null, bool encoded = false)
+            public Item(enImportTableNames sqlTable, string dbfPath, DateTime? period = null, bool encoded = false)
             {
                 DbfData = new DataTable();
                 DbfPath = dbfPath;
                 DbfExist = File.Exists(DbfPath);
-                SqlTableName = sqlName;
+                SqlTable = sqlTable;
                 Period = period;
                 Encoded = encoded;
             }
@@ -263,23 +263,23 @@ namespace ReestrUslugOMS.Classes_and_structures
             private int SaveSqlData()
             {
                 var sql = new StringBuilder();
-                string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTableName}";
+                string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTable}";
 
                 string periodFilter = Period == null ? "" : $" where period='{Period?.Date}' ";
 
                 sql.AppendLine($@"IF OBJECT_ID('tempdb..{tempSqlTableName}') IS NOT NULL DROP TABLE {tempSqlTableName}");
-                sql.AppendLine($@"select top 0 * into {tempSqlTableName} from {SqlTableName}");
+                sql.AppendLine($@"select top 0 * into {tempSqlTableName} from {SqlTable}");
                 Config.Instance.Runtime.db.Execute(sql.ToString());
 
                 Config.Instance.Runtime.db.BulkInsert(tempSqlTableName, SqlData);
 
                 sql = new StringBuilder();
                 sql.AppendLine("BEGIN TRY \nBEGIN TRAN");
-                sql.AppendLine($@"ALTER TABLE {tempSqlTableName} DROP COLUMN {SqlTableName}Id");
-                sql.AppendLine($@"delete from {SqlTableName} {periodFilter}");
-                sql.AppendLine($@"exec('insert into  {SqlTableName} select * from {tempSqlTableName}')");
+                sql.AppendLine($@"ALTER TABLE {tempSqlTableName} DROP COLUMN {SqlTable}Id");
+                sql.AppendLine($@"delete from {SqlTable} {periodFilter}");
+                sql.AppendLine($@"exec('insert into  {SqlTable} select * from {tempSqlTableName}')");
                 sql.AppendLine($@"DROP TABLE {tempSqlTableName}");
-                sql.AppendLine($@"select count(1) as result from {SqlTableName} {periodFilter}");
+                sql.AppendLine($@"select count(1) as result from {SqlTable} {periodFilter}");
                 sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
                 sql.AppendLine($@"select cast(0 as int) as result");
                 sql.AppendLine("END CATCH");
@@ -295,7 +295,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             public int Import()
             {
                 LoadDbfData();
-                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTableName}");
+                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
                 SetCommonFields();
                 SetSqlData();
                 DbfData = null;
