@@ -40,13 +40,13 @@
             this.metroButton1 = new MetroFramework.Controls.MetroButton();
             this.metroGrid1 = new MetroFramework.Controls.MetroGrid();
             this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
-            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.ImportHistoryId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TableName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Period = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Count = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.metroPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.metroGrid1)).BeginInit();
             this.SuspendLayout();
@@ -75,9 +75,9 @@
             this.metroCheckBox5.Location = new System.Drawing.Point(0, 84);
             this.metroCheckBox5.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.metroCheckBox5.Name = "metroCheckBox5";
-            this.metroCheckBox5.Size = new System.Drawing.Size(209, 15);
+            this.metroCheckBox5.Size = new System.Drawing.Size(216, 15);
             this.metroCheckBox5.TabIndex = 2;
-            this.metroCheckBox5.Text = "Сводный регистр застрахованных";
+            this.metroCheckBox5.Text = "Все периодические осмотры (СРЗ)";
             this.metroCheckBox5.UseSelectable = true;
             // 
             // metroCheckBox4
@@ -168,7 +168,7 @@
             this.metroGrid1.EnableHeadersVisualStyles = false;
             this.metroGrid1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.metroGrid1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.metroGrid1.Location = new System.Drawing.Point(0, 204);
+            this.metroGrid1.Location = new System.Drawing.Point(0, 202);
             this.metroGrid1.Name = "metroGrid1";
             this.metroGrid1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -181,18 +181,65 @@
             this.metroGrid1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.metroGrid1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.metroGrid1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.metroGrid1.Size = new System.Drawing.Size(960, 396);
+            this.metroGrid1.Size = new System.Drawing.Size(740, 398);
             this.metroGrid1.TabIndex = 3;
             // 
             // metroLabel1
             // 
             this.metroLabel1.AutoSize = true;
-            this.metroLabel1.FontWeight = MetroFramework.MetroLabelWeight.Regular;
-            this.metroLabel1.Location = new System.Drawing.Point(0, 182);
+            this.metroLabel1.Location = new System.Drawing.Point(0, 180);
             this.metroLabel1.Name = "metroLabel1";
-            this.metroLabel1.Size = new System.Drawing.Size(137, 19);
+            this.metroLabel1.Size = new System.Drawing.Size(131, 19);
             this.metroLabel1.TabIndex = 4;
             this.metroLabel1.Text = "Статистика загрузки";
+            // 
+            // ImportHistoryId
+            // 
+            this.ImportHistoryId.DataPropertyName = "ImportHistoryId";
+            this.ImportHistoryId.HeaderText = "ID";
+            this.ImportHistoryId.MinimumWidth = 40;
+            this.ImportHistoryId.Name = "ImportHistoryId";
+            this.ImportHistoryId.Width = 60;
+            // 
+            // TableName
+            // 
+            this.TableName.DataPropertyName = "TableName";
+            this.TableName.HeaderText = "Название таблицы";
+            this.TableName.MinimumWidth = 130;
+            this.TableName.Name = "TableName";
+            this.TableName.Width = 130;
+            // 
+            // Period
+            // 
+            this.Period.DataPropertyName = "Period";
+            this.Period.HeaderText = "Период";
+            this.Period.MinimumWidth = 110;
+            this.Period.Name = "Period";
+            this.Period.Width = 110;
+            // 
+            // Count
+            // 
+            this.Count.DataPropertyName = "Count";
+            this.Count.HeaderText = "Кол-во";
+            this.Count.MinimumWidth = 90;
+            this.Count.Name = "Count";
+            this.Count.Width = 90;
+            // 
+            // Status
+            // 
+            this.Status.DataPropertyName = "Status";
+            this.Status.HeaderText = "Результат";
+            this.Status.MinimumWidth = 150;
+            this.Status.Name = "Status";
+            this.Status.Width = 150;
+            // 
+            // DateTime
+            // 
+            this.DateTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.DateTime.DataPropertyName = "DateTime";
+            this.DateTime.HeaderText = "Дата";
+            this.DateTime.MinimumWidth = 130;
+            this.DateTime.Name = "DateTime";
             // 
             // ucPeriodSelector1
             // 
@@ -203,53 +250,6 @@
             this.ucPeriodSelector1.Size = new System.Drawing.Size(122, 23);
             this.ucPeriodSelector1.TabIndex = 0;
             this.ucPeriodSelector1.UseSelectable = true;
-            // 
-            // ImportHistoryId
-            // 
-            this.ImportHistoryId.DataPropertyName = "ImportHistoryId";
-            this.ImportHistoryId.HeaderText = "ID";
-            this.ImportHistoryId.MinimumWidth = 40;
-            this.ImportHistoryId.Name = "ImportHistoryId";
-            this.ImportHistoryId.Width = 40;
-            // 
-            // TableName
-            // 
-            this.TableName.DataPropertyName = "TableName";
-            this.TableName.HeaderText = "Название таблицы";
-            this.TableName.MinimumWidth = 120;
-            this.TableName.Name = "TableName";
-            this.TableName.Width = 120;
-            // 
-            // Period
-            // 
-            this.Period.DataPropertyName = "Period";
-            this.Period.HeaderText = "Период";
-            this.Period.MinimumWidth = 100;
-            this.Period.Name = "Period";
-            // 
-            // Count
-            // 
-            this.Count.DataPropertyName = "Count";
-            this.Count.HeaderText = "Кол-во";
-            this.Count.MinimumWidth = 80;
-            this.Count.Name = "Count";
-            this.Count.Width = 80;
-            // 
-            // Status
-            // 
-            this.Status.DataPropertyName = "Status";
-            this.Status.HeaderText = "Статус Загрузки";
-            this.Status.MinimumWidth = 140;
-            this.Status.Name = "Status";
-            this.Status.Width = 140;
-            // 
-            // DateTime
-            // 
-            this.DateTime.DataPropertyName = "DateTime";
-            this.DateTime.HeaderText = "Дата";
-            this.DateTime.MinimumWidth = 120;
-            this.DateTime.Name = "DateTime";
-            this.DateTime.Width = 120;
             // 
             // ucImportDbf
             // 

@@ -1,15 +1,6 @@
 ﻿using MetroFramework.Controls;
 using ReestrUslugOMS.UserControls;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using ReestrUslugOMS.Classes_and_structures;
@@ -93,6 +84,9 @@ namespace ReestrUslugOMS
             //удаляем кэш EF
             foreach (var entry in Config.Instance.Runtime.dbContext.ChangeTracker.Entries())
                 Config.Instance.Runtime.dbContext.Entry(entry.Entity).State = EntityState.Detached;
+
+            if (Config.Instance.Runtime.db.NeedDispose)
+                Config.Instance.Runtime.db.Dispose();
 
             ucContainer.Controls.Clear();
             ucContainer.Controls.Add(new ucMainMenu());

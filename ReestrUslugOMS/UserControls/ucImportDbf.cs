@@ -17,6 +17,8 @@ namespace ReestrUslugOMS.UserControls
     {
         public ucImportDbf()
         {
+            Config.Instance.Runtime.db = new MSSQLDB();
+
             InitializeComponent();
             Dock = DockStyle.Fill;
 

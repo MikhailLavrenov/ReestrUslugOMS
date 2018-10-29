@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ReestrUslugOMS.Classes_and_structures;
@@ -16,6 +11,8 @@ namespace ReestrUslugOMS.UserControls
 
         public ucSettingsDb()
         {
+            Config.Instance.Runtime.db = new MSSQLDB();
+
             InitializeComponent();
 
             SecurityPrincipals = new SecurityPrincipals(Config.Instance.Runtime.DomainName);
@@ -48,10 +45,7 @@ namespace ReestrUslugOMS.UserControls
         }
 
         private void metroButton2_Click(object sender, EventArgs e)
-        {
-            if (DialogResult.Cancel == MessageBox.Show("Вы действительно хотите удалить запись?", "Подтверждение", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
-                return;
-            
+        {          
             string login = metroGrid1.CurrentCell.Value.ToString();
 
             StringBuilder sb = new StringBuilder();

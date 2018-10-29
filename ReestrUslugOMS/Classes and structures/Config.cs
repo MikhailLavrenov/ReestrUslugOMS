@@ -167,7 +167,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
                 //MS SQL Server
                 MsSqlConnectionString = string.Format("Data Source={0}; Initial Catalog={1}; {2}", Instance.SqlServer, Instance.SqlDataBase, security);
-                db = new MSSQLDB(MsSqlConnectionString);
+
                 //EntityFramework
                 EFConnectionString = "metadata=res://*/{0}.csdl|res://*/{0}.ssdl|res://*/{0}.msl;provider=System.Data.SqlClient;provider connection string=\"data source = {1}; initial catalog = {2}; {3}; MultipleActiveResultSets = True; App = EntityFramework\" ";
                 EFConnectionString = string.Format(EFConnectionString, "EFModel", Instance.SqlServer, Instance.SqlDataBase, security);

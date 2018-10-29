@@ -107,10 +107,10 @@ namespace ReestrUslugOMS
 
     public enum enImportStatus:byte
     {
-        [Description("")]                           none = 0,
-        [Description("Запущена")]                   Begin = 1,
-        [Description("Успешно завершена")]          End = 2,
-        [Description("Завершена с ошибкой")]        Failed = 3
+        [Description("")]                   none = 0,
+        [Description("Запущена")]           Begin = 1,
+        [Description("Завершена")]          End = 2,
+        [Description("Ошибка")]             Failed = 3
     }
 
     public enum enImportTableNames : byte

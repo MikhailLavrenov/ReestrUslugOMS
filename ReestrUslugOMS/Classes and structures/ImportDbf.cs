@@ -169,7 +169,6 @@ namespace ReestrUslugOMS.Classes_and_structures
                 byte[] resultBytes = Encoding.Convert(Encoding.GetEncoding(866), Encoding.Default, strBytes);
                 return Encoding.Default.GetString(resultBytes);
             }
-
             /// <summary>
             /// Расшифровывает строки, путем перестановки букв по примитивному алгоритму.
             /// </summary>
