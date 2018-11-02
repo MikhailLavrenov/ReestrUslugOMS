@@ -25,6 +25,7 @@
           </Key>
           <Property Name="ImportHistoryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Table" Type="tinyint" Nullable="false" />
+          <Property Name="Organisation" Type="varchar" MaxLength="20" />
           <Property Name="Period" Type="date" />
           <Property Name="Count" Type="int" Nullable="false" />
           <Property Name="Status" Type="tinyint" Nullable="false" />
@@ -370,6 +371,7 @@
           </Key>
           <Property Name="ImportHistoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Table" Type="REESTR_FOMSModel.enImportTableNames" Nullable="false" />
+          <Property Name="Organisation" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="Period" Type="DateTime" Precision="0" />
           <Property Name="Count" Type="Int32" Nullable="false" />
           <Property Name="Status" Type="REESTR_FOMSModel.enImportStatus" Nullable="false" />
@@ -463,6 +465,7 @@
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Count" ColumnName="Count" />
                 <ScalarProperty Name="Period" ColumnName="Period" />
+                <ScalarProperty Name="Organisation" ColumnName="Organisation" />
                 <ScalarProperty Name="Table" ColumnName="Table" />
                 <ScalarProperty Name="ImportHistoryId" ColumnName="ImportHistoryId" />
               </MappingFragment>

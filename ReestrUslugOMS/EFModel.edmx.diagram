@@ -14,7 +14,7 @@
         <EntityTypeShape EntityType="REESTR_FOMSModel.dbtPlan" Width="1.5" PointX="1.5" PointY="2.875" />
         <AssociationConnector Association="REESTR_FOMSModel.FK_Plan_Node" />
         <AssociationConnector Association="REESTR_FOMSModel.FK_Plan_Node1" />
-        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtImportHistory" Width="1.5" PointX="10.625" PointY="3" />
+        <EntityTypeShape EntityType="REESTR_FOMSModel.dbtImportHistory" Width="1.5" PointX="10.25" PointY="2.875" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

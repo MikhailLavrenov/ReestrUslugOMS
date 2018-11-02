@@ -15,6 +15,8 @@ namespace ReestrUslugOMS.UserControls
 {
     public partial class ucImportDbf : MetroFramework.Controls.MetroUserControl
     {
+        private int historyLimit;
+
         public ucImportDbf()
         {
             Config.Instance.Runtime.db = new MSSQLDB();
@@ -23,11 +25,9 @@ namespace ReestrUslugOMS.UserControls
             Dock = DockStyle.Fill;
 
             metroCheckBox1.Checked = true;
-            ucPeriodSelector1.Date = System.DateTime.Parse("2018/12/15");
+            ucPeriodSelector1.Date = System.DateTime.Today.FirstDayDate();
 
-            Config.Instance.Runtime.dbContext.dbtImportHistory.OrderBy(x => x.DateTime).Take(100).Load();
-
-            RefreshGrid();
+            metroButton2_Click(new object(), null);
         }
 
         private void metroButton1_Click(object sender, EventArgs e)
@@ -58,16 +58,40 @@ namespace ReestrUslugOMS.UserControls
                 {
                     x.ImportHistoryId,
                     Table=Tools.GetEnumDescription(x.Table),
+                    x.Organisation,
                     Period = x.Period?.ToString("MMMM yyyy"),
                     x.Count,
                     Status = Tools.GetEnumDescription(x.Status),
                     x.DateTime,
                 }) .OrderByDescending(x=>x.DateTime)  
+                .Take(historyLimit)
                 .ToList();
 
             metroGrid1.DataSource = list;
         }
 
+        private void metroCheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (metroCheckBox1.Checked)
+                metroCheckBox2.Checked = false;
+        }
+
+        private void metroCheckBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (metroCheckBox2.Checked)
+                metroCheckBox1.Checked = false;
+        }
+
+        private void metroButton2_Click(object sender, EventArgs e)
+        {
+            int oldLimit = historyLimit;
+            historyLimit= Convert.ToInt32(metroTextBox1.Text);
+
+            if (oldLimit < historyLimit)
+                Config.Instance.Runtime.dbContext.dbtImportHistory.OrderBy(x => x.DateTime).Take(historyLimit).Load();
+
+            RefreshGrid();
+        }
     }
 
 

@@ -98,5 +98,19 @@ namespace ReestrUslugOMS
 
             return result;
         }
+        /// <summary>
+        /// Отбрасывает буквы после нулевого символа.
+        /// </summary>
+        /// <param name="str">Входная строка</param>
+        /// <returns>Выходная строка</returns>
+        public static string DropNullCharacter (string str)
+        {
+            int length = str.IndexOf('\0');
+
+            if (length >= 0)
+                return str.Substring(0, length);
+            else
+                return str;
+        }
     }
 }

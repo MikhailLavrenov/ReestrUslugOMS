@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-
 namespace ReestrUslugOMS.Classes_and_structures
 {
     /// <summary>
@@ -44,13 +43,13 @@ namespace ReestrUslugOMS.Classes_and_structures
                 {
                     foreach (var smoFolder in Config.Instance.SmoFolders)
                     {
-                        ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period));
-                        ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period));
-                        ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period));
+                        ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
+                        ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
+                        ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
                     }
-                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period));
-                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period));
-                    ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period));
+                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period,false,"IN"));
+                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period, false, "IN"));
+                    ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period, false, "IN"));
                 }
                 else if (item == enImportItems.МедПерсонал)
                     ImportList.Add(new Item(enImportTableNames.Doctor, $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
@@ -77,25 +76,35 @@ namespace ReestrUslugOMS.Classes_and_structures
                 history = new dbtImportHistory
                 {
                     Table = item.SqlTable,
+                    Organisation = item.Organisation,
                     DateTime = DateTime.Now,
                     Period = item.Period,
-                    Status = enImportStatus.Begin,
+                    Status = item.DbfExist ? enImportStatus.Begin : enImportStatus.FileNotFound,
                     Count = 0,
                 };
                 Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
                 Config.Instance.Runtime.dbContext.SaveChanges();
 
-                insertedCount = 0;
-                try
+                if (item.DbfExist == false)
+                    continue;
+
+                insertedCount = -1;
+                //try
                 {
                     insertedCount = item.Import();
                 }
-                catch (Exception) { }
-                finally
+               // catch (Exception) { }
+               // finally
                 {
                     history.DateTime = DateTime.Now;
-                    history.Status = insertedCount == 0 ? enImportStatus.Failed : enImportStatus.End;
-                    history.Count = insertedCount;
+                    if (insertedCount == -1)
+                        history.Status = enImportStatus.Failed;
+                    else if (insertedCount == 0)
+                        history.Status = enImportStatus.Warning;
+                    else
+                        history.Status = enImportStatus.End;
+
+                    history.Count = insertedCount >=0 ? insertedCount : 0;
                     Config.Instance.Runtime.dbContext.SaveChanges();
                 }
             }
@@ -126,6 +135,10 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// Содержит зашифрованные строки - true, иначе - false.
             /// </summary>
             public bool Encoded { get; set; }
+            /// <summary>
+            /// Название страховой организации
+            /// </summary>
+            public string Organisation { get; set; }
 
             /// <summary>
             /// Конструктор
@@ -134,13 +147,14 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <param name="dbfPath">Полный путь к dbf файлу</param>
             /// <param name="period">Период импорта. Если нет null.</param>
             /// <param name="encoded">Необходимость расшифровать строки. True - да, False - нет. По умолчанию - нет.</param>
-            public Item(enImportTableNames sqlTable, string dbfPath, DateTime? period = null, bool encoded = false)
+            public Item(enImportTableNames sqlTable, string dbfPath, DateTime? period = null, bool encoded = false, string organisation = "")
             {
                 DbfPath = dbfPath;
                 DbfExist = File.Exists(DbfPath);
                 SqlTable = sqlTable;
                 Period = period;
                 Encoded = encoded;
+                Organisation = organisation;
             }
 
             /// <summary>
@@ -157,6 +171,51 @@ namespace ReestrUslugOMS.Classes_and_structures
                         result.Append((char)(str[i] - str.Length + i));
 
                 return result.ToString();
+            }
+            /// <summary>
+            /// Загружает из dbf и подготавливает данные для загрузки в sql таблицу.
+            /// </summary>
+            /// <returns>Данные для загрузки в sql таблицу.</returns>
+            public DataTable GetSqlData()
+            {
+                var SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
+
+                using (Stream strm = new FileStream(DbfPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var tab = NDbfReader.Table.Open(strm))
+                {
+                    var reader = tab.OpenReader(Encoding.GetEncoding(866));
+
+                    var dbfFields = tab.Columns.Select(x => new { Column = x, Name = Tools.DropNullCharacter(x.Name), x.Type }).ToList();
+                    var sqlFields = SqlData.Columns.Cast<DataColumn>().Select(x => new { Name = x.ColumnName, Type = x.DataType }).ToList();
+
+                    var commonFields = (from dbfField in dbfFields
+                                        join sqlField in sqlFields
+                                        on new { dbfField.Name, dbfField.Type } equals new { sqlField.Name, sqlField.Type }
+                                        select new { dbfField.Name, dbfField.Column, dbfField.Type })
+                                        .ToList();
+
+                    while (reader.Read())
+                    {
+                        var newRow = SqlData.NewRow();
+
+                        foreach (var commonField in commonFields)
+                        {
+                            newRow[commonField.Name] = reader.GetValue(commonField.Column);
+                            if (Period != null)
+                                newRow["Period"] = Period;
+                        }
+
+                        SqlData.Rows.Add(newRow);
+                    }
+
+                    if (Encoded)
+                        foreach (var column in commonFields.Select(x => x.Name))
+                            if (new string[] { "FAM", "IM", "OT" }.Contains(column.ToUpper()))
+                                foreach (var row in SqlData.AsEnumerable())
+                                    row[column] = Decode(row[column].ToString());
+
+                    return SqlData;
+                }
             }
             /// <summary>
             /// Записывает данные в sql таблицу.
@@ -184,56 +243,12 @@ namespace ReestrUslugOMS.Classes_and_structures
                 sql.AppendLine($@"DROP TABLE {tempSqlTableName}");
                 sql.AppendLine($@"select count(1) as result from {SqlTable} {periodFilter}");
                 sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
-                sql.AppendLine($@"select cast(0 as int) as result");
+                sql.AppendLine($@"select cast(-1 as int) as result");
                 sql.AppendLine("END CATCH");
 
                 var dt = Config.Instance.Runtime.db.Select(sql.ToString());
 
                 return (int)dt.Rows[0]["result"];
-            }
-            /// <summary>
-            /// Загружает из dbf и подготавливает данные для загрузки в sql таблицу.
-            /// </summary>
-            /// <returns>Данные для загрузки в sql таблицу.</returns>
-            public DataTable GetSqlData()
-            {
-                var SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
-
-                using (Stream strm = new FileStream(DbfPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var tab = NDbfReader.Table.Open(strm))
-                {
-                    var reader = tab.OpenReader(Encoding.GetEncoding(866));                    
-
-                    var dbfFields = tab.Columns.Select(x => new { Column = x, Name = x.Name.Substring(0, x.Name.IndexOf('\0')), x.Type }).ToList();
-                    var sqlFields = SqlData.Columns.Cast<DataColumn>().Select(x => new { Name = x.ColumnName, Type = x.DataType }).ToList();
-
-                    var commonFields = (from dbfField in dbfFields
-                                        join sqlField in sqlFields on new { dbfField.Name, dbfField.Type } equals new { sqlField.Name, sqlField.Type }
-                                        select new { dbfField.Name, dbfField.Column, dbfField.Type })
-                                        .ToList();
-
-                    while (reader.Read())
-                    {
-                        var newRow = SqlData.NewRow();
-
-                        foreach (var commonField in commonFields)
-                        {
-                            newRow[commonField.Name] = reader.GetValue(commonField.Column);
-                            if (Period != null)
-                                newRow["Period"] = Period;
-                        }
-
-                        SqlData.Rows.Add(newRow);
-                    }
-
-                    if (Encoded)
-                        foreach (var column in commonFields.Select(x => x.Name))
-                            if (new string[] { "FAM", "IM", "OT" }.Contains(column.ToUpper()))
-                                foreach (var row in SqlData.AsEnumerable())
-                                    row[column] = Decode(row[column].ToString());
-
-                    return SqlData;
-                }
             }
             /// <summary>
             /// Выполняет импорт данных из dbf файла в sql таблицу.
