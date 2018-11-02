@@ -85,7 +85,7 @@ namespace ReestrUslugOMS
             foreach (var entry in Config.Instance.Runtime.dbContext.ChangeTracker.Entries())
                 Config.Instance.Runtime.dbContext.Entry(entry.Entity).State = EntityState.Detached;
 
-            if (Config.Instance.Runtime.db.NeedDispose)
+            if (Config.Instance.Runtime.db?.NeedDispose==true)
                 Config.Instance.Runtime.db.Dispose();
 
             ucContainer.Controls.Clear();

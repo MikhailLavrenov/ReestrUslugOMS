@@ -115,6 +115,8 @@ namespace ReestrUslugOMS.Classes_and_structures
             RelaxPath = @"P:\";
             PathReportXlsx = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\report.xlsx";
 
+            SmoFolders = new string[] {"F7","F8","F9","FB", "FE" };
+
             SqlServerOnLocalMachine = false;
             if (SqlServer.IndexOf(Environment.MachineName, StringComparison.CurrentCultureIgnoreCase) > 0)
                 SqlServerOnLocalMachine = true;

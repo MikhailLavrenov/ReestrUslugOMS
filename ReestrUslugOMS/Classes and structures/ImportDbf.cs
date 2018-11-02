@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ReestrUslugOMS;
 
 
 namespace ReestrUslugOMS.Classes_and_structures
@@ -104,23 +102,10 @@ namespace ReestrUslugOMS.Classes_and_structures
         }
 
         /// <summary>
-        /// Класс, описывает импортируемую  из dbf файла в sql таблицу сущность, и выполняет импорт.
+        /// Класс описывает импортируемый объект и выполняет импорт данных.
         /// </summary>
         public class Item
         {
-            /// <summary>
-            /// Данные из dbf файла.
-            /// </summary>
-            private DataTable DbfData;
-            /// <summary>
-            /// Совпадающие по названию поля между dbf файлом и sql таблицей. Соотвествие типов не проверяется.
-            /// </summary>
-            private List<string> CommonFields;
-            /// <summary>
-            /// Данные для sql таблицы.
-            /// </summary>
-            private DataTable SqlData;
-
             /// <summary>
             /// Полный путь к dbf файлу.
             /// </summary>
@@ -145,12 +130,12 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <summary>
             /// Конструктор
             /// </summary>
-            /// <param name="sqlName">Название sql таблицы</param>
+            /// <param name="sqlTable">Название sql таблицы</param>
             /// <param name="dbfPath">Полный путь к dbf файлу</param>
             /// <param name="period">Период импорта. Если нет null.</param>
+            /// <param name="encoded">Необходимость расшифровать строки. True - да, False - нет. По умолчанию - нет.</param>
             public Item(enImportTableNames sqlTable, string dbfPath, DateTime? period = null, bool encoded = false)
             {
-                DbfData = new DataTable();
                 DbfPath = dbfPath;
                 DbfExist = File.Exists(DbfPath);
                 SqlTable = sqlTable;
@@ -158,17 +143,6 @@ namespace ReestrUslugOMS.Classes_and_structures
                 Encoded = encoded;
             }
 
-            /// <summary>
-            /// Преобразует неверно кодированную строку из dbf файла в нормальную
-            /// </summary>
-            /// <param name="str">Неверно кодированная строка</param>
-            /// <returns>Нормальную строка</returns>
-            private static string FixEncoding(string str)
-            {
-                byte[] strBytes = Encoding.GetEncoding(1252).GetBytes(str);
-                byte[] resultBytes = Encoding.Convert(Encoding.GetEncoding(866), Encoding.Default, strBytes);
-                return Encoding.Default.GetString(resultBytes);
-            }
             /// <summary>
             /// Расшифровывает строки, путем перестановки букв по примитивному алгоритму.
             /// </summary>
@@ -185,82 +159,11 @@ namespace ReestrUslugOMS.Classes_and_structures
                 return result.ToString();
             }
             /// <summary>
-            /// Заполняет свойство DbfData.
+            /// Записывает данные в sql таблицу.
             /// </summary>
-            private void LoadDbfData()
-            {
-                if (DbfExist == false)
-                    return;
-
-                //Если в заголовке указано наличие файла индекса, но его нет - исправляем заголовок, иначе возникнет ошибка драйвера
-                if (File.Exists(Path.ChangeExtension(DbfPath, ".cdx")) == false)
-                    using (var fs = new FileStream(DbfPath, FileMode.Open))
-                    {
-                        fs.Seek(28, SeekOrigin.Begin);
-                        if (fs.ReadByte() != 0)
-                        {
-                            fs.Seek(-1, SeekOrigin.Current);
-                            fs.WriteByte(0);
-                        }
-                    }
-
-                string connectionString = $"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={Path.GetDirectoryName(DbfPath)};Extended Properties = dBASE IV; User ID = Admin; Password =; ";
-                using (var connection = new OleDbConnection(connectionString))
-                {
-                    var req = $"select * from {Path.GetFileName(DbfPath)}";
-                    var command = new OleDbCommand(req, connection);
-                    connection.Open();
-
-                    var da = new OleDbDataAdapter(command);
-                    DbfData = new DataTable();
-                    da.Fill(DbfData);
-                }
-
-                var columns = DbfData.Columns.Cast<DataColumn>().Where(x => x.DataType == typeof(string)).Select(x => x.ColumnName).ToList();
-                foreach (var column in columns)
-                    foreach (var row in DbfData.AsEnumerable())
-                        row[column] = FixEncoding(row[column].ToString());
-
-                if (Encoded)
-                    foreach (var column in columns.Select(x => x.ToUpper()).Where(x => x == "FAM" || x == "IM" || x == "OT"))
-                        foreach (var row in DbfData.AsEnumerable())
-                            row[column] = Decode(row[column].ToString());
-            }
-            /// <summary>
-            /// Создает и заполняет CommonFields.
-            /// </summary>
-            private void SetCommonFields()
-            {
-                CommonFields = DbfData.Columns
-                    .Cast<DataColumn>()
-                    .Select(x => x.ColumnName)
-                    .Intersect(SqlData.Columns.Cast<DataColumn>().Select(x => x.ColumnName))
-                    .ToList();
-            }
-            /// <summary>
-            /// Заполняет свойство SqlData.
-            /// </summary>
-            private void SetSqlData()
-            {
-                DataRow dr;
-
-                foreach (var row in DbfData.AsEnumerable())
-                {
-                    dr = SqlData.NewRow();
-                    if (Period != null)
-                        dr["Period"] = Period;
-
-                    foreach (var field in CommonFields)
-                        dr[field] = row[field];
-
-                    SqlData.Rows.Add(dr);
-                }
-            }
-            /// <summary>
-            /// Записывает данные из свойства SqlData в sql таблицу.
-            /// </summary>
-            /// <returns>Количество импортированных строк.</returns>
-            private int SaveSqlData()
+            /// <param name="sqlData">Данные для загрузки в sql таблицу</param>
+            /// <returns>Количество загруженных строк.</returns>
+            private int SaveSqlData(DataTable sqlData)
             {
                 var sql = new StringBuilder();
                 string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTable}";
@@ -271,7 +174,7 @@ namespace ReestrUslugOMS.Classes_and_structures
                 sql.AppendLine($@"select top 0 * into {tempSqlTableName} from {SqlTable}");
                 Config.Instance.Runtime.db.Execute(sql.ToString());
 
-                Config.Instance.Runtime.db.BulkInsert(tempSqlTableName, SqlData);
+                Config.Instance.Runtime.db.BulkInsert(tempSqlTableName, sqlData);
 
                 sql = new StringBuilder();
                 sql.AppendLine("BEGIN TRY \nBEGIN TRAN");
@@ -289,19 +192,57 @@ namespace ReestrUslugOMS.Classes_and_structures
                 return (int)dt.Rows[0]["result"];
             }
             /// <summary>
+            /// Загружает из dbf и подготавливает данные для загрузки в sql таблицу.
+            /// </summary>
+            /// <returns>Данные для загрузки в sql таблицу.</returns>
+            public DataTable GetSqlData()
+            {
+                var SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
+
+                using (Stream strm = new FileStream(DbfPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var tab = NDbfReader.Table.Open(strm))
+                {
+                    var reader = tab.OpenReader(Encoding.GetEncoding(866));                    
+
+                    var dbfFields = tab.Columns.Select(x => new { Column = x, Name = x.Name.Substring(0, x.Name.IndexOf('\0')), x.Type }).ToList();
+                    var sqlFields = SqlData.Columns.Cast<DataColumn>().Select(x => new { Name = x.ColumnName, Type = x.DataType }).ToList();
+
+                    var commonFields = (from dbfField in dbfFields
+                                        join sqlField in sqlFields on new { dbfField.Name, dbfField.Type } equals new { sqlField.Name, sqlField.Type }
+                                        select new { dbfField.Name, dbfField.Column, dbfField.Type })
+                                        .ToList();
+
+                    while (reader.Read())
+                    {
+                        var newRow = SqlData.NewRow();
+
+                        foreach (var commonField in commonFields)
+                        {
+                            newRow[commonField.Name] = reader.GetValue(commonField.Column);
+                            if (Period != null)
+                                newRow["Period"] = Period;
+                        }
+
+                        SqlData.Rows.Add(newRow);
+                    }
+
+                    if (Encoded)
+                        foreach (var column in commonFields.Select(x => x.Name))
+                            if (new string[] { "FAM", "IM", "OT" }.Contains(column.ToUpper()))
+                                foreach (var row in SqlData.AsEnumerable())
+                                    row[column] = Decode(row[column].ToString());
+
+                    return SqlData;
+                }
+            }
+            /// <summary>
             /// Выполняет импорт данных из dbf файла в sql таблицу.
             /// </summary>
-            /// <returns>Количество импортированных строу.</returns>
+            /// <returns>Количество импортированных строк.</returns>
             public int Import()
             {
-                LoadDbfData();
-                SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
-                SetCommonFields();
-                SetSqlData();
-                DbfData = null;
-                CommonFields = null;
-                var result = SaveSqlData();
-                SqlData = null;
+                var data = GetSqlData();
+                var result = SaveSqlData(data);
 
                 return result;
             }
