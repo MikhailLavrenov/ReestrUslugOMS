@@ -53,11 +53,11 @@
             this.metroLabel12 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
             this.metroPanel6 = new MetroFramework.Controls.MetroPanel();
+            this.ucPeriodSelector2 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
+            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.metroLabel7 = new MetroFramework.Controls.MetroLabel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.metroPanel9 = new MetroFramework.Controls.MetroPanel();
-            this.ucPeriodSelector1 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
-            this.ucPeriodSelector2 = new ReestrUslugOMS.UserControls.ucPeriodSelector();
             this.metroPanel2.SuspendLayout();
             this.metroPanel3.SuspendLayout();
             this.metroPanel5.SuspendLayout();
@@ -412,6 +412,26 @@
             this.metroPanel6.VerticalScrollbarHighlightOnWheel = false;
             this.metroPanel6.VerticalScrollbarSize = 10;
             // 
+            // ucPeriodSelector2
+            // 
+            this.ucPeriodSelector2.Date = new System.DateTime(((long)(0)));
+            this.ucPeriodSelector2.DateFormat = "MM.yyyy";
+            this.ucPeriodSelector2.Location = new System.Drawing.Point(0, 62);
+            this.ucPeriodSelector2.Name = "ucPeriodSelector2";
+            this.ucPeriodSelector2.Size = new System.Drawing.Size(122, 23);
+            this.ucPeriodSelector2.TabIndex = 12;
+            this.ucPeriodSelector2.UseSelectable = true;
+            // 
+            // ucPeriodSelector1
+            // 
+            this.ucPeriodSelector1.Date = new System.DateTime(((long)(0)));
+            this.ucPeriodSelector1.DateFormat = "MM.yyyy";
+            this.ucPeriodSelector1.Location = new System.Drawing.Point(0, 31);
+            this.ucPeriodSelector1.Name = "ucPeriodSelector1";
+            this.ucPeriodSelector1.Size = new System.Drawing.Size(122, 23);
+            this.ucPeriodSelector1.TabIndex = 11;
+            this.ucPeriodSelector1.UseSelectable = true;
+            // 
             // metroLabel7
             // 
             this.metroLabel7.AutoSize = true;
@@ -454,26 +474,6 @@
             this.metroPanel9.VerticalScrollbarHighlightOnWheel = false;
             this.metroPanel9.VerticalScrollbarSize = 10;
             this.metroPanel9.Visible = false;
-            // 
-            // ucPeriodSelector1
-            // 
-            this.ucPeriodSelector1.Date = new System.DateTime(2018, 10, 1, 0, 0, 0, 0);
-            this.ucPeriodSelector1.DateFormat = "MM.yyyy";
-            this.ucPeriodSelector1.Location = new System.Drawing.Point(0, 31);
-            this.ucPeriodSelector1.Name = "ucPeriodSelector1";
-            this.ucPeriodSelector1.Size = new System.Drawing.Size(122, 23);
-            this.ucPeriodSelector1.TabIndex = 11;
-            this.ucPeriodSelector1.UseSelectable = true;
-            // 
-            // ucPeriodSelector2
-            // 
-            this.ucPeriodSelector2.Date = new System.DateTime(2018, 10, 1, 0, 0, 0, 0);
-            this.ucPeriodSelector2.DateFormat = "MM.yyyy";
-            this.ucPeriodSelector2.Location = new System.Drawing.Point(0, 62);
-            this.ucPeriodSelector2.Name = "ucPeriodSelector2";
-            this.ucPeriodSelector2.Size = new System.Drawing.Size(122, 23);
-            this.ucPeriodSelector2.TabIndex = 12;
-            this.ucPeriodSelector2.UseSelectable = true;
             // 
             // ucReport
             // 

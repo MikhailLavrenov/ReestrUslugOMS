@@ -15,26 +15,16 @@ namespace ReestrUslugOMS.UserControls
             set
             {
                 date = value;
-                Value.Text = value.ToString(DateFormat);
+                Value.Text = date.ToString(DateFormat);
             }
 
         } 
         public string DateFormat { get; set; } = "MM.yyyy";
 
         public ucPeriodSelector()
-        {
+        {            
             InitializeComponent();
-
             Date = DateTime.Today.FirstDayDate();
-        }
-
-        public ucPeriodSelector(DateTime date)
-        {
-            InitializeComponent();
-
-            Date = date.FirstDayDate();
-            Value.Text = Date.ToString(DateFormat);
-            
         }
 
         private void metroButton3_Click(object sender, EventArgs e)

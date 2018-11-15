@@ -26,6 +26,8 @@ namespace ReestrUslugOMS.UserControls
             InitializeComponent();
 
             this.Dock = DockStyle.Fill;
+            ucPeriodSelector1.Date = DateTime.Today.FirstDayDate();
+            ucPeriodSelector2.Date = DateTime.Today.FirstDayDate();
 
             ReportMode = reportMode;
             report = new Report(ReportMode);
@@ -88,6 +90,8 @@ namespace ReestrUslugOMS.UserControls
 
             metroTrackBar1_MouseCaptureChanged(new object(), new EventArgs());
             metroTrackBar2_MouseCaptureChanged(new object(), new EventArgs());
+
+            var d=ucPeriodSelector1.Date;
         }
 
         private void metroButton1_Click(object sender, EventArgs e)
