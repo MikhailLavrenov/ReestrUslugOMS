@@ -36,78 +36,107 @@ namespace ReestrUslugOMS.Classes_and_structures
             {
                 if (item == enImportItems.УслугиПациентыДоРазложения)
                 {
-                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}PAT.DBF", Period));
-                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}PATU.DBF", Period));
+                    ImportList.Add(new Item($"{periodPath}PAT.DBF", enImportTableNames.Patient, period: Period));
+                    ImportList.Add(new Item($"{periodPath}PATU.DBF", enImportTableNames.Service, period: Period));
                 }
                 else if (item == enImportItems.УслугиПациентыОшибкиПослеРазложения)
                 {
                     foreach (var smoFolder in Config.Instance.SmoFolders)
                     {
-                        ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
-                        ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
-                        ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", Period, false, smoFolder));
+                        ImportList.Add(new Item($"{periodPath}{smoFolder}\\P{Config.Instance.LpuCode}.DBF", enImportTableNames.Patient,  Period, smoFolder));
+                        ImportList.Add(new Item($"{periodPath}{smoFolder}\\S{Config.Instance.LpuCode}.DBF", enImportTableNames.Service,  Period, smoFolder));
+                        ImportList.Add(new Item($"{periodPath}{smoFolder}\\E{Config.Instance.LpuCode}.DBF", enImportTableNames.Error,  Period, smoFolder));
                     }
-                    ImportList.Add(new Item(enImportTableNames.Patient, $"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", Period,false,"IN"));
-                    ImportList.Add(new Item(enImportTableNames.Service, $"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", Period, false, "IN"));
-                    ImportList.Add(new Item(enImportTableNames.Error, $"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", Period, false, "IN"));
+                    ImportList.Add(new Item($"{periodPath}{Config.Instance.InoFolder}\\I{Config.Instance.LpuCode}.DBF", enImportTableNames.Patient,  Period, "IN"));
+                    ImportList.Add(new Item($"{periodPath}{Config.Instance.InoFolder}\\C{Config.Instance.LpuCode}.DBF", enImportTableNames.Service,  Period, "IN"));
+                    ImportList.Add(new Item($"{periodPath}{Config.Instance.InoFolder}\\M{Config.Instance.LpuCode}.DBF", enImportTableNames.Error,  Period, "IN"));
                 }
                 else if (item == enImportItems.МедПерсонал)
-                    ImportList.Add(new Item(enImportTableNames.Doctor, $"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF"));
+                    ImportList.Add(new Item($"{Config.Instance.RelaxPath}BASE\\DESCR\\MEDPERS.DBF", enImportTableNames.Doctor));
 
                 else if (item == enImportItems.КлассификаторУслуг)
-                    ImportList.Add(new Item(enImportTableNames.ServiceList, $"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF"));
+                    ImportList.Add(new Item($"{Config.Instance.RelaxPath}BASE\\COMMON\\KMU.DBF", enImportTableNames.ServiceList));
 
                 else if (item == enImportItems.СРЗ)
-                    ImportList.Add(new Item(enImportTableNames.PreventiveExam, $"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF", encoded: true));
+                    ImportList.Add(new Item($"{Config.Instance.RelaxPath}SRZ\\SRZ.DBF", enImportTableNames.PreventiveExam, encoded: true));
             }
         }
 
-        /// <summary>
-        /// Выполняет импорт каждой сущности из dbf файла в sql таблицу. Записывает ход выполнения в sql таблицу.
-        /// </summary>
         public void Import()
         {
-            dbtImportHistory history;
-            int insertedCount;
-
-            foreach (var item in ImportList)
+            foreach (var group in ImportList.GroupBy(x => x.SqlTable))
             {
+                var tempTableName = CreateTempTable(group.Key);
 
-                history = new dbtImportHistory
+                foreach (var item in group)
+                    item.ImportToTempTable(tempTableName);
+                
+                var insertCount = ImportToMainTable(group.Key, tempTableName, group.First().Period);
+                var history = new dbtImportHistory()
                 {
-                    Table = item.SqlTable,
-                    Organisation = item.Organisation,
+                    Table = group.Key,
+                    Period = group.First().Period,
                     DateTime = DateTime.Now,
-                    Period = item.Period,
-                    Status = item.DbfExist ? enImportStatus.Begin : enImportStatus.FileNotFound,
-                    Count = 0,
+                    Count = insertCount >= 0 ? insertCount : 0,
                 };
+
+                if (insertCount > 0)
+                    history.Status = enImportStatus.OK;
+                else if (insertCount == -1)
+                    history.Status = enImportStatus.Error;
+                else if (insertCount == 0)
+                    history.Status = enImportStatus.Warning;
+
+                if (group.Count() > 1)
+                {
+                    var details = new StringBuilder();
+
+                    foreach (var item in group)
+                    {
+                        var detail = item.DbfExist ? item.ImportCount.ToString() : "Нет файла";
+                        details.Append($"{item.Organisation}: {detail}; ");
+                    }
+                    history.Details = details.ToString();
+                }
+
                 Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
                 Config.Instance.Runtime.dbContext.SaveChanges();
-
-                if (item.DbfExist == false)
-                    continue;
-
-                insertedCount = -1;
-                //try
-                {
-                    insertedCount = item.Import();
-                }
-               // catch (Exception) { }
-               // finally
-                {
-                    history.DateTime = DateTime.Now;
-                    if (insertedCount == -1)
-                        history.Status = enImportStatus.Failed;
-                    else if (insertedCount == 0)
-                        history.Status = enImportStatus.Warning;
-                    else
-                        history.Status = enImportStatus.End;
-
-                    history.Count = insertedCount >=0 ? insertedCount : 0;
-                    Config.Instance.Runtime.dbContext.SaveChanges();
-                }
             }
+        }
+        /// <summary>
+        /// Создает новую временную таблицу для импорта
+        /// </summary>
+        private string CreateTempTable(enImportTableNames tableName)
+        {
+            var tempTableName = $"#{tableName}{Guid.NewGuid().ToString("N")}";
+
+            var sql = new StringBuilder();
+            sql.AppendLine($@"IF OBJECT_ID('tempdb..{tempTableName}') IS NOT NULL DROP TABLE {tempTableName}");
+            sql.AppendLine($@"select top 0 * into {tempTableName} from {tableName}");
+            Config.Instance.Runtime.db.Execute(sql.ToString());
+
+            return tempTableName;
+        }
+        /// <summary>
+        ///  Перемещает данные на sql сервере из временной таблицы в основную.
+        /// </summary>
+        public int ImportToMainTable(enImportTableNames mainTable, string tempTable, DateTime? period)
+        {
+            var sql = new StringBuilder();
+            var periodFilter = period==null ? "" : $" where period='{period?.Date}' ";
+
+            sql.AppendLine("BEGIN TRY \nBEGIN TRAN");
+            sql.AppendLine($@"ALTER TABLE {tempTable} DROP COLUMN {mainTable}Id");
+            sql.AppendLine($@"delete from {mainTable} {periodFilter}");
+            sql.AppendLine($@"exec('insert into  {mainTable} select * from {tempTable}')");            
+            sql.AppendLine($@"select count(1) as result from {tempTable}");
+            sql.AppendLine($@"DROP TABLE {tempTable}");
+            sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
+            sql.AppendLine($@"select cast(-1 as int) as result");
+            sql.AppendLine("END CATCH");
+
+            var dt = Config.Instance.Runtime.db.Select(sql.ToString());
+            return (int)dt.Rows[0]["result"];
         }
 
         /// <summary>
@@ -130,7 +159,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <summary>
             /// Период, за который импортируются данные. Если нет - null.
             /// </summary>
-            public DateTime? Period { get; private set; }
+            public DateTime? Period { get; set; }
             /// <summary>
             /// Содержит зашифрованные строки - true, иначе - false.
             /// </summary>
@@ -139,6 +168,11 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// Название страховой организации
             /// </summary>
             public string Organisation { get; set; }
+            /// <summary>
+            /// Количество импортированных строк
+            /// </summary>
+            public dbtImportHistory Result { get; private set; }
+            public int ImportCount { get; private set; }
 
             /// <summary>
             /// Конструктор
@@ -147,7 +181,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// <param name="dbfPath">Полный путь к dbf файлу</param>
             /// <param name="period">Период импорта. Если нет null.</param>
             /// <param name="encoded">Необходимость расшифровать строки. True - да, False - нет. По умолчанию - нет.</param>
-            public Item(enImportTableNames sqlTable, string dbfPath, DateTime? period = null, bool encoded = false, string organisation = "")
+            public Item(string dbfPath, enImportTableNames sqlTable, DateTime? period = null, string organisation = "", bool encoded = false)
             {
                 DbfPath = dbfPath;
                 DbfExist = File.Exists(DbfPath);
@@ -176,7 +210,7 @@ namespace ReestrUslugOMS.Classes_and_structures
             /// Загружает из dbf и подготавливает данные для загрузки в sql таблицу.
             /// </summary>
             /// <returns>Данные для загрузки в sql таблицу.</returns>
-            public DataTable GetSqlData()
+            private DataTable GetSqlData()
             {
                 var SqlData = Config.Instance.Runtime.db.Select($"select top 0 * from {SqlTable}");
 
@@ -218,50 +252,22 @@ namespace ReestrUslugOMS.Classes_and_structures
                 }
             }
             /// <summary>
-            /// Записывает данные в sql таблицу.
+            /// Импортирует данные на sql сервере во временную таблицу.
             /// </summary>
-            /// <param name="sqlData">Данные для загрузки в sql таблицу</param>
-            /// <returns>Количество загруженных строк.</returns>
-            private int SaveSqlData(DataTable sqlData)
+            /// <param name="sqlData">Данные для загрузки в sql таблицу.</param>
+            public void ImportToTempTable(string tempSqlTable)
             {
-                var sql = new StringBuilder();
-                string tempSqlTableName = $"#temp{new Random().Next(10000000, 99999999)}{SqlTable}";
+                if (DbfExist)
+                {
+                    var periodFilter = Period == null ? "" : $" where period='{Period?.Date}' ";
+                    var data = GetSqlData();
 
-                string periodFilter = Period == null ? "" : $" where period='{Period?.Date}' ";
+                    Config.Instance.Runtime.db.BulkInsert(tempSqlTable, data);
 
-                sql.AppendLine($@"IF OBJECT_ID('tempdb..{tempSqlTableName}') IS NOT NULL DROP TABLE {tempSqlTableName}");
-                sql.AppendLine($@"select top 0 * into {tempSqlTableName} from {SqlTable}");
-                Config.Instance.Runtime.db.Execute(sql.ToString());
-
-                Config.Instance.Runtime.db.BulkInsert(tempSqlTableName, sqlData);
-
-                sql = new StringBuilder();
-                sql.AppendLine("BEGIN TRY \nBEGIN TRAN");
-                sql.AppendLine($@"ALTER TABLE {tempSqlTableName} DROP COLUMN {SqlTable}Id");
-                sql.AppendLine($@"delete from {SqlTable} {periodFilter}");
-                sql.AppendLine($@"exec('insert into  {SqlTable} select * from {tempSqlTableName}')");
-                sql.AppendLine($@"DROP TABLE {tempSqlTableName}");
-                sql.AppendLine($@"select count(1) as result from {SqlTable} {periodFilter}");
-                sql.AppendLine("COMMIT TRAN \nEND TRY \nBEGIN CATCH \nROLLBACK TRAN");
-                sql.AppendLine($@"select cast(-1 as int) as result");
-                sql.AppendLine("END CATCH");
-
-                var dt = Config.Instance.Runtime.db.Select(sql.ToString());
-
-                return (int)dt.Rows[0]["result"];
-            }
-            /// <summary>
-            /// Выполняет импорт данных из dbf файла в sql таблицу.
-            /// </summary>
-            /// <returns>Количество импортированных строк.</returns>
-            public int Import()
-            {
-                var data = GetSqlData();
-                var result = SaveSqlData(data);
-
-                return result;
+                    ImportCount = data.Rows.Count;
+                }
             }
         }
-
     }
 }
+

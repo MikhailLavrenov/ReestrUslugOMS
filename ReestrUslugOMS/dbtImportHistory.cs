@@ -16,10 +16,10 @@ namespace ReestrUslugOMS
     {
         public int ImportHistoryId { get; set; }
         public ReestrUslugOMS.enImportTableNames Table { get; set; }
-        public string Organisation { get; set; }
         public Nullable<System.DateTime> Period { get; set; }
         public int Count { get; set; }
         public ReestrUslugOMS.enImportStatus Status { get; set; }
         public System.DateTime DateTime { get; set; }
+        public string Details { get; set; }
     }
 }

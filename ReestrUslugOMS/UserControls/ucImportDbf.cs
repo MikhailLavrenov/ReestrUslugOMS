@@ -58,10 +58,10 @@ namespace ReestrUslugOMS.UserControls
                 {
                     x.ImportHistoryId,
                     Table=Tools.GetEnumDescription(x.Table),
-                    x.Organisation,
                     Period = x.Period?.ToString("MMMM yyyy"),
                     x.Count,
                     Status = Tools.GetEnumDescription(x.Status),
+                    x.Details,
                     x.DateTime,
                 }) .OrderByDescending(x=>x.DateTime)  
                 .Take(historyLimit)

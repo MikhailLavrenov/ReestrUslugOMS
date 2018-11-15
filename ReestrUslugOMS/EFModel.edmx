@@ -25,10 +25,10 @@
           </Key>
           <Property Name="ImportHistoryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Table" Type="tinyint" Nullable="false" />
-          <Property Name="Organisation" Type="varchar" MaxLength="20" />
           <Property Name="Period" Type="date" />
           <Property Name="Count" Type="int" Nullable="false" />
           <Property Name="Status" Type="tinyint" Nullable="false" />
+          <Property Name="Details" Type="varchar" MaxLength="1000" />
           <Property Name="DateTime" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="Node">
@@ -364,18 +364,18 @@
           <Property Type="Boolean" Name="UsedInCol" Nullable="true" />
         </ComplexType>
         <EnumType Name="enImportStatus" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enImportStatus" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
-        <EnumType Name="enImportTableNames" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS:enImportTableNames" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EnumType Name="enImportTableNames" UnderlyingType="Byte" a:ExternalTypeName="ReestrUslugOMS.enImportTableNames" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
         <EntityType Name="dbtImportHistory">
           <Key>
             <PropertyRef Name="ImportHistoryId" />
           </Key>
           <Property Name="ImportHistoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Table" Type="REESTR_FOMSModel.enImportTableNames" Nullable="false" />
-          <Property Name="Organisation" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="Period" Type="DateTime" Precision="0" />
           <Property Name="Count" Type="Int32" Nullable="false" />
           <Property Name="Status" Type="REESTR_FOMSModel.enImportStatus" Nullable="false" />
           <Property Name="DateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Details" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -461,11 +461,11 @@
           <EntitySetMapping Name="dbtImportHistory">
             <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtImportHistory">
               <MappingFragment StoreEntitySet="ImportHistory">
+                <ScalarProperty Name="Details" ColumnName="Details" />
                 <ScalarProperty Name="DateTime" ColumnName="DateTime" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Count" ColumnName="Count" />
                 <ScalarProperty Name="Period" ColumnName="Period" />
-                <ScalarProperty Name="Organisation" ColumnName="Organisation" />
                 <ScalarProperty Name="Table" ColumnName="Table" />
                 <ScalarProperty Name="ImportHistoryId" ColumnName="ImportHistoryId" />
               </MappingFragment>

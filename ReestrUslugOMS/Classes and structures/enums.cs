@@ -107,12 +107,10 @@ namespace ReestrUslugOMS
 
     public enum enImportStatus:byte
     {
-        [Description("")]                               none = 0,
-        [Description("Запущено")]                       Begin = 1,
-        [Description("Завершено Успешно")]              End = 2,
-        [Description("Ошибка")]          Failed = 3,
-        [Description("Нет файла")]              FileNotFound = 4,
-        [Description("Завершено Предупреждение")]    Warning = 5
+        [Description("")]                     none = 0,
+        [Description("Успешно")]              OK = 1,
+        [Description("Предупреждение")]       Warning = 2,
+        [Description("Ошибка")]               Error = 3,
     }
 
     public enum enImportTableNames : byte
@@ -121,7 +119,7 @@ namespace ReestrUslugOMS
         [Description("Пациенты")]                   Patient = 1,
         [Description("Услуги")]                     Service = 2,
         [Description("Ошибки")]                     Error = 3,
-        [Description("Врачи")]                      Doctor = 4,
+        [Description("Мед. персонал")]              Doctor = 4,
         [Description("Классификатор услуг")]        ServiceList = 5,
         [Description("Периодические осмотры")]      PreventiveExam = 6
     }
