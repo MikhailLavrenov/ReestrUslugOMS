@@ -85,7 +85,7 @@ namespace ReestrUslugOMS
         Отчет = 3
     }
     /// <summary>
-    /// Перечисление видов суммирования
+    /// Перечисление видов суммирования.
     /// </summary>
     public enum enDirection : byte
     {
@@ -94,6 +94,9 @@ namespace ReestrUslugOMS
         Столбцы=2
     }
 
+    /// <summary>
+    /// Перечисление наборов данных для импорта.
+    /// </summary>
     public enum enImportItems
     {
         [Description("")]                                                   none = 0,
@@ -105,6 +108,9 @@ namespace ReestrUslugOMS
 
     }
 
+    /// <summary>
+    /// Перечисление результатов выполнения импорта.
+    /// </summary>
     public enum enImportStatus:byte
     {
         [Description("")]                     none = 0,
@@ -113,6 +119,9 @@ namespace ReestrUslugOMS
         [Description("Ошибка")]               Error = 3,
     }
 
+    /// <summary>
+    /// Перечисление таблиц для импорта. 
+    /// </summary>
     public enum enImportTableNames : byte
     {
         [Description("")]                           none = 0,

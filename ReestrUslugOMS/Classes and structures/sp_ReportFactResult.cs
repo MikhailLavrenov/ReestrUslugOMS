@@ -5,10 +5,8 @@ using System.Text;
 
 namespace ReestrUslugOMS
 {
-    //Доделать 
-
     /// <summary>
-    /// Класс возвращаемого значение хранимой процедуры sp_ReportFact - содержит набор оказанных услуг по каждому периоду.
+    /// Класс возвращаемого значения хранимой процедуры sp_ReportFact - содержит набор оказанных услуг по каждому периоду.
     /// </summary>
     public partial class  sp_ReportFactResult
     {

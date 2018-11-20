@@ -134,16 +134,11 @@
           </ReferentialConstraint>
         </Association>
         <Function Name="sp_ReportFact" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="month1" Type="int" Mode="In" />
-          <Parameter Name="god1" Type="int" Mode="In" />
-          <Parameter Name="month2" Type="int" Mode="In" />
-          <Parameter Name="god2" Type="int" Mode="In" />
+          <Parameter Name="period1" Type="date" Mode="In" />
+          <Parameter Name="period2" Type="date" Mode="In" />
           <Parameter Name="mcod" Type="varchar" Mode="In" />
           <Parameter Name="errId" Type="int" Mode="In" />
           <Parameter Name="inoId" Type="int" Mode="In" />
-        </Function>
-        <Function Name="sp_TableFields" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="tablename" Type="varchar" Mode="In" />
         </Function>
         <EntityContainer Name="Хранилище REESTR_FOMSModelContainer">
           <EntitySet Name="Formula" EntityType="Self.Formula" Schema="dbo" store:Type="Tables" />
@@ -202,16 +197,11 @@
             <End Role="Plan" EntitySet="dbtPlan" />
           </AssociationSet>
           <FunctionImport Name="sp_ReportFact" ReturnType="Collection(REESTR_FOMSModel.sp_ReportFactResult)">
-            <Parameter Name="month1" Mode="In" Type="Int32" />
-            <Parameter Name="god1" Mode="In" Type="Int32" />
-            <Parameter Name="month2" Mode="In" Type="Int32" />
-            <Parameter Name="god2" Mode="In" Type="Int32" />
+            <Parameter Name="period1" Mode="In" Type="DateTime" />
+            <Parameter Name="period2" Mode="In" Type="DateTime" />
             <Parameter Name="mcod" Mode="In" Type="String" />
             <Parameter Name="errId" Mode="In" Type="Int32" />
             <Parameter Name="inoId" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <FunctionImport Name="sp_TableFields" ReturnType="Collection(String)">
-          <Parameter Name="tablename" Mode="In" Type="String" />
           </FunctionImport>
           <EntitySet Name="dbtImportHistory" EntityType="REESTR_FOMSModel.dbtImportHistory" />
         </EntityContainer>
@@ -457,7 +447,6 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="sp_TableFields" FunctionName="Хранилище REESTR_FOMSModel.sp_TableFields" />
           <EntitySetMapping Name="dbtImportHistory">
             <EntityTypeMapping TypeName="REESTR_FOMSModel.dbtImportHistory">
               <MappingFragment StoreEntitySet="ImportHistory">

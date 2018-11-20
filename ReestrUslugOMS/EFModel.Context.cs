@@ -33,23 +33,15 @@ namespace ReestrUslugOMS
         public virtual DbSet<dbtPlan> dbtPlan { get; set; }
         public virtual DbSet<dbtImportHistory> dbtImportHistory { get; set; }
     
-        public virtual ObjectResult<sp_ReportFactResult> sp_ReportFact(Nullable<int> month1, Nullable<int> god1, Nullable<int> month2, Nullable<int> god2, string mcod, Nullable<int> errId, Nullable<int> inoId)
+        public virtual ObjectResult<sp_ReportFactResult> sp_ReportFact(Nullable<System.DateTime> period1, Nullable<System.DateTime> period2, string mcod, Nullable<int> errId, Nullable<int> inoId)
         {
-            var month1Parameter = month1.HasValue ?
-                new ObjectParameter("month1", month1) :
-                new ObjectParameter("month1", typeof(int));
+            var period1Parameter = period1.HasValue ?
+                new ObjectParameter("period1", period1) :
+                new ObjectParameter("period1", typeof(System.DateTime));
     
-            var god1Parameter = god1.HasValue ?
-                new ObjectParameter("god1", god1) :
-                new ObjectParameter("god1", typeof(int));
-    
-            var month2Parameter = month2.HasValue ?
-                new ObjectParameter("month2", month2) :
-                new ObjectParameter("month2", typeof(int));
-    
-            var god2Parameter = god2.HasValue ?
-                new ObjectParameter("god2", god2) :
-                new ObjectParameter("god2", typeof(int));
+            var period2Parameter = period2.HasValue ?
+                new ObjectParameter("period2", period2) :
+                new ObjectParameter("period2", typeof(System.DateTime));
     
             var mcodParameter = mcod != null ?
                 new ObjectParameter("mcod", mcod) :
@@ -63,16 +55,7 @@ namespace ReestrUslugOMS
                 new ObjectParameter("inoId", inoId) :
                 new ObjectParameter("inoId", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_ReportFactResult>("sp_ReportFact", month1Parameter, god1Parameter, month2Parameter, god2Parameter, mcodParameter, errIdParameter, inoIdParameter);
-        }
-    
-        public virtual ObjectResult<string> sp_TableFields(string tablename)
-        {
-            var tablenameParameter = tablename != null ?
-                new ObjectParameter("tablename", tablename) :
-                new ObjectParameter("tablename", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("sp_TableFields", tablenameParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_ReportFactResult>("sp_ReportFact", period1Parameter, period2Parameter, mcodParameter, errIdParameter, inoIdParameter);
         }
     }
 }

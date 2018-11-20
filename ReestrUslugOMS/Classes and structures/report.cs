@@ -95,7 +95,7 @@ namespace ReestrUslugOMS
             PercentRound = 1;
             DataSourcesDict = new Dictionary<enDataSource, object>();
             LostDocCodes = new List<string>();
-            ReportType = reportType;           
+            ReportType = reportType;
 
             SetRowsCols();
             SetPlanSet();
@@ -103,7 +103,7 @@ namespace ReestrUslugOMS
             MaxRowLevel = Rows.Max(x => x.Level);
             MaxColLevel = Cols.Max(x => x.Level);
 
-            CheckSumRow=Rows.Where(x => x.Name == Config.Instance.ReportCheckSumNodeName).FirstOrDefault();
+            CheckSumRow = Rows.Where(x => x.Name == Config.Instance.ReportCheckSumNodeName).FirstOrDefault();
             CheckSumFailed = false;
         }
         /// <summary>
@@ -194,8 +194,8 @@ namespace ReestrUslugOMS
             DataSourcesDict.Clear();
 
             if (ReportType == enReportMode.Отчет)
-            {
-                var val1 = Config.Instance.Runtime.dbContext.sp_ReportFact(BeginPeriod.Month, BeginPeriod.Year, EndPeriod.Month, EndPeriod.Year, Config.Instance.LpuCode, (int)Errors, (int)InsuranceTerritory).ToList();
+            { 
+                var val1 = Config.Instance.Runtime.dbContext.sp_ReportFact(BeginPeriod, EndPeriod, "2101008",(int)Errors,(int)InsuranceTerritory).ToList();
                 DataSourcesDict.Add(enDataSource.РеестрыСчетов, val1);
 
                 var val2 = Config.Instance.Runtime.dbContext.dbtPlan.Where(x => x.Type == enReportMode.ПланВрача && x.Period >= BeginPeriod && x.Period <= EndPeriod).ToList();
@@ -227,9 +227,9 @@ namespace ReestrUslugOMS
             SetDataSources();
 
             //расчитываем значение для каждого месяца в отдельный массив
-            var date = BeginPeriod.AddDays(14);            
+            var date = BeginPeriod.AddDays(14);
             var list = new List<double[,]>();
-            
+
             while (date.BetweenInMonths(BeginPeriod, EndPeriod))
             {
                 list.Add(SetResultValues(date));
@@ -255,18 +255,18 @@ namespace ReestrUslugOMS
             foreach (var row in Rows)
                 foreach (var col in Cols)
                     if (row.DataSource == enDataSource.Отчет)
-                            if (row.Formula[0].ResultType == enResultType.ПроцентыДелимое || row.Formula[0].ResultType == enResultType.ПроцентыДелитель)
-                                ResultValues[row.Index, col.Index] = PercentRows(row, col);
+                        if (row.Formula[0].ResultType == enResultType.ПроцентыДелимое || row.Formula[0].ResultType == enResultType.ПроцентыДелитель)
+                            ResultValues[row.Index, col.Index] = PercentRows(row, col);
 
             //Проверяем отклонение от контрольной суммы
             CheckSumFailed = false;
-            if (CheckSumRow!=null)
-            for (int j = 0; j < Cols.Length; j++)
-                if (Math.Abs( ResultValues[CheckSumRow.Index, j]) > 1)
-                {
-                    CheckSumFailed = true;
-                    break;
-                }
+            if (CheckSumRow != null)
+                for (int j = 0; j < Cols.Length; j++)
+                    if (Math.Abs(ResultValues[CheckSumRow.Index, j]) > 1)
+                    {
+                        CheckSumFailed = true;
+                        break;
+                    }
             if (ReportType == enReportMode.Отчет)
                 LostDocCodes = ((List<sp_ReportFactResult>)DataSourcesDict[enDataSource.РеестрыСчетов]).Where(x => x.UsedInCol == true && x.UsedInRow == false).Select(x => x.CodDoc).Distinct().ToList();
         }
@@ -282,29 +282,29 @@ namespace ReestrUslugOMS
             //подставляем известные данные
             foreach (var row in Rows)
                 foreach (var col in Cols)
-                    {
-                        if (row.DataSource == enDataSource.РеестрыСчетов && col.DataSource == enDataSource.РеестрыСчетов)
-                            result[row.Index, col.Index] = GetFact(row, col, date);
-                        else if (row.DataSource == enDataSource.ПланВрача || row.DataSource == enDataSource.ПланОтделения)
-                            if (col.DataSource != 0)
-                                result[row.Index, col.Index] = GetPlan(row, col, date);
-                    }
+                {
+                    if (row.DataSource == enDataSource.РеестрыСчетов && col.DataSource == enDataSource.РеестрыСчетов)
+                        result[row.Index, col.Index] = GetFact(row, col, date);
+                    else if (row.DataSource == enDataSource.ПланВрача || row.DataSource == enDataSource.ПланОтделения)
+                        if (col.DataSource != 0)
+                            result[row.Index, col.Index] = GetPlan(row, col, date);
+                }
 
             //суммируем строки
             for (int lev = MaxRowLevel - 1; lev > 0; lev--)
                 foreach (var row in Rows)
                     foreach (var col in Cols)
                         if (lev == row.Level && result[row.Index, col.Index] == 0 && row.DataSource == enDataSource.Отчет && col.DataSource != 0)
-                                if (row.Formula[0].ResultType == enResultType.ВложенныеЭлемены || row.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
-                                    result[row.Index, col.Index] = SubSum(row, Rows, col, enDirection.Строки, date, result);
+                            if (row.Formula[0].ResultType == enResultType.ВложенныеЭлемены || row.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
+                                result[row.Index, col.Index] = SubSum(row, Rows, col, enDirection.Строки, date, result);
 
             //суммируем столбцы
             for (int lev = MaxColLevel - 1; lev > 0; lev--)
                 foreach (var col in Cols)
-                    foreach (var row in Rows)                    
+                    foreach (var row in Rows)
                         if (lev == col.Level && result[row.Index, col.Index] == 0 && col.DataSource == enDataSource.Отчет && row.DataSource != 0)
-                                if (col.Formula[0].ResultType == enResultType.ВложенныеЭлемены || col.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
-                                    result[row.Index, col.Index] = SubSum(col, Cols, row, enDirection.Столбцы, date, result);
+                            if (col.Formula[0].ResultType == enResultType.ВложенныеЭлемены || col.Formula[0].ResultType == enResultType.ЭлементыТекущейГруппы)
+                                result[row.Index, col.Index] = SubSum(col, Cols, row, enDirection.Столбцы, date, result);
 
             return result;
         }
@@ -348,12 +348,12 @@ namespace ReestrUslugOMS
                         if (dataItem.GetValue(fCol.DataType) == fCol.DataValue || (fCol.DataType == enDataType.КодВрача && fCol.DataValue == "*"))
                         {
                             if (fCol.DataValue != "*")
-                            dataItem.UsedInCol = true;
+                                dataItem.UsedInCol = true;
 
                             if (dataItem.GetValue(fRow.DataType) == fRow.DataValue || (fRow.DataType == enDataType.КодВрача && fRow.DataValue == "*"))
                             {
                                 if (fRow.DataValue != "*")
-                                dataItem.UsedInRow = true;
+                                    dataItem.UsedInRow = true;
 
                                 num = dataItem.GetValue(fCol.ResultType);
                                 result += fCol.Calculate(num, fRow.Operation);
@@ -378,8 +378,8 @@ namespace ReestrUslugOMS
             if (direction == 0)
                 throw new Exception("Не определено направление суммирования");
 
-            enOperation? secondMultiplier= resNode.Formula.Count == 0 ? null : resNode.Formula[0]?.Operation;
-            
+            enOperation? secondMultiplier = resNode.Formula.Count == 0 ? null : resNode.Formula[0]?.Operation;
+
             double result = 0;
             double num = 0;
             var subNodes = new List<ExtNode>();
