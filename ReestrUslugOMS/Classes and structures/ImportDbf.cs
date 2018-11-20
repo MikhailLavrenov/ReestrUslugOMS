@@ -247,7 +247,7 @@ namespace ReestrUslugOMS.Classes_and_structures
 
                         foreach (var commonField in commonFields)
                         {
-                            newRow[commonField.Name] = reader.GetValue(commonField.Column);
+                            newRow[commonField.Name] = reader.GetValue(commonField.Column)??DBNull.Value;
                             if (Period != null)
                                 newRow["Period"] = Period;
                         }

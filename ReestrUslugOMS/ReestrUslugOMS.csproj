@@ -144,6 +144,12 @@
     <Compile Include="sp_ReportFactResult.cs">
       <DependentUpon>EFModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Spinner.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Spinner.Designer.cs">
+      <DependentUpon>Spinner.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ucImportDbf.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -228,6 +234,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UserControls\Spinner.resx">
+      <DependentUpon>Spinner.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserControls\ucImportDbf.resx">
       <DependentUpon>ucImportDbf.cs</DependentUpon>
     </EmbeddedResource>

@@ -92,6 +92,17 @@ namespace ReestrUslugOMS.UserControls
 
             RefreshGrid();
         }
+
+        private void metroButton3_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            var spin = new Spinner();
+            Controls.Add(spin);
+            spin.BringToFront();
+            spin.Left = (Width - spin.Width) / 2;
+            spin.Top = (Height - spin.Height) / 2;
+
+        }
     }
 
 
