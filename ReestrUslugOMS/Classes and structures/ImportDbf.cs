@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ReestrUslugOMS.Classes_and_structures
 {
@@ -105,6 +106,14 @@ namespace ReestrUslugOMS.Classes_and_structures
                 Config.Instance.Runtime.dbContext.dbtImportHistory.Add(history);
                 Config.Instance.Runtime.dbContext.SaveChanges();
             }
+        }
+        /// <summary>
+        /// Асинхронный вызов метода Import
+        /// </summary>
+        /// <returns></returns>
+        public async Task ImportAsync()
+        {
+            await Task.Factory.StartNew(()=>Import());
         }
         /// <summary>
         /// Создает новую временную таблицу на основе существующей основной таблицы.

@@ -14,9 +14,26 @@ namespace ReestrUslugOMS.UserControls
         public Spinner()
         {
             InitializeComponent();
-
-
-
+            Visible = false;
         }
+
+        private void Spinner_VisibleChanged(object sender, EventArgs e)
+        {
+        }
+        public void Start()
+        {
+            BringToFront();            
+            metroProgressSpinner1.Spinning = true;
+            Visible = true;
+            Update();
+        }
+        public void Stop()
+        {            
+            metroProgressSpinner1.Spinning = false;
+            Visible = false;
+            Update();
+        }
+
+
     }
 }

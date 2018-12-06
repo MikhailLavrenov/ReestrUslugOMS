@@ -10,6 +10,7 @@ using ReestrUslugOMS.Classes_and_structures;
 using System.Data.Entity;
 
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ReestrUslugOMS.UserControls
 {
@@ -30,8 +31,10 @@ namespace ReestrUslugOMS.UserControls
             metroButton2_Click(new object(), null);
         }
 
-        private void metroButton1_Click(object sender, EventArgs e)
+        private async void metroButton1_Click(object sender, EventArgs e)
         {
+            MainForm.Instance.StartSpinner();
+
             var list = new List<enImportItems>();
 
             if (metroCheckBox1.Checked)
@@ -46,9 +49,11 @@ namespace ReestrUslugOMS.UserControls
                 list.Add(enImportItems.СРЗ);
 
             var importer = new ImportDbf(ucPeriodSelector1.Date, list);
-            importer.Import();
+            await importer.ImportAsync();
 
             RefreshGrid();
+
+            MainForm.Instance.StopSpinner();
         }
 
         private void RefreshGrid()
@@ -82,27 +87,28 @@ namespace ReestrUslugOMS.UserControls
                 metroCheckBox1.Checked = false;
         }
 
-        private void metroButton2_Click(object sender, EventArgs e)
+        private async void metroButton2_Click(object sender, EventArgs e)
         {
-            int oldLimit = historyLimit;
-            historyLimit= Convert.ToInt32(metroTextBox1.Text);
+            MainForm.Instance.StartSpinner();
 
-            if (oldLimit < historyLimit)
-                Config.Instance.Runtime.dbContext.dbtImportHistory.OrderBy(x => x.DateTime).Take(historyLimit).Load();
+            await LoadHistoryAsync();
 
+            MainForm.Instance.StopSpinner();
+        }
+
+        public async Task LoadHistoryAsync()
+        {
+            await Task.Factory.StartNew(()=>
+            {
+                int oldLimit = historyLimit;
+                historyLimit = Convert.ToInt32(metroTextBox1.Text);
+
+                if (oldLimit < historyLimit)
+                    Config.Instance.Runtime.dbContext.dbtImportHistory.OrderBy(x => x.DateTime).Take(historyLimit).Load();
+            });
             RefreshGrid();
         }
 
-        private void metroButton3_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            var spin = new Spinner();
-            Controls.Add(spin);
-            spin.BringToFront();
-            spin.Left = (Width - spin.Width) / 2;
-            spin.Top = (Height - spin.Height) / 2;
-
-        }
     }
 
 

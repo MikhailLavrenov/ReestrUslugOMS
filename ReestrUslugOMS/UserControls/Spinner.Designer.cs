@@ -34,12 +34,12 @@
             // 
             // metroProgressSpinner1
             // 
-            this.metroProgressSpinner1.BackColor = System.Drawing.SystemColors.Control;
-            this.metroProgressSpinner1.Location = new System.Drawing.Point(90, 43);
+            this.metroProgressSpinner1.Location = new System.Drawing.Point(96, 39);
             this.metroProgressSpinner1.Margin = new System.Windows.Forms.Padding(0);
             this.metroProgressSpinner1.Maximum = 100;
             this.metroProgressSpinner1.Name = "metroProgressSpinner1";
             this.metroProgressSpinner1.Size = new System.Drawing.Size(104, 104);
+            this.metroProgressSpinner1.Spinning = false;
             this.metroProgressSpinner1.TabIndex = 0;
             this.metroProgressSpinner1.UseSelectable = true;
             this.metroProgressSpinner1.Value = 22;
@@ -51,19 +51,19 @@
             this.metroLabel1.FontWeight = MetroFramework.MetroLabelWeight.Bold;
             this.metroLabel1.Location = new System.Drawing.Point(90, 0);
             this.metroLabel1.Name = "metroLabel1";
-            this.metroLabel1.Size = new System.Drawing.Size(102, 25);
+            this.metroLabel1.Size = new System.Drawing.Size(117, 25);
             this.metroLabel1.TabIndex = 1;
-            this.metroLabel1.Text = "Ожидайте";
+            this.metroLabel1.Text = "Ожидайте...";
             // 
             // Spinner
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.metroLabel1);
             this.Controls.Add(this.metroProgressSpinner1);
             this.Name = "Spinner";
             this.Size = new System.Drawing.Size(299, 164);
+            this.VisibleChanged += new System.EventHandler(this.Spinner_VisibleChanged);
             this.ResumeLayout(false);
             this.PerformLayout();
 

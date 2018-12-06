@@ -11,6 +11,7 @@ using ReestrUslugOMS.Classes_and_structures;
 using unvell.ReoGrid;
 using System.Reflection;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ReestrUslugOMS.UserControls
 {
@@ -94,8 +95,10 @@ namespace ReestrUslugOMS.UserControls
             var d=ucPeriodSelector1.Date;
         }
 
-        private void metroButton1_Click(object sender, EventArgs e)
+        private async void metroButton1_Click(object sender, EventArgs e)
         {
+            MainForm.Instance.StartSpinner();
+
             var date1 = ucPeriodSelector1.Date;
             var date2 = ucPeriodSelector2.Date;
 
@@ -114,8 +117,7 @@ namespace ReestrUslugOMS.UserControls
             }
 
             report.SetParams(date1, date2, (enErrorMode)metroComboBox1.SelectedValue, (enInsuranceMode)metroComboBox2.SelectedValue);
-            report.SetResultValues();
-            report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
+            await report.GetResultValuesAsync(reoGridControl1.CurrentWorksheet);
 
             metroButton6.Visible = true;
             metroPanel9.Visible = true;
@@ -144,6 +146,8 @@ namespace ReestrUslugOMS.UserControls
                 
                 MetroFramework.MetroMessageBox.Show(this, sb.ToString(), "Обнаружено отклонение контрольной суммы", MessageBoxButtons.OK, MessageBoxIcon.Information, height);
             }
+
+            MainForm.Instance.StopSpinner();
         }
 
 
@@ -215,12 +219,13 @@ namespace ReestrUslugOMS.UserControls
             }
         }
 
-        private void metroButton7_Click_1(object sender, EventArgs e)
+        private async void metroButton7_Click_1(object sender, EventArgs e)
         {
+            MainForm.Instance.StartSpinner();
             reoGridControl1.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
-            report.SavePlan(reoGridControl1.CurrentWorksheet);
-            report.SetResultValues();
-            report.ValuesToReoGrid(reoGridControl1.CurrentWorksheet);
+            await report.SavePlanAsync(reoGridControl1.CurrentWorksheet);            
+            await report.GetResultValuesAsync(reoGridControl1.CurrentWorksheet);
+            MainForm.Instance.StopSpinner();
         }
 
         private void reoGridControl1_WorksheetScrolled(object sender, unvell.ReoGrid.Events.WorksheetScrolledEventArgs e)
@@ -231,6 +236,8 @@ namespace ReestrUslugOMS.UserControls
 
         private void metroButton6_Click(object sender, EventArgs e)
         {
+            MainForm.Instance.StartSpinner();
+
             var dialog = new SaveFileDialog();
             dialog.InitialDirectory = Path.GetDirectoryName(Config.Instance.PathReportXlsx);
             dialog.FileName=Path.GetFileName(Config.Instance.PathReportXlsx);
@@ -239,6 +246,8 @@ namespace ReestrUslugOMS.UserControls
 
             if (DialogResult.OK== dialog.ShowDialog())
                 reoGridControl1.Save(dialog.FileName, unvell.ReoGrid.IO.FileFormat.Excel2007);
+
+            MainForm.Instance.StopSpinner();
         }
     }
 }

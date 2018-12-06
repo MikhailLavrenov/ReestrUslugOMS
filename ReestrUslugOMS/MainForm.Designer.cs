@@ -45,7 +45,7 @@
             this.metroPanel1.Location = new System.Drawing.Point(23, 84);
             this.metroPanel1.Name = "metroPanel1";
             this.metroPanel1.Size = new System.Drawing.Size(978, 633);
-            this.metroPanel1.TabIndex = 2;
+            this.metroPanel1.TabIndex = 0;
             this.metroPanel1.VerticalScrollbarBarColor = true;
             this.metroPanel1.VerticalScrollbarHighlightOnWheel = false;
             this.metroPanel1.VerticalScrollbarSize = 10;
@@ -54,15 +54,17 @@
             // 
             this.button16.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button16.BackgroundImage")));
             this.button16.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.button16.FlatAppearance.BorderColor = System.Drawing.Color.White;
             this.button16.FlatAppearance.BorderSize = 0;
             this.button16.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button16.ForeColor = System.Drawing.Color.White;
             this.button16.Location = new System.Drawing.Point(23, 19);
             this.button16.Name = "button16";
             this.button16.Size = new System.Drawing.Size(35, 35);
-            this.button16.TabIndex = 4;
+            this.button16.TabIndex = 10;
+            this.button16.TabStop = false;
             this.button16.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.button16.Click += new System.EventHandler(this.button16_Click);
+            this.button16.Enter += new System.EventHandler(this.button16_Enter);
             this.button16.MouseCaptureChanged += new System.EventHandler(this.button16_MouseCaptureChanged);
             this.button16.MouseEnter += new System.EventHandler(this.button16_MouseEnter);
             this.button16.MouseLeave += new System.EventHandler(this.button16_MouseLeave);
@@ -90,6 +92,7 @@
             this.Style = MetroFramework.MetroColorStyle.Default;
             this.Text = "       Учет услуг";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.ResumeLayout(false);
 
         }

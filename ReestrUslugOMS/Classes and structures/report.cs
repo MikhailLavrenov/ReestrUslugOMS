@@ -40,11 +40,11 @@ namespace ReestrUslugOMS
         /// <summary>
         /// Массив значений ячеек отчета
         /// </summary>
-        public double[,] ResultValues { get; private set; }
+        private double[,] ResultValues;// { get; private set; }
         /// <summary>
         /// Словарь содержащий наборы значений различных типов
         /// </summary>
-        public Dictionary<enDataSource, object> DataSourcesDict { get; set; }
+        private Dictionary<enDataSource, object> DataSourcesDict { get; set; }
         /// <summary>
         /// Максимальный уровень строк
         /// </summary>
@@ -187,7 +187,7 @@ namespace ReestrUslugOMS
             InsuranceTerritory = insuranceTerritory;
         }
         /// <summary>
-        /// Создает словарь с источниками данных для расчетов
+        /// Создает словарь для различных источников и их данных
         /// </summary>
         private void SetDataSources()
         {
@@ -435,8 +435,10 @@ namespace ReestrUslugOMS
         /// Вставляет значения ячеек отчета на лист ReoGridControl
         /// </summary>
         /// <param name="sheet">Ссылка на лист ReoGridControl</param>
-        public void ValuesToReoGrid(Worksheet sheet)
+        public void GetResultValues(Worksheet sheet)
         {
+            SetResultValues();
+
             //заполняем значения
             for (int i = 0; i < Rows.Length; i++)
                 for (int j = 0; j < Cols.Length; j++)
@@ -450,6 +452,14 @@ namespace ReestrUslugOMS
                     else
                         sheet[Rows[i].Row, Cols[j].Col] = null;
 
+        }
+        /// <summary>
+        /// Асинхронный вызов метода GetResultValues
+        /// </summary>
+        /// <param name="sheet">Ссылка на лист ReoGridControl</param>
+        public async Task GetResultValuesAsync(Worksheet sheet)
+        {
+            await Task.Factory.StartNew(() => GetResultValues(sheet)); 
         }
         /// <summary>
         /// Вставляет заголовки отчета на лист ReoGridControl и настраивает внешний вид отчета
@@ -647,6 +657,14 @@ namespace ReestrUslugOMS
                 }
 
             Config.Instance.Runtime.dbContext.SaveChanges();
+        }
+        /// <summary>
+        /// Асинхронный вызов метода SavePlan
+        /// </summary>
+        /// <param name="sheet">Ссылка на лист ReoGridControl</param>
+        public async Task SavePlanAsync(Worksheet sheet)
+        {
+            await Task.Factory.StartNew(() => SavePlan(sheet));
         }
         /// <summary>
         /// Сворачивает и разворачивает строки и столбцы отчета по двойному клику на ячейке
