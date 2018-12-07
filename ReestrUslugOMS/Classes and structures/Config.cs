@@ -54,16 +54,17 @@ namespace ReestrUslugOMS.Classes_and_structures
         public string RelaxPath
         {
             get { return _RelaxPath; }
-            set { _RelaxPath = value.Last() == '\\' ? value : $"{value}\\"; }
+            private set { _RelaxPath = value.Last() == '\\' ? value : $"{value}\\"; }
         }
         /// <summary>
         /// Названия папок страховых компаний в Релаксе. Содержат разложенные по страховым компаниям реестры-счетов.
         /// </summary>
-        public string[] SmoFolders { get; set; }
+        public string[] SmoFolders { get; private set; }
         /// <summary>
         /// Названия папки иногородних в Релаксе. Содержит разложенные по страховым компаниям реестры-счетов.
         /// </summary>
-        public string InoFolder { get; set; }
+        public string InoFolder { get; private set; }
+        public UserQuery[] UserQueries { get; private set; }
 
 
         /// <summary>
@@ -115,7 +116,13 @@ namespace ReestrUslugOMS.Classes_and_structures
             RelaxPath = @"P:\";
             PathReportXlsx = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\report.xlsx";
 
-            SmoFolders = new string[] {"F7","F8","F9","FB", "FE" };
+            SmoFolders = new string[] { "F7", "F8", "F9", "FB", "FE" };
+
+            UserQueries = new UserQuery[] {
+                new UserQuery{Caption="Пофамильно прошли ДД или ПО", Description="Зависит от выбранного года. \nПофамильный поиск пациентов, прошедших диспансеризацию или профилактический осмотр.", ProcName="sp_UserQueryPatientPreventiveExam", WithPatient=true, ColsWidth=new int[] {130, 110, 130, 90, 90, 220, 100} },
+                new UserQuery{Caption="ДД для портала ФОМС", Description="Зависит от выбранного месяца и года. \nВыбирает диспансеризацию для портала ФОМС.", ProcName="sp_UserQueryDispFoms", WithPatient=false, ColsWidth=new int[] {90,150,120,100,100,50,100,100,60,60 } },
+            
+            };
 
             SqlServerOnLocalMachine = false;
             if (SqlServer.IndexOf(Environment.MachineName, StringComparison.CurrentCultureIgnoreCase) > 0)

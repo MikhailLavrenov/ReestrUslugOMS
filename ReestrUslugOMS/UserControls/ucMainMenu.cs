@@ -50,5 +50,10 @@ namespace ReestrUslugOMS.UserControls
         {
             MainForm.Instance.AddUserControl(new ucImportDbf());
         }
+
+        private void metroTile9_Click(object sender, EventArgs e)
+        {
+            MainForm.Instance.AddUserControl(new ucUserQueries());
+        }
     }
 }

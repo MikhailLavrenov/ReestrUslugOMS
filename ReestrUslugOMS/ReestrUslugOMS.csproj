@@ -103,6 +103,7 @@
     <Compile Include="Classes and structures\Report.cs" />
     <Compile Include="Classes and structures\sp_ReportFactResult.cs" />
     <Compile Include="Classes and structures\Tools.cs" />
+    <Compile Include="Classes and structures\UserQuery.cs" />
     <Compile Include="dbtFormula.cs">
       <DependentUpon>EFModel.tt</DependentUpon>
     </Compile>
@@ -222,6 +223,12 @@
     <Compile Include="UserControls\ucSecurityPrincipalSelector.Designer.cs">
       <DependentUpon>ucSecurityPrincipalSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ucUserQueries.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucUserQueries.Designer.cs">
+      <DependentUpon>ucUserQueries.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -272,6 +279,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\ucSecurityPrincipalSelector.resx">
       <DependentUpon>ucSecurityPrincipalSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\ucUserQueries.resx">
+      <DependentUpon>ucUserQueries.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <EntityDeploy Include="EFModel.edmx">
